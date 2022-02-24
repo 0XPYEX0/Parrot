@@ -21,7 +21,7 @@ import java.net.URL;
 
 public class GroupBroadcast {
     public static void load() {
-        Main.logger.info("GroupBroadcast模块已加载");
+        Main.LOGGER.info("GroupBroadcast模块已加载");
         CommandsList.register(GroupBroadcast.class, "/broadcast", "/QGBC");
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(Main.INSTANCE.getCoroutineContext()) {
             @EventHandler

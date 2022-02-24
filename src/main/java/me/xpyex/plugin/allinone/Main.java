@@ -1,8 +1,11 @@
 package me.xpyex.plugin.allinone;
 
 import cn.hutool.cron.CronUtil;
-import me.xpyex.plugin.allinone.functions.autosignvpn.AutoSign;
-import me.xpyex.plugin.allinone.functions.manager.*;
+import me.xpyex.plugin.allinone.functions.manager.CoreCmds;
+import me.xpyex.plugin.allinone.functions.manager.GroupBroadcast;
+import me.xpyex.plugin.allinone.functions.manager.JoinAcceptor;
+import me.xpyex.plugin.allinone.functions.manager.PluginManager;
+import me.xpyex.plugin.allinone.functions.manager.StaffTeam;
 import me.xpyex.plugin.allinone.functions.music.MiraiMusic;
 import me.xpyex.plugin.allinone.functions.networktasks.BiliBili;
 import me.xpyex.plugin.allinone.functions.informs.MsgToOwner;
@@ -16,41 +19,49 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
-import net.mamoe.mirai.event.events.*;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MemberJoinEvent;
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 
 public class Main extends JavaPlugin {
-    public static MiraiLogger logger;
+    public static MiraiLogger LOGGER;
     public static boolean tellOwner = false;
     public static Main INSTANCE;
     public Main() {
-        super(new JvmPluginDescriptionBuilder("AllInOne","1.0.0").id("me.xpyex.plugin.allinone.Main").author("XPYEX").info("Everything in this").build());
+        super(new JvmPluginDescriptionBuilder("AllInOne","1.0.0")
+                .id("me.xpyex.plugin.allinone.Main")
+                .author("XPYEX")
+                .info("Everything in this")
+                .build()
+        );
     }
 
     @Override
     public void onEnable() {
         INSTANCE = this;
-        logger = getLogger();
-        logger.info("[AllInOne] 插件主模块已加载");
+        LOGGER = getLogger();
+        LOGGER.info("[AllInOne] 插件主模块已加载");
         BotChecker.enableMode = true;
-        logger.info(" BotChecker模块已加载");
+        LOGGER.info(" BotChecker模块已加载");
         GroupBroadcast.load();
         JoinAcceptor.load();
-        logger.info(" JoinAcceptor模块已加载");
-        logger.info(" MsgToOwner模块已加载");
+        LOGGER.info(" JoinAcceptor模块已加载");
+        LOGGER.info(" MsgToOwner模块已加载");
         MiraiMusic.load();
         Nide8Blacklist.load();
         NoWankDay.load();
-        logger.info(" NoWankDay模块已加载");
-        logger.info(" 已启用NoWankDayTimer任务");
-        logger.info(" QiongJu模块已加载");
+        LOGGER.info(" NoWankDay模块已加载");
+        LOGGER.info(" 已启用NoWankDayTimer任务");
         Repeater.load();
-        logger.info(" Repeater模块已加载");
+        LOGGER.info(" Repeater模块已加载");
         StaffTeam.load();
-        logger.info(" Tell模块已加载");
-        logger.info(" CoreCmds核心组件已加载");
-        logger.info(" PluginManager核心组件已加载");
+        LOGGER.info(" Tell模块已加载");
+        LOGGER.info(" CoreCmds核心组件已加载");
+        LOGGER.info(" PluginManager核心组件已加载");
         CronUtil.setMatchSecond(true);
         CronUtil.start();
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(INSTANCE.getCoroutineContext()) {
@@ -66,7 +77,6 @@ public class Main extends JavaPlugin {
             @EventHandler
             public void onMsg(MessageEvent event) {
                 CoreCmds.Execute(event);
-                AutoSign.Execute(event);
                 BiliBili.Execute(event);
                 MsgToOwner.Execute(event);
                 BotChecker.Execute(event); //调整优先级

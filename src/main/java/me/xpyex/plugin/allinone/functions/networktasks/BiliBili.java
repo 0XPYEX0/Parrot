@@ -35,7 +35,7 @@ public class BiliBili {
                         failCount++;
                         Thread.sleep(5000L);
                     }
-                    Main.logger.info(result);
+                    Main.LOGGER.info(result);
                     JSONObject infos = new JSONObject(result);
                     int success = infos.getInt("code");
                     if (success != 0) {

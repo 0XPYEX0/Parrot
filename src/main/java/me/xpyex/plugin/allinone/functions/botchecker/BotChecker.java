@@ -15,6 +15,9 @@ public class BotChecker {
     public static HashMap<Long, Long> group = new HashMap<>();
     //public static HashMap<Long, Long> checkTime = new HashMap<>();
     public static void Execute(MemberJoinEvent event) {
+        if (true) {
+            return;
+        }
         if (!enableMode) {
             return;
         }

@@ -88,7 +88,7 @@ public class NetEaseMusicSource implements MusicSource
         if (huc.getResponseCode() == 200) {
             //final JsonObject jo = JsonParser.parseString(new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8)).getAsJsonObject().get("result").getAsJsonObject().get("songs").getAsJsonArray().get(0).getAsJsonObject();
             final JSONObject jo = JSONUtil.parseObj(new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8)).getJSONObject("result").getJSONArray("songs").getJSONObject(0);
-            Main.logger.info(jo.toStringPretty());
+            Main.LOGGER.info(jo.toStringPretty());
             //return new MusicInfo(jo.get("name").getAsString(), jo.get("artists").getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString(), jo.get("album").getAsJsonObject().get("picUrl").getAsString(), this.queryRealUrl(jo.get("id").getAsString()), "https://y.music.163.com/m/song?id=" + jo.get("id").getAsString(), "\u7f51\u6613\u4e91\u97f3\u4e50", "", 100495085L);
             return new MusicInfo(
                     jo.getStr("name"),

@@ -18,7 +18,7 @@ import java.util.HashSet;
 public class StaffTeam {
     public static void load() {
         CommandsList.register(StaffTeam.class, "/StaffTeam");
-        Main.logger.info("StaffTeam模块已加载");
+        Main.LOGGER.info("StaffTeam模块已加载");
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(Main.INSTANCE.getCoroutineContext()) {
             @EventHandler
             public void onMsg(MessageEvent event) {

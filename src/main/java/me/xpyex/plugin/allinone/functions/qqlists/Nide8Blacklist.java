@@ -111,7 +111,7 @@ public class Nide8Blacklist {
                 }
             }
         });
-        Main.logger.info("Nide8Blacklist模块已加载");
+        Main.LOGGER.info("Nide8Blacklist模块已加载");
     }
     public static boolean loadLists() {
         try {

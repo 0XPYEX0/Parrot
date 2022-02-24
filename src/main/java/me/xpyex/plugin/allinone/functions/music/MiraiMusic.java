@@ -56,7 +56,7 @@ public class MiraiMusic {
                     exec.accept(event, args);
             }
         });
-        Main.logger.info(" Music模块已加载");
+        Main.LOGGER.info(" Music模块已加载");
     }
 
     public static void setEnableMode(boolean a) {
