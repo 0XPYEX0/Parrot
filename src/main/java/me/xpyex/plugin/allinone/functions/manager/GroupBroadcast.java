@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.functions.manager;
 
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.commands.CommandsList;
 
 import net.mamoe.mirai.contact.Group;
@@ -26,19 +26,19 @@ public class GroupBroadcast {
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(Main.INSTANCE.getCoroutineContext()) {
             @EventHandler
             public void onMsg(MessageEvent event) {
-                String[] cmd = Utils.getNormalText(event.getMessage()).split("\n");
+                String[] cmd = Util.getPlainText(event.getMessage()).split("\n");
                 if (CommandsList.isCmd(GroupBroadcast.class, cmd[0])) {
-                    if (!Utils.canExecute(event)) {
-                        Utils.autoSendMsg(event, "你没有权限");
+                    if (!Util.canExecute(event)) {
+                        Util.autoSendMsg(event, "你没有权限");
                         return;
                     }
                     try {
                         Group targetGroup = null;
-                        if (Utils.isGroupEvent(event)) {
+                        if (Util.isGroupEvent(event)) {
                             targetGroup = ((GroupMessageEvent) event).getGroup();
                         } else {
-                            if (!Utils.getNormalText(event.getMessage()).contains("群号:")) {
-                                Utils.autoSendMsg(event, "需要指定群号");
+                            if (!Util.getPlainText(event.getMessage()).contains("群号:")) {
+                                Util.autoSendMsg(event, "需要指定群号");
                                 return;
                             }
                             for (String parameter : cmd) {
@@ -50,11 +50,11 @@ public class GroupBroadcast {
                             }
                         }
                         if (targetGroup == null) {
-                            Utils.autoSendMsg(event, "群不存在");
+                            Util.autoSendMsg(event, "群不存在");
                             return;
                         }
                         if (targetGroup.getBotPermission() == MemberPermission.MEMBER) {
-                            Utils.autoSendMsg(event, "bot没有权限");
+                            Util.autoSendMsg(event, "bot没有权限");
                             return;
                         }
                         AnnouncementParametersBuilder builder = new AnnouncementParametersBuilder();
@@ -72,13 +72,13 @@ public class GroupBroadcast {
                                 builder.image(image);
                             } else if (parameter.equals("显示更改群名片")) {
                                 if (disabledFunc) {
-                                    Utils.autoSendMsg(event, "需要确认与显示更改群名片冲突，将仅生效其中之一");
+                                    Util.autoSendMsg(event, "需要确认与显示更改群名片冲突，将仅生效其中之一");
                                 }
                                 builder.showEditCard(true);
                                 disabledFunc = true;
                             } else if (parameter.equals("需要确认")) {
                                 if (disabledFunc) {
-                                    Utils.autoSendMsg(event, "需要确认与显示更改群名片冲突，将仅生效其中之一");
+                                    Util.autoSendMsg(event, "需要确认与显示更改群名片冲突，将仅生效其中之一");
                                 }
                                 builder.requireConfirmation(true);
                                 disabledFunc = true;
@@ -95,9 +95,9 @@ public class GroupBroadcast {
                         }
                         targetGroup.getAnnouncements().publish(OfflineAnnouncement.create(mainText, builder.build()));
                     } catch (NumberFormatException ignored) {
-                        Utils.autoSendMsg(event, "参数类型错误: 群号非整型");
+                        Util.autoSendMsg(event, "参数类型错误: 群号非整型");
                     } catch (IOException ignored) {
-                        Utils.autoSendMsg(event, "无法获取图片");
+                        Util.autoSendMsg(event, "无法获取图片");
                     }
                 }
             }

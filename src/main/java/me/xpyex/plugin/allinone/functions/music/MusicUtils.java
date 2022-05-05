@@ -1,6 +1,8 @@
 package me.xpyex.plugin.allinone.functions.music;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 
 public final class MusicUtils {
@@ -34,8 +36,8 @@ public final class MusicUtils {
 
     public static String bytesToHex(final byte[] hash) {
         final StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < hash.length; ++i) {
-            final String hex = Integer.toHexString(0xFF & hash[i]);
+        for (byte b : hash) {
+            final String hex = Integer.toHexString(0xFF & b);
             if (hex.length() == 1) {
                 hexString.append('0');
             }
@@ -46,5 +48,20 @@ public final class MusicUtils {
     
     public static String removeLeadings(final String leading, final String orig) {
         return orig.replace(leading, "").trim();
+    }
+
+    public static boolean isExistent(String urlstr) throws IOException {
+        try {
+            URL url = new URL(urlstr);
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            huc.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36");
+            huc.setRequestMethod("HEAD");
+            huc.connect();
+            return huc.getResponseCode() == 200;
+        } catch (Exception ex) {
+
+            return false;
+        }
     }
 }

@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.functions.botchecker;
 
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -58,25 +58,25 @@ public class BotChecker {
         if (!enableMode) {
             return;
         }
-        if (Utils.isGroupEvent(event)) {
+        if (Util.isGroupEvent(event)) {
             return;
         }
         if (!answers.containsKey(event.getSender().getId())) {
             return;
         }
-        if (Utils.getNormalText(event.getMessage()).contains("自动回复")) {
+        if (Util.getPlainText(event.getMessage()).contains("自动回复")) {
             return;
         }
-        if (Utils.getNormalText(event.getMessage()).equals(answers.get(event.getSender().getId()) + "")) {
+        if (Util.getPlainText(event.getMessage()).equals(answers.get(event.getSender().getId()) + "")) {
             answers.remove(event.getSender().getId());
             event.getSender().sendMessage("你已通过验证");
             NormalMember target;
             try {
-                target = Utils.getBot().getGroup(group.get(event.getSender().getId())).get(event.getSender().getId());
+                target = Util.getBot().getGroup(group.get(event.getSender().getId())).get(event.getSender().getId());
             } catch (Throwable ignored) {
                 return;
             }
-            Utils.sendGroupMsg(group.get(event.getSender().getId()), new At(event.getSender().getId()).plus(" 已通过验证."));
+            Util.sendGroupMsg(group.get(event.getSender().getId()), new At(event.getSender().getId()).plus(" 已通过验证."));
             assert target != null;
             target.unmute();
             group.remove(event.getSender().getId());

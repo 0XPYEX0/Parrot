@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.functions.music.cardprovider.XMLCardProvider;
 import me.xpyex.plugin.allinone.functions.music.musicsource.KugouMusicSource;
 import me.xpyex.plugin.allinone.functions.music.musicsource.NetEaseMusicSource;
@@ -50,7 +50,7 @@ public class MiraiMusic {
                 if (!getEnableMode()) {
                     return;
                 }
-                String[] args = Utils.getNormalText(event.getMessage()).split(" ");
+                String[] args = Util.getPlainText(event.getMessage()).split(" ");
                 BiConsumer<MessageEvent, String[]> exec = commands.get(args[0]);
                 if (exec != null)
                     exec.accept(event, args);
@@ -82,10 +82,10 @@ public class MiraiMusic {
             }
             exec.execute(() -> {
                 try {
-                    Utils.autoSendMsg(event, cb.process(mc.get(sn)));
+                    Util.autoSendMsg(event, cb.process(mc.get(sn)));
                 } catch (Throwable e) {
-                    Utils.autoSendMsg(event, "无法找到歌曲");
-                    e.printStackTrace();
+                    Util.autoSendMsg(event, "无法找到歌曲");
+                    Util.handleException(e);
                 }
             });
         };

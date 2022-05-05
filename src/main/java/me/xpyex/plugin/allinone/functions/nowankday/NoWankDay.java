@@ -2,7 +2,7 @@ package me.xpyex.plugin.allinone.functions.nowankday;
 
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 
 import java.math.BigInteger;
@@ -15,7 +15,7 @@ public class NoWankDay {
         });
     }
     public static void Execute(GroupMessageEvent event) {
-        String msg = Utils.getNormalText(event.getMessage());
+        String msg = Util.getPlainText(event.getMessage());
         String[] cmd = msg.split(" ");
         if (cmd[0].equalsIgnoreCase("#day") || cmd[0].equalsIgnoreCase("/day")) {
             if (cmd.length == 1 || cmd[1].equalsIgnoreCase("help")) {
@@ -30,14 +30,14 @@ public class NoWankDay {
                 BigInteger day = NoWankDayUtils.getDay(event.getSender());
                 String nickName = NoWankDayUtils.getRealNamecard(event.getSender());
                 day = day.add(BigInteger.ONE);
-                Utils.setNameCard(event,nickName + " (重设: " + NoWankDayUtils.getResetTime(event.getSender()) + " ,天数: " + day + ")");
-                event.getGroup().sendMessage("已帮助你快速打卡\n当前时间: " + Utils.getTimeOfNow());
+                Util.setNameCard(event,nickName + " (重设: " + NoWankDayUtils.getResetTime(event.getSender()) + " ,天数: " + day + ")");
+                event.getGroup().sendMessage("已帮助你快速打卡\n当前时间: " + Util.getTimeOfNow());
                 return;
             }
             if (cmd[1].equalsIgnoreCase("reset")) {
                 String NC = NoWankDayUtils.getRealNamecard(event.getSender());
-                Utils.setNameCard(event,NC + " (重设: " + Utils.getTimeOfNow() + " ,天数: 0)");
-                event.getGroup().sendMessage("天数已重置\n当前时间: " + Utils.getTimeOfNow());
+                Util.setNameCard(event,NC + " (重设: " + Util.getTimeOfNow() + " ,天数: 0)");
+                event.getGroup().sendMessage("天数已重置\n当前时间: " + Util.getTimeOfNow());
                 //ignoreList = ignoreList + event.getSender().getId() + ",";
                 return;
             }
@@ -58,7 +58,7 @@ public class NoWankDay {
                     return;
                 }
                 String rnc = NoWankDayUtils.getRealNamecard(event.getSender());
-                Utils.setNameCard(event,rnc + " (重设: " + NoWankDayUtils.getResetTime(event.getSender()) + " ,天数: " + day + ")");
+                Util.setNameCard(event,rnc + " (重设: " + NoWankDayUtils.getResetTime(event.getSender()) + " ,天数: " + day + ")");
                 event.getGroup().sendMessage("已将打卡天数设定为 " + day);
                 return;
             }
@@ -68,10 +68,10 @@ public class NoWankDay {
                     return;
                 }
                 if (!NoWankDayUtils.stringIsTime(cmd[2])) {
-                    event.getGroup().sendMessage("时间格式是不是错了？标准格式如下\n当前时间: " + Utils.getTimeOfNow());
+                    event.getGroup().sendMessage("时间格式是不是错了？标准格式如下\n当前时间: " + Util.getTimeOfNow());
                     return;
                 }
-                Utils.setNameCard(event,NoWankDayUtils.getRealNamecard(event.getSender()) + " (重设: " + cmd[2] + " ,天数: " + NoWankDayUtils.getDay(event.getSender()) + ")");
+                Util.setNameCard(event,NoWankDayUtils.getRealNamecard(event.getSender()) + " (重设: " + cmd[2] + " ,天数: " + NoWankDayUtils.getDay(event.getSender()) + ")");
                 event.getGroup().sendMessage("已将重设时间改为 " + cmd[2]);
                 return;
             }
@@ -88,7 +88,7 @@ public class NoWankDay {
                 BigInteger times = NoWankDayUtils.getTimes(event.getSender());
                 String nickName = NoWankDayUtils.getRealNamecard(event.getSender());
                 times = times.add(BigInteger.ONE);
-                Utils.setNameCard(event,nickName + " (共手冲 " + times + " 次)");
+                Util.setNameCard(event,nickName + " (共手冲 " + times + " 次)");
                 event.getGroup().sendMessage("已帮助你快速打卡");
                 return;
             }
@@ -109,7 +109,7 @@ public class NoWankDay {
                     return;
                 }
                 String rnc = NoWankDayUtils.getRealNamecard(event.getSender());
-                Utils.setNameCard(event,rnc + " (共手冲 " + times + " 次)");
+                Util.setNameCard(event,rnc + " (共手冲 " + times + " 次)");
                 event.getGroup().sendMessage("已将打卡次数设定为 " + times);
                 return;
             }

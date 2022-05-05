@@ -1,6 +1,7 @@
 package me.xpyex.plugin.allinone;
 
 import cn.hutool.cron.CronUtil;
+import me.xpyex.plugin.allinone.functions.informs.PokeAt;
 import me.xpyex.plugin.allinone.functions.manager.CoreCmds;
 import me.xpyex.plugin.allinone.functions.manager.GroupBroadcast;
 import me.xpyex.plugin.allinone.functions.manager.JoinAcceptor;
@@ -44,8 +45,8 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
         LOGGER = getLogger();
+
         LOGGER.info("[AllInOne] 插件主模块已加载");
-        BotChecker.enableMode = true;
         LOGGER.info(" BotChecker模块已加载");
         GroupBroadcast.load();
         JoinAcceptor.load();
@@ -62,8 +63,7 @@ public class Main extends JavaPlugin {
         LOGGER.info(" Tell模块已加载");
         LOGGER.info(" CoreCmds核心组件已加载");
         LOGGER.info(" PluginManager核心组件已加载");
-        CronUtil.setMatchSecond(true);
-        CronUtil.start();
+        PokeAt.load();
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(INSTANCE.getCoroutineContext()) {
             @EventHandler
             public void onAsk(MemberJoinRequestEvent e) {

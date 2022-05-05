@@ -10,12 +10,15 @@ import java.io.File;
 
 public class JoinAcceptor {
     static boolean enableMode;
+
     public static void load() {
         enableMode = true;
     }
+
     public static boolean getEnableMode() {
         return enableMode;
     }
+
     public static void Execute(MemberJoinRequestEvent event) {
         if (!getEnableMode()) {
             return;
@@ -24,6 +27,7 @@ public class JoinAcceptor {
             event.accept();
         }
     }
+
     public static void Execute(MemberJoinEvent event) {
         if (event.getGroupId() == 906768617) {
             Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(new File("pictures/提问の艺术.png")));
@@ -42,6 +46,7 @@ public class JoinAcceptor {
             );
         }
     }
+
     public static void setEnableMode(boolean mode) {
         enableMode = mode;
     }

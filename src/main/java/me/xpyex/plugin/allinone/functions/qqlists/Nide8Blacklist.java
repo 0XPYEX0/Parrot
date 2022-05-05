@@ -6,7 +6,7 @@ import cn.hutool.json.JSONObject;
 
 import cn.hutool.json.JSONUtil;
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.commands.CommandsList;
 
 import net.mamoe.mirai.event.EventHandler;
@@ -36,7 +36,7 @@ public class Nide8Blacklist {
             @EventHandler
             public void onOnline(BotOnlineEvent event) {
                 if (!finalLoadResult) {
-                    Utils.sendMsgToOwner("名单加载失败");
+                    Util.sendMsgToOwner("名单加载失败");
                 }
             }
             @EventHandler
@@ -44,20 +44,20 @@ public class Nide8Blacklist {
                 if (event.getSender().getId() != 1723275529L) {
                     return;
                 }
-                String[] cmd = Utils.getNormalText(event.getMessage()).split(" ");
+                String[] cmd = Util.getPlainText(event.getMessage()).split(" ");
                 if (CommandsList.isCmd(Nide8Blacklist.class, cmd[0])) {
                     if (!finalLoadResult) {
-                        Utils.autoSendMsg(event, "名单加载失败，无法使用");
+                        Util.autoSendMsg(event, "名单加载失败，无法使用");
                         return;
                     }
                     if (cmd.length == 1) {
-                        Utils.autoSendMsg(event, cmd[0] + " add <ID> [Reason] - 将某人添加至黑名单\n" +
+                        Util.autoSendMsg(event, cmd[0] + " add <ID> [Reason] - 将某人添加至黑名单\n" +
                                 cmd[0] + " remove <ID> - 将某人移出黑名单\n" +
                                 cmd[0] + " check <ID> - 检查某人是否在黑名单内");
                         return;
                     }
                     if (cmd.length == 2) {
-                        Utils.autoSendMsg(event, "参数不足\n执行 /" + cmd[0] + " 以查看帮助");
+                        Util.autoSendMsg(event, "参数不足\n执行 /" + cmd[0] + " 以查看帮助");
                         return;
                     }
                     try {
@@ -77,14 +77,14 @@ public class Nide8Blacklist {
                             out.write(JSONUtil.toJsonPrettyStr(blacklist));
                             out.flush();
                             out.close();
-                            Utils.autoSendMsg(event, "已记录完成");
+                            Util.autoSendMsg(event, "已记录完成");
                         } else if (cmd[1].equalsIgnoreCase("remove")) {
                             blacklist.remove(memberId);
                             FileWriter out = new FileWriter(blacklistFile);
                             out.write(JSONUtil.toJsonPrettyStr(blacklist));
                             out.flush();
                             out.close();
-                            Utils.autoSendMsg(event, "已删除");
+                            Util.autoSendMsg(event, "已删除");
                         } else if (cmd[1].equalsIgnoreCase("check")) {
                             if (blacklist.containsKey(memberId)) {
                                 JSONArray reasons = blacklist.getJSONObject(memberId).getJSONArray("reasons");
@@ -92,21 +92,21 @@ public class Nide8Blacklist {
                                 for (Object reason : reasons) {
                                     send = send + "\n" + reason;
                                 }
-                                Utils.autoSendMsg(event, send);
+                                Util.autoSendMsg(event, send);
                             } else {
-                                Utils.autoSendMsg(event, "查无此人");
+                                Util.autoSendMsg(event, "查无此人");
                             }
                         } else {
-                            Utils.autoSendMsg(event, "参数错误，请检查");
+                            Util.autoSendMsg(event, "参数错误，请检查");
                         }
                     } catch (NumberFormatException ignored) {
-                        Utils.autoSendMsg(event, "QQ号类型错误");
+                        Util.autoSendMsg(event, "QQ号类型错误");
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        Utils.autoSendMsg(event, "输出文件错误");
+                        Util.handleException(e);
+                        Util.autoSendMsg(event, "输出文件错误");
                     } catch (JSONException e) {
-                        e.printStackTrace();
-                        Utils.autoSendMsg(event, "JSON转换错误");
+                        Util.handleException(e);
+                        Util.autoSendMsg(event, "JSON转换错误");
                     }
                 }
             }
@@ -133,7 +133,7 @@ public class Nide8Blacklist {
             in.close();
             blacklist = new JSONObject(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            Util.handleException(e);
             return false;
         }
         return true;

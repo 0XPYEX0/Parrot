@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.functions.informs;
 
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 
 public class Repeater {
@@ -18,10 +18,10 @@ public class Repeater {
         enableList = enableList.replace(target + ", ", "");
     }
     public static void Execute(GroupMessageEvent event) {
-        String[] cmds = Utils.getNormalText(event.getMessage()).split(" ");
+        String[] cmds = Util.getPlainText(event.getMessage()).split(" ");
         if (cmds[0].equalsIgnoreCase("/repeater") || cmds[0].equalsIgnoreCase("#repeater")) {
-            if (!Utils.canExecute(event)) {
-                Utils.autoSendMsg(event, "该命令仅允许管理员使用");
+            if (!Util.canExecute(event)) {
+                Util.autoSendMsg(event, "该命令仅允许管理员使用");
                 return;
             }
             if (cmds.length < 3 || cmds[1].equalsIgnoreCase("help")) {
@@ -30,7 +30,7 @@ public class Repeater {
                     event.getGroup().sendMessage("已重置复读列表");
                     return;
                 }
-                Utils.autoSendMsg(event, cmds[0] + " add GroupId\n" + cmds[0] + " remove GroupId\n" + cmds[0] + " clear");
+                Util.autoSendMsg(event, cmds[0] + " add GroupId\n" + cmds[0] + " remove GroupId\n" + cmds[0] + " clear");
                 return;
             }
             String willDeal = "";
@@ -56,12 +56,12 @@ public class Repeater {
             }
             return;
         }
-        if (Utils.isCmdMsg(event.getMessage())) {
+        if (Util.isCmdMsg(event.getMessage())) {
             return;
         }
         for (String check : getEnableList()) {
             if (check.equals(event.getGroup().getId() + "")) {
-                Utils.autoSendMsg(event, event.getMessage());
+                Util.autoSendMsg(event, event.getMessage());
                 return;
             }
         }

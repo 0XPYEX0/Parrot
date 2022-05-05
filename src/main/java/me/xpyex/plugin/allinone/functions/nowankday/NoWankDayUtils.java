@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.functions.nowankday;
 
-import me.xpyex.plugin.allinone.Utils;
+import me.xpyex.plugin.allinone.utils.Util;
 
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
@@ -49,10 +49,10 @@ public class NoWankDayUtils {
         try {
             Time = NC[NC.length - 3];
             if (!stringIsTime(Time)) {
-                Time = Utils.getTimeOfNow();
+                Time = Util.getTimeOfNow();
             }
         } catch (Exception ignored) {
-            Time = Utils.getTimeOfNow();
+            Time = Util.getTimeOfNow();
         }
         return Time;
     }
@@ -110,18 +110,18 @@ public class NoWankDayUtils {
                 continue;
             }
             */
-            if (getResetTime(member).equals(Utils.getTimeOfNow())) {
+            if (getResetTime(member).equals(Util.getTimeOfNow())) {
                 autoUpDay(QQGroup,member);
                 QQGroup.sendMessage(
                         new PlainText("已为 ")
                                 .plus(new At(member.getId()))
                                 .plus(" 自动打卡\n"
-                                        + "当前时间: " + Utils.getTimeOfNow()));
+                                        + "当前时间: " + Util.getTimeOfNow()));
             }
         }
     }
     public static void autoUpDayAll(Long QQGroup) {
-        autoUpDayAll(Utils.getBot().getGroup(QQGroup));
+        autoUpDayAll(Util.getBot().getGroup(QQGroup));
     }
     public static NormalMember getNormalMember(Group QG, Member member) {
         return QG.get(member.getId());

@@ -6,6 +6,7 @@ import java.util.*;
 import java.math.*;
 import java.net.*;
 import java.io.*;
+import me.xpyex.plugin.allinone.utils.Util;
 
 public class NetEaseCrypto
 {
@@ -43,7 +44,7 @@ public class NetEaseCrypto
             result = Base64.getEncoder().encodeToString(bytes);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            Util.handleException(e);
         }
         return result;
     }

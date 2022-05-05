@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone;
+package me.xpyex.plugin.allinone.utils;
 
 import me.xpyex.plugin.allinone.commands.CommandsList;
 import net.mamoe.mirai.Bot;
@@ -9,8 +9,8 @@ import net.mamoe.mirai.message.data.*;
 
 import java.util.Calendar;
 
-public class Utils {
-    public static String getNormalText(MessageChain msg) {
+public class Util {
+    public static String getPlainText(MessageChain msg) {
         MessageContent pt = msg.get(PlainText.Key);
         if (pt == null) {
             return "";
@@ -35,26 +35,39 @@ public class Utils {
     }
     public static boolean isFriendEvent(MessageEvent event) {
         return (event instanceof FriendMessageEvent);
+        //
     }
+
     public static Bot getBot() {
         return Bot.getInstance(1393779517L);
+        //
     }
+
     public static void sendFriendMsg(Long QQ, String Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
+        //
     }
+
     public static void sendFriendMsg(Long QQ, MessageChain Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
+        //
     }
+
     public static void sendGroupMsg(Long QG, MessageChain Msg) {
         getBot().getGroup(QG).sendMessage(Msg);
+        //
     }
+
     public static boolean isCmdMsg(MessageChain msg) {
-        String[] cmd = getNormalText(msg).split(" ");
+        String[] cmd = getPlainText(msg).split(" ");
         return CommandsList.isCmd(cmd[0]);
     }
+
     public static boolean canExecute(MessageEvent event) {
         return ((event.getSender().getId() == 1723275529L) || (isGroupEvent(event) && ((GroupMessageEvent)event).getPermission().getLevel() >= 1));
+        //
     }
+
     public static void runCmdFile(String cmd) {
         Runtime rt = Runtime.getRuntime();
         Process ps = null;
@@ -62,13 +75,13 @@ public class Utils {
             ps = rt.exec(cmd);
             ps.waitFor();
         } catch (Throwable e) {
-            e.printStackTrace();
+            Util.handleException(e);
         }
         assert ps != null;
         int i = ps.exitValue();
         ps.destroy();
-        ps = null;
     }
+
     public static String getTimeOfNow() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int minute = Calendar.getInstance().get(Calendar.MINUTE);
@@ -87,10 +100,22 @@ public class Utils {
         }
         return sHour + ":" + sMinute + ":" + sSecond;
     }
+
     public static void sendMsgToOwner(String msg) {
         sendMsgToOwner(new PlainText(msg).plus(""));
+        //
     }
+
     public static void sendMsgToOwner(MessageChain msg) {
         sendFriendMsg(1723275529L, msg);
+        //
+    }
+
+    public static void handleException(Throwable e) {
+        e.printStackTrace();
+        sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
+                e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                e + "\n" +
+                "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
     }
 }

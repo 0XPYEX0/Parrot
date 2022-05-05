@@ -5,6 +5,7 @@ import java.net.*;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.functions.music.MusicInfo;
 import me.xpyex.plugin.allinone.functions.music.MusicSource;
 
@@ -18,31 +19,18 @@ public class QQMusicSource implements MusicSource
             urlsb.append(songmid);
             urlsb.append("%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D");
             final URL u = new URL(urlsb.toString());
-            /*final HttpURLConnection conn = (HttpURLConnection)u.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Host", "u.y.qq.com");
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1");
-            conn.connect();
-            final byte[] bs = MusicUtils.readAll(conn.getInputStream());
-            //final JsonObject out = JsonParser.parseString(new String(bs, "UTF-8")).getAsJsonObject();
-            final JSONObject out = new JSONObject(new String(bs, "UTF-8"));
-
-             */
             String result = HttpUtil.get(urlsb.toString());
             final JSONObject out = new JSONObject(result);
             System.out.println(out);
-            //if (out.get("code").getAsInt() != 0) {
             if (out.getInt("code") != 0) {
                 return null;
             }
-            //final StringBuilder sb = new StringBuilder(out.get("req_0").getAsJsonObject().get("data").getAsJsonObject().get("sip").getAsJsonArray().get(0).getAsString());
             final StringBuilder sb = new StringBuilder(out.getJSONObject("req_0").getJSONObject("data").getJSONArray("sip").getStr(0));
-            //sb.append(out.get("req_0").getAsJsonObject().get("data").getAsJsonObject().get("midurlinfo").getAsJsonArray().get(0).getAsJsonObject().get("purl").getAsString());
             sb.append(out.getJSONObject("req_0").getJSONObject("data").getJSONArray("midurlinfo").getJSONObject(0).getStr("purl"));
             return sb.toString();
         }
         catch (Throwable e) {
-            e.printStackTrace();
+            Util.handleException(e);
             return null;
         }
     }
