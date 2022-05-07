@@ -47,7 +47,7 @@ public class BilibiliUtil {
         String ownerName = ownerInfo.getStr("name");
         int ownerId = ownerInfo.getInt("mid");
 
-        String videoID = param.containsKey("aid") ? "av" + param.get("aid") : param.get("bvid") + "";
+        String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
         return "视频: " + videoID
                 + "\nAV号: AV" + AvID
                 + "\nBV号: " + BvID
