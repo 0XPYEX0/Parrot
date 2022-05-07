@@ -4,6 +4,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.utils.BilibiliUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
@@ -11,9 +12,9 @@ import java.util.HashMap;
 
 public class BiliBili {
     public static void Execute(MessageEvent event) {
-        String msg = Util.getPlainText(event.getMessage());
-        if (msg.toLowerCase().startsWith("#av") || msg.toLowerCase().startsWith("#bv")) {
-            new Thread(() -> {
+        new Thread(() -> {
+            String msg = Util.getPlainText(event.getMessage());
+            if (msg.toLowerCase().startsWith("#av") || msg.toLowerCase().startsWith("#bv")) {
                 try {
                     HashMap<String, Object> map = new HashMap<>();
                     if (msg.toLowerCase().startsWith("#av")) {
@@ -24,63 +25,12 @@ public class BiliBili {
                         }
                         map.put("bvid", msg.substring(3, 13));
                     }
-                    String result = HttpUtil.get("http://api.bilibili.com/x/web-interface/view", map);
-                    int failCount = 0;
-                    while (result == null || result.isEmpty()) {
-                        if (failCount > 5) {
-                            Util.autoSendMsg(event, "解析超时");
-                            return;
-                        }
-                        result = HttpUtil.post("http://api.bilibili.com/x/web-interface/view", map);
-                        failCount++;
-                        Thread.sleep(5000L);
-                    }
-                    Main.LOGGER.info(result);
-                    JSONObject infos = new JSONObject(result);
-                    int success = infos.getInt("code");
-                    if (success != 0) {
-                        String Reason;
-                        if (success == -400) {
-                            Reason = "请求错误";
-                        } else if (success == -403) {
-                            Reason = "权限不足";
-                        } else if (success == -404) {
-                            Reason = "视频不存在";
-                        } else if (success == 62002) {
-                            Reason = "视频不可见(被锁定)";
-                        } else {
-                            Reason = "未知原因";
-                        }
-                        Util.autoSendMsg(event, "解析失败: " + Reason
-                                + "\n错误码: " + success
-                                + "\n错误信息: " + infos.getStr("message"));
-                        return;
-                    }
-                    JSONObject data = infos.getJSONObject("data");
-                    int AvID = data.getInt("aid");
-                    String BvID = data.getStr("bvid");
-                    int videoCount = data.getInt("videos");
-                    String title = data.getStr("title");
-                    String description = data.getStr("desc");
-                    JSONObject ownerInfo = data.getJSONObject("owner");
-                    String ownerName = ownerInfo.getStr("name");
-                    int ownerId = ownerInfo.getInt("mid");
-                    Util.autoSendMsg(event, "视频: " + msg.substring(1)
-                            + "\nAV号: AV" + AvID
-                            + "\nBV号: " + BvID
-                            + "\n标题: " + title
-                            + "\n简介: " + description
-                            + "\n分P数: " + videoCount
-                            + "\n播放地址:\nhttps://bilibili.com/video/av" + AvID + "\nhttps://bilibili.com/video/" + BvID + "\n"
-                            + "\n作者: " + ownerName
-                            + "\n作者主页: https://space.bilibili.com/" + ownerId);
+                    Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
                 } catch (Exception e) {
                     Util.autoSendMsg(event, "解析错误: " + e);
                     Util.handleException(e);
                 }
-            }).start();
-        } else if (msg.toLowerCase().startsWith("#ss") || msg.toLowerCase().startsWith("#ep")) {
-            new Thread(() -> {
+            } else if (msg.toLowerCase().startsWith("#ss") || msg.toLowerCase().startsWith("#ep")) {
                 try {
                     HashMap<String, Object> map = new HashMap<>();
                     if (msg.toLowerCase().startsWith("#ss")) {
@@ -122,9 +72,7 @@ public class BiliBili {
                     Util.autoSendMsg(event, "解析错误: " + e);
                     Util.handleException(e);
                 }
-            }).start();
-        } else if (msg.toLowerCase().startsWith("#search bilibili ")) {
-            new Thread(() -> {
+            } else if (msg.toLowerCase().startsWith("#search bilibili ")) {
                 try {
                     String keyword = msg.substring(17);
                     HashMap<String, Object> map = new HashMap<>();
@@ -141,7 +89,6 @@ public class BiliBili {
                         Thread.sleep(5000L);
                     }
                     JSONObject json = new JSONObject(result);
-                    //System.out.println(JSONUtil.toJsonPrettyStr(json));
                     int code = json.getInt("code");
                     if (code != 0) {
                         Util.autoSendMsg(event, "搜索错误: 请求错误" +
@@ -184,13 +131,11 @@ public class BiliBili {
                     Util.autoSendMsg(event, "搜索错误: " + e);
                     Util.handleException(e);
                 }
-            }).start();
-        } else if (msg.contains("https://www.bilibili.com/video/") || msg.contains("https://bilibili.com/video/")) {
-            new Thread(() -> {
+            } else if (msg.contains("https://www.bilibili.com/video/") || msg.contains("https://bilibili.com/video/")) {
                 try {
                     String link = msg.contains("https://www.bilibili.com/video/") ? "https://www.bilibili.com/video/" : "https://bilibili.com/video/";
                     String id = msg.substring(msg.indexOf(link) + link.length(), msg.contains("?") ? msg.indexOf("?") : msg.length()).split("\n")[0];
-                    System.out.println("截取到的ID: " + id);
+                    Main.LOGGER.info("截取到的ID: " + id);
                     HashMap<String, Object> map = new HashMap<>();
                     if (id.toLowerCase().startsWith("av")) {
                         map.put("aid", id.substring(2));
@@ -202,61 +147,33 @@ public class BiliBili {
                     } else {
                         return;
                     }
-                    String result = HttpUtil.get("http://api.bilibili.com/x/web-interface/view", map);
-                    int failCount = 0;
-                    while (result == null || result.isEmpty()) {
-                        if (failCount > 5) {
-                            Util.autoSendMsg(event, "解析超时");
-                            return;
-                        }
-                        result = HttpUtil.post("http://api.bilibili.com/x/web-interface/view", map);
-                        failCount++;
-                        Thread.sleep(5000L);
-                    }
-                    Main.LOGGER.info(result);
-                    JSONObject infos = new JSONObject(result);
-                    int success = infos.getInt("code");
-                    if (success != 0) {
-                        String Reason;
-                        if (success == -400) {
-                            Reason = "请求错误";
-                        } else if (success == -403) {
-                            Reason = "权限不足";
-                        } else if (success == -404) {
-                            Reason = "视频不存在";
-                        } else if (success == 62002) {
-                            Reason = "视频不可见(被锁定)";
-                        } else {
-                            Reason = "未知原因";
-                        }
-                        Util.autoSendMsg(event, "解析失败: " + Reason
-                                + "\n错误码: " + success
-                                + "\n错误信息: " + infos.getStr("message"));
-                        return;
-                    }
-                    JSONObject data = infos.getJSONObject("data");
-                    int AvID = data.getInt("aid");
-                    String BvID = data.getStr("bvid");
-                    int videoCount = data.getInt("videos");
-                    String title = data.getStr("title");
-                    String description = data.getStr("desc");
-                    JSONObject ownerInfo = data.getJSONObject("owner");
-                    String ownerName = ownerInfo.getStr("name");
-                    int ownerId = ownerInfo.getInt("mid");
-                    Util.autoSendMsg(event, "视频: " + id
-                            + "\nAV号: AV" + AvID
-                            + "\nBV号: " + BvID
-                            + "\n标题: " + title
-                            + "\n简介: " + description
-                            + "\n分P数: " + videoCount
-                            + "\n播放地址:\nhttps://bilibili.com/video/av" + AvID + "\nhttps://bilibili.com/video/" + BvID + "\n"
-                            + "\n作者: " + ownerName
-                            + "\n作者主页: https://space.bilibili.com/" + ownerId);
+                    Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
                 } catch (Exception e) {
                     Util.autoSendMsg(event, "解析错误: " + e);
                     Util.handleException(e);
                 }
-            }).start();
-        }
+            } else if (msg.contains("http://www.bilibili.com/video/") || msg.contains("http://bilibili.com/video/")) {
+                try {
+                    String link = msg.contains("http://www.bilibili.com/video/") ? "http://www.bilibili.com/video/" : "http://bilibili.com/video/";
+                    String id = msg.substring(msg.indexOf(link) + link.length(), msg.contains("?") ? msg.indexOf("?") : msg.length()).split("\n")[0];
+                    Main.LOGGER.info("截取到的ID: " + id);
+                    HashMap<String, Object> map = new HashMap<>();
+                    if (id.toLowerCase().startsWith("av")) {
+                        map.put("aid", id.substring(2));
+                    } else if (id.toLowerCase().startsWith("bv")) {
+                        if (id.length() != 12) {
+                            return;
+                        }
+                        map.put("bvid", id.substring(2));
+                    } else {
+                        return;
+                    }
+                    Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
+                } catch (Exception e) {
+                    Util.autoSendMsg(event, "解析错误: " + e);
+                    Util.handleException(e);
+                }
+            }
+        }).start();
     }
 }

@@ -10,11 +10,11 @@ public class PluginManager {
     public static void Execute(MessageEvent event) {
         String[] cmd = Util.getPlainText(event.getMessage()).split(" ");
         if (cmd[0].equalsIgnoreCase("/plugin") || cmd[0].equalsIgnoreCase("/pl")) {
-            if (!Util.canExecute(event)) {
+            if (event.getSender().getId() != 1723275529L) {
                 Util.autoSendMsg(event, "该命令仅允许管理员使用");
                 return;
             }
-            if (cmd.length==1 || cmd[1].equalsIgnoreCase("help")) {
+            if (cmd.length == 1 || cmd[1].equalsIgnoreCase("help")) {
                 Util.autoSendMsg(event, cmd[0] + " enable <模块> - 启用某模块\n" + cmd[0] + " disable <模块> - 禁用某模块\n" + cmd[0] + " list - 列出可操作模块列表");
                 return;
             }
