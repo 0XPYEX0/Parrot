@@ -134,7 +134,8 @@ public class BiliBili {
             } else if (msg.contains("https://www.bilibili.com/video/") || msg.contains("https://bilibili.com/video/")) {
                 try {
                     String link = msg.contains("https://www.bilibili.com/video/") ? "https://www.bilibili.com/video/" : "https://bilibili.com/video/";
-                    String id = msg.substring(msg.indexOf(link) + link.length(), msg.contains("?") ? msg.indexOf("?") : msg.length()).split("\n")[0];
+                    int linkIndex = msg.indexOf(link) + link.length();
+                    String id = msg.substring(linkIndex, msg.substring(linkIndex).contains("?") ? linkIndex + msg.substring(linkIndex).indexOf("?") : msg.length()).split("\n")[0];
                     Main.LOGGER.info("截取到的ID: " + id);
                     HashMap<String, Object> map = new HashMap<>();
                     if (id.toLowerCase().startsWith("av")) {
@@ -155,7 +156,8 @@ public class BiliBili {
             } else if (msg.contains("http://www.bilibili.com/video/") || msg.contains("http://bilibili.com/video/")) {
                 try {
                     String link = msg.contains("http://www.bilibili.com/video/") ? "http://www.bilibili.com/video/" : "http://bilibili.com/video/";
-                    String id = msg.substring(msg.indexOf(link) + link.length(), msg.contains("?") ? msg.indexOf("?") : msg.length()).split("\n")[0];
+                    int linkIndex = msg.indexOf(link) + link.length();
+                    String id = msg.substring(linkIndex, msg.substring(linkIndex).contains("?") ? linkIndex + msg.substring(linkIndex).indexOf("?") : msg.length()).split("\n")[0];
                     Main.LOGGER.info("截取到的ID: " + id);
                     HashMap<String, Object> map = new HashMap<>();
                     if (id.toLowerCase().startsWith("av")) {
