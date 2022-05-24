@@ -14,7 +14,7 @@ public class MiraiCardProvider implements MusicCardProvider {
     private static MusicCardProvider def = new XMLCardProvider();
 
     static {
-        for(MusicKind mk:MusicKind.values()) {
+        for (MusicKind mk : MusicKind.values()) {
             appidMappings.put(mk.getAppId(), mk);
         }
     }
@@ -22,8 +22,8 @@ public class MiraiCardProvider implements MusicCardProvider {
     @Override
     public Message process(MusicInfo mi, Contact ct) throws Exception {
         MusicKind omk = appidMappings.get(mi.appid);
-        if(omk != null)
-            return new MusicShare(omk,mi.title,mi.desc,mi.jurl,mi.purl,mi.murl);
+        if (omk != null)
+            return new MusicShare(omk, mi.title, mi.desc, mi.jurl, mi.purl, mi.murl);
         return def.process(mi, ct);
     }
 

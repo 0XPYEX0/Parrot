@@ -23,11 +23,12 @@ import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 public class MiraiMusic {
-    public static boolean enable = true;
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
+    public static boolean enable = true;
     public static Map<String, BiConsumer<MessageEvent, String[]>> commands = new ConcurrentHashMap<>();
     static Map<String, MusicSource> sources = Collections.synchronizedMap(new LinkedHashMap<>());
     static Map<String, MusicCardProvider> cards = new ConcurrentHashMap<>();
+
     public static void load() {
         sources.put("QQ音乐", new QQMusicSource());
         sources.put("网易", new NetEaseMusicSource());
@@ -53,22 +54,22 @@ public class MiraiMusic {
         Main.LOGGER.info(" Music模块已加载");
     }
 
-    public static void setEnableMode(boolean a) {
-        enable = a;
-        //
-    }
-
     public static boolean getEnableMode() {
         return enable;
         //
     }
 
+    public static void setEnableMode(boolean a) {
+        enable = a;
+        //
+    }
+
     public static BiConsumer<MessageEvent, String[]> makeTemplate(String source, String card) {
         MusicCardProvider cb = cards.get(card);
-        if(cb == null)
+        if (cb == null)
             throw new IllegalArgumentException("card template not exists");
         MusicSource mc = sources.get(source);
-        if(mc == null)
+        if (mc == null)
             throw new IllegalArgumentException("music source not exists");
         return (event, args) -> {
             String sn;

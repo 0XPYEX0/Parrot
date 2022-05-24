@@ -18,22 +18,20 @@ public final class MusicUtils {
             while ((nRead = i.read(data, 0, data.length)) != -1) {
                 ba.write(data, 0, nRead);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw e;
         }
         return ba.toByteArray();
     }
-    
+
     public static byte[] readAll(final File i) {
         try (final FileInputStream fis = new FileInputStream(i)) {
             return readAll(fis);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             return new byte[0];
         }
     }
-    
+
     public static long getTime() {
         return new Date().getTime();
         //
@@ -50,7 +48,7 @@ public final class MusicUtils {
         }
         return hexString.toString();
     }
-    
+
     public static String removeLeadings(final String leading, final String orig) {
         return orig.replace(leading, "").trim();
     }

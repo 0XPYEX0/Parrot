@@ -26,9 +26,9 @@ public class NetEaseMusicSource implements MusicSource {
     public MusicInfo get(String keyword) throws Exception {
         JSONObject params = new JSONObject();
         params.set("s", URLDecoder.decode(keyword, "UTF-8"));
-        params.set("type",1);
-        params.set("offset",0);
-        params.set("limit",3);
+        params.set("type", 1);
+        params.set("offset", 0);
+        params.set("limit", 3);
         String[] encrypt = NetEaseCrypto.weapiEncrypt(params.toString());
         StringBuilder sb = new StringBuilder("params=");
         sb.append(encrypt[0]);
@@ -46,7 +46,7 @@ public class NetEaseMusicSource implements MusicSource {
         huc.getOutputStream().write(sb.toString().getBytes(StandardCharsets.UTF_8));
         JSONArray ja;
         String murl;
-        String data=new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
+        String data = new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
         if (huc.getResponseCode() == 200) {
             ja = JSONUtil.parseObj(data)
                     .getJSONObject("result").getJSONArray("songs");
