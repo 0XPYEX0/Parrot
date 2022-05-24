@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.functions.informs;
 
-import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.functions.botchecker.BotChecker;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.PlainText;
 

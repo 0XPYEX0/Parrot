@@ -6,7 +6,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Stranger;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.*;
+import net.mamoe.mirai.message.data.PlainText;
 
 public class Tell {
     public static void Execute(MessageEvent event) {

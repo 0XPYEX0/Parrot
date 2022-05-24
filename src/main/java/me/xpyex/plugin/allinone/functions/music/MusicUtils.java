@@ -1,9 +1,13 @@
 package me.xpyex.plugin.allinone.functions.music;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.Date;
 
 public final class MusicUtils {
     public static byte[] readAll(final InputStream i) throws IOException {
@@ -32,6 +36,7 @@ public final class MusicUtils {
     
     public static long getTime() {
         return new Date().getTime();
+        //
     }
 
     public static String bytesToHex(final byte[] hash) {

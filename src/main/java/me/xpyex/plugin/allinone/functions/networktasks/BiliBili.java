@@ -3,17 +3,20 @@ package me.xpyex.plugin.allinone.functions.networktasks;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.utils.BilibiliUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
-import java.util.HashMap;
-
 public class BiliBili {
+    private static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
+
     public static void Execute(MessageEvent event) {
-        new Thread(() -> {
-            String msg = Util.getPlainText(event.getMessage());
+        SERVICE.submit(() -> {
+            String msg = Util.getPlainText(event.getMessage()).replace("\\/", "/");
             if (msg.toLowerCase().startsWith("#av") || msg.toLowerCase().startsWith("#bv")) {
                 try {
                     HashMap<String, Object> map = new HashMap<>();
@@ -176,6 +179,6 @@ public class BiliBili {
                     Util.handleException(e);
                 }
             }
-        }).start();
+        });
     }
 }

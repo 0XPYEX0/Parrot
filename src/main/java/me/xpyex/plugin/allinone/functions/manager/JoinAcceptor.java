@@ -1,12 +1,11 @@
 package me.xpyex.plugin.allinone.functions.manager;
 
+import java.io.File;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.utils.ExternalResource;
-
-import java.io.File;
 
 public class JoinAcceptor {
     static boolean enableMode;

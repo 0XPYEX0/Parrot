@@ -1,15 +1,26 @@
 package me.xpyex.plugin.allinone.utils;
 
+import java.util.Calendar;
 import me.xpyex.plugin.allinone.commands.CommandsList;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.*;
-
-import java.util.Calendar;
+import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageContent;
+import net.mamoe.mirai.message.data.PlainText;
 
 public class Util {
+    public static Contact getRealSender(MessageEvent event) {
+        if (isGroupEvent(event)) {
+            return ((GroupMessageEvent) event).getGroup();
+        } else {
+            return event.getSender();
+        }
+    }
+
     public static String getPlainText(MessageChain msg) {
         MessageContent pt = msg.get(PlainText.Key);
         if (pt == null) {
@@ -17,22 +28,26 @@ public class Util {
         }
         return pt.contentToString().trim();
     }
+
     public static void setNameCard(GroupMessageEvent event, String Namecard) {
         event.getGroup().get(event.getSender().getId()).setNameCard(Namecard);
+        //
     }
+
     public static boolean isGroupEvent(MessageEvent event) {
         return (event instanceof GroupMessageEvent);
+        //
     }
-    public static void autoSendMsg(MessageEvent event, String Msg) {
-        autoSendMsg(event, new PlainText(Msg).plus(""));
+
+    public static void autoSendMsg(MessageEvent event, String msg) {
+        autoSendMsg(event, new PlainText(msg).plus(""));
+        //
     }
-    public static void autoSendMsg(MessageEvent event, MessageChain Msg) {
-        if (isGroupEvent(event)) {
-            ((GroupMessageEvent) event).getGroup().sendMessage(Msg);
-        } else {
-            event.getSender().sendMessage(Msg);
-        }
+
+    public static void autoSendMsg(MessageEvent event, Message msg) {
+        getRealSender(event).sendMessage(msg);
     }
+
     public static boolean isFriendEvent(MessageEvent event) {
         return (event instanceof FriendMessageEvent);
         //
@@ -48,12 +63,12 @@ public class Util {
         //
     }
 
-    public static void sendFriendMsg(Long QQ, MessageChain Msg) {
+    public static void sendFriendMsg(Long QQ, Message Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
         //
     }
 
-    public static void sendGroupMsg(Long QG, MessageChain Msg) {
+    public static void sendGroupMsg(Long QG, Message Msg) {
         getBot().getGroup(QG).sendMessage(Msg);
         //
     }
@@ -106,16 +121,20 @@ public class Util {
         //
     }
 
-    public static void sendMsgToOwner(MessageChain msg) {
+    public static void sendMsgToOwner(Message msg) {
         sendFriendMsg(1723275529L, msg);
         //
     }
 
     public static void handleException(Throwable e) {
         e.printStackTrace();
-        sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
-                e.getStackTrace()[0].getMethodName() + " 时出错: " +
-                e + "\n" +
-                "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
+        Throwable t = e;
+        while (t.getCause() != null) {
+            t = t.getCause();
+        }
+        sendMsgToOwner("在执行 " + t.getStackTrace()[0].getClassName() + " 类的方法 " +
+                t.getStackTrace()[0].getMethodName() + " 时出错: " +
+                t + "\n" +
+                "该代码位于该类的第 " + t.getStackTrace()[0].getLineNumber() + " 行");
     }
 }

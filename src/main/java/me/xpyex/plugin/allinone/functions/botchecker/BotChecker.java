@@ -1,13 +1,12 @@
 package me.xpyex.plugin.allinone.functions.botchecker;
 
+import java.util.HashMap;
+import java.util.Random;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.At;
-
-import java.util.HashMap;
-import java.util.Random;
 
 public class BotChecker {
     public static boolean enableMode = true;

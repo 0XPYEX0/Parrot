@@ -1,11 +1,9 @@
 package me.xpyex.plugin.allinone.functions.music.musicsource;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-
+import java.net.HttpURLConnection;
+import java.net.URL;
 import me.xpyex.plugin.allinone.functions.music.MusicInfo;
 import me.xpyex.plugin.allinone.functions.music.MusicSource;
 import me.xpyex.plugin.allinone.functions.music.MusicUtils;
@@ -18,33 +16,6 @@ public class KugouMusicSource implements MusicSource {
 
     @Override
     public MusicInfo get(String keyword) throws Exception {
-        /*
-        HttpURLConnection huc = (HttpURLConnection) new URL(
-                "http://msearchcdn.kugou.com/api/v3/search/song?showtype=14&highlight=em&pagesize=1&tag_aggr=1&tagtype=%E5%85%A8%E9%83%A8&plat=0&sver=5&correct=1&api_ver=1&version=9108&page=1&area_code=1&tag=1&with_res_tag=1&keyword="
-                        + keyword).openConnection();
-        huc.setRequestMethod("GET");
-        huc.setRequestProperty("Host", "msearchcdn.kugou.com");
-        huc.connect();
-        JsonObject je = JsonParser
-                .parseString(new String(MusicUtils.readAll(huc.getInputStream()), "UTF-8").replaceAll("<!--[_A-Z]+-->", ""))
-                .getAsJsonObject();
-        String song = je.get("data").getAsJsonObject().get("info").getAsJsonArray().get(0).getAsJsonObject().get("hash")
-                .getAsString();
-        String album_id = je.get("data").getAsJsonObject().get("info").getAsJsonArray().get(0).getAsJsonObject()
-                .get("album_id").getAsString();
-        HttpURLConnection ihuc = (HttpURLConnection) new URL(
-                "https://wwwapi.kugou.com/yy/index.php?r=play/getdata&hash=" + song + "&album_id=" + album_id + "&_="
-                        + MusicUtils.getTime()).openConnection();
-        ihuc.setRequestMethod("GET");
-        ihuc.setRequestProperty("Host", "www.kugou.com");
-        ihuc.setRequestProperty("Cookie", COOKIE);
-        ihuc.connect();
-        JsonObject info = JsonParser.parseString(new String(MusicUtils.readAll(ihuc.getInputStream()), "UTF-8"))
-                .getAsJsonObject().get("data").getAsJsonObject();
-        return new MusicInfo(info.get("audio_name").getAsString(), info.get("author_name").getAsString(),
-                info.get("img").getAsString(), info.get("play_url").getAsString(),
-                "https://www.kugou.com/song/#hash=" + song + "&album_id=" + info.get("album_id").getAsString(), "酷狗","",205141);
-         */
         HttpURLConnection huc = (HttpURLConnection) new URL(
                 "http://msearchcdn.kugou.com/api/v3/search/song?showtype=14&highlight=em&pagesize=1&tag_aggr=1&tagtype=%E5%85%A8%E9%83%A8&plat=0&sver=5&correct=1&api_ver=1&version=9108&page=1&area_code=1&tag=1&with_res_tag=1&keyword="
                         + keyword).openConnection();

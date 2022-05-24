@@ -2,10 +2,9 @@ package me.xpyex.plugin.allinone.functions.nowankday;
 
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
+import java.math.BigInteger;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-
-import java.math.BigInteger;
 
 public class NoWankDay {
     //static String ignoreList = "";

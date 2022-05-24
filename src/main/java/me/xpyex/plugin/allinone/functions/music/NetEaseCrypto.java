@@ -1,11 +1,12 @@
 package me.xpyex.plugin.allinone.functions.music;
 
-import javax.crypto.*;
-import javax.crypto.spec.*;
-import java.util.*;
-import java.math.*;
-import java.net.*;
-import java.io.*;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import me.xpyex.plugin.allinone.utils.Util;
 
 public class NetEaseCrypto

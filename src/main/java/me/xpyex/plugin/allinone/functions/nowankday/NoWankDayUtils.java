@@ -1,14 +1,12 @@
 package me.xpyex.plugin.allinone.functions.nowankday;
 
+import java.math.BigInteger;
 import me.xpyex.plugin.allinone.utils.Util;
-
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.PlainText;
-
-import java.math.BigInteger;
 
 public class NoWankDayUtils {
     public static BigInteger getDay(String name) {

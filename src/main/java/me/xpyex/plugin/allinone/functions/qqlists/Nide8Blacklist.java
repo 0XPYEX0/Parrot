@@ -3,22 +3,19 @@ package me.xpyex.plugin.allinone.functions.qqlists;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONObject;
-
 import cn.hutool.json.JSONUtil;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.commands.CommandsList;
-
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
 
 public class Nide8Blacklist {
     static File root = new File("Nide8List");

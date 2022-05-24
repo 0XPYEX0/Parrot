@@ -1,9 +1,9 @@
 package me.xpyex.plugin.allinone.functions.manager;
 
+import java.util.HashSet;
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.commands.CommandsList;
-
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.NormalMember;
@@ -12,8 +12,6 @@ import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
-
-import java.util.HashSet;
 
 public class StaffTeam {
     public static final HashSet<String> CHECK_ARGS = new HashSet<>();

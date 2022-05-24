@@ -1,9 +1,8 @@
 package me.xpyex.plugin.allinone.functions.manager;
 
-import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.functions.botchecker.BotChecker;
 import me.xpyex.plugin.allinone.functions.music.MiraiMusic;
-
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 public class PluginManager {
