@@ -1,5 +1,6 @@
 package me.xpyex.plugin.allinone.functions.music.musicsource;
 
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -23,6 +24,7 @@ public class QQMusicSource implements MusicSource {
             urlsb.append(songmid);
             urlsb.append(
                     "%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D");
+            /*
             URL u = new URL(urlsb.toString());
             HttpURLConnection conn = (HttpURLConnection) u.openConnection();
             conn.setRequestMethod("GET");
@@ -31,8 +33,9 @@ public class QQMusicSource implements MusicSource {
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1");
             conn.connect();
             byte[] bs = MusicUtils.readAll(conn.getInputStream());
+             */
 
-            JSONObject out = JSONUtil.parseObj(new String(bs, "UTF-8"));
+            JSONObject out = JSONUtil.parseObj(HttpUtil.get(urlsb.toString()));
             if (out.getInt("code") != 0) {
                 return null;
             }
