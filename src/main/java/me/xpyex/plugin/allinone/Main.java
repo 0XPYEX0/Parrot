@@ -14,11 +14,13 @@ import me.xpyex.plugin.allinone.functions.music.MiraiMusic;
 import me.xpyex.plugin.allinone.functions.networktasks.BiliBili;
 import me.xpyex.plugin.allinone.functions.nowankday.NoWankDay;
 import me.xpyex.plugin.allinone.functions.qqlists.Nide8Blacklist;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
@@ -93,6 +95,11 @@ public class Main extends JavaPlugin {
             public void onJoinGroup(MemberJoinEvent event) {
                 BotChecker.Execute(event);
                 JoinAcceptor.Execute(event);
+            }
+
+            @EventHandler
+            public void onShutDown(BotOfflineEvent event) {
+                Util.cacheFolder.delete();
             }
         });
     }

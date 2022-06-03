@@ -1,6 +1,7 @@
 package me.xpyex.plugin.allinone.functions.manager;
 
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 public class CoreCmds {
@@ -15,7 +16,8 @@ public class CoreCmds {
             if (cmd.length == 1 || cmd[1].equalsIgnoreCase("help")) {
                 Util.autoSendMsg(event, cmd[0] + " start\n"
                         + cmd[0] + " stop\n"
-                        + cmd[0] + " now"
+                        + cmd[0] + " now\n"
+                        + cmd[0] + " exit"
                 );
                 return;
             }
@@ -42,6 +44,9 @@ public class CoreCmds {
             } else if (cmd[1].equalsIgnoreCase("now")) {
                 Util.autoSendMsg(event, "开始重启");
                 Util.runCmdFile("cmd /c start /b MiraiOK.bat");
+                System.exit(0);
+            } else if (cmd[1].equalsIgnoreCase("exit")) {
+                Util.autoSendMsg(event, "关闭Bot");
                 System.exit(0);
             } else {
                 Util.autoSendMsg(event, "未知子命令\n请使用 " + cmd[0] + " help 查看帮助");

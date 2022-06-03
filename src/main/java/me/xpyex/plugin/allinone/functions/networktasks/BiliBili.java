@@ -178,6 +178,18 @@ public class BiliBili {
                     Util.autoSendMsg(event, "解析错误: " + e);
                     Util.handleException(e);
                 }
+            } else if (msg.startsWith("#user")) {
+                try {
+                    int ID = Integer.parseInt(msg.substring(5));
+                    Util.autoSendMsg(event, BilibiliUtil.getUserInfo(ID));
+                } catch (Exception e) {
+                    if (e instanceof NumberFormatException) {
+                        Util.autoSendMsg(event, "请输入正确的ID");
+                    } else {
+                        Util.autoSendMsg(event, "出现错误: " + e);
+                        Util.handleException(e);
+                    }
+                }
             }
         });
     }

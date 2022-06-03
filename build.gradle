@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'me.xpyex'
-version = '2.0.2'
+version = '2.0.3'
 
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public' }
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     compileOnly fileTree(dir:'libs' ,include:['*.jar'])
-    implementation 'cn.hutool:hutool-all:5.7.20'
+    implementation 'cn.hutool:hutool-all:5.8.0'
 }
 
 tasks.withType(JavaCompile) {

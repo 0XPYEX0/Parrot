@@ -1,18 +1,44 @@
 package me.xpyex.plugin.allinone.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.UUID;
+import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.commands.CommandsList;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageContent;
 import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.utils.ExternalResource;
 
 public class Util {
+    public static final File cacheFolder = new File("cache");
+    private static final File imageCacheFolder = new File(cacheFolder, "Images");
+    private static final HashMap<String, File> fileCaches = new HashMap<>();
+
+    static {
+        if (!cacheFolder.exists()) {
+            cacheFolder.mkdirs();
+        }
+        if (!imageCacheFolder.exists()) {
+            imageCacheFolder.mkdirs();
+        }
+    }
+
     public static Contact getRealSender(MessageEvent event) {
         if (isGroupEvent(event)) {
             return ((GroupMessageEvent) event).getGroup();
@@ -46,6 +72,7 @@ public class Util {
 
     public static void autoSendMsg(MessageEvent event, Message msg) {
         getRealSender(event).sendMessage(msg);
+        //
     }
 
     public static boolean isFriendEvent(MessageEvent event) {
@@ -136,5 +163,48 @@ public class Util {
                 t.getStackTrace()[0].getMethodName() + " 时出错: " +
                 t + "\n" +
                 "该代码位于该类的第 " + t.getStackTrace()[0].getLineNumber() + " 行");
+    }
+
+
+    public static URLConnection getConn(String URL) {
+        URLConnection conn = null;
+        try {
+            conn = new URL(URL).openConnection();
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return conn;
+    }
+
+    public static void downloadFile(String URL, File f) throws Exception {
+        URLConnection conn = getConn(URL);
+        ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
+        FileChannel fc = FileChannel.open(f.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+        fc.transferFrom(rbc, 0, Long.MAX_VALUE);
+        fc.close();
+        rbc.close();
+        Main.LOGGER.info("文件 " + f.getName() + " 下载完成");
+    }
+
+    public static Image getUrlImage(String url) throws Exception {
+        if (!cacheFolder.exists()) {
+            cacheFolder.mkdirs();
+        }
+        if (!imageCacheFolder.exists()) {
+            imageCacheFolder.mkdirs();
+        }
+        File cacheImage = getUrlImageFile(url);
+        cacheImage.createNewFile();
+        downloadFile(url, cacheImage);
+        return getBot().getFriend(1723275529L).uploadImage(ExternalResource.create(cacheImage));
+    }
+
+    public static File getUrlImageFile(String url) {
+        String fileName = UUID.randomUUID().toString();
+        if (!fileCaches.containsKey(url)) {
+            fileCaches.put(url, new File(imageCacheFolder, fileName));
+        }
+        return fileCaches.get(url);
     }
 }
