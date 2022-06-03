@@ -106,20 +106,38 @@ public class BilibiliUtil {
             case 2:
             case 7:
                 officialInfo = "个人认证: " + data.getJSONObject("official").getStr("title");
+                break;
             case 3:
             case 4:
             case 5:
             case 6:
                 officialInfo = "企业认证: " + data.getJSONObject("official").getStr("title");
+                break;
             default:
                 officialInfo = "无";
+                break;
         }
         String vipInfo;
         switch (vip) {
             case 1:
                 vipInfo = "月度大会员";
+                break;
             case 2:
-                vipInfo = "年度大会员";
+                switch (data.getJSONObject("vip").getJSONObject("label").getStr("label_theme")) {
+                    case "annual_vip":
+                        vipInfo = "年度大会员";
+                        break;
+                    case "ten_annual_vip":
+                        vipInfo = "十年大会员";
+                        break;
+                    case "hundred_annual_vip":
+                        vipInfo = "百年大会员";
+                        break;
+                    default:
+                        vipInfo = "年度大会员";
+                        break;
+                }
+                break;
             default:
                 vipInfo = "非大会员";
         }

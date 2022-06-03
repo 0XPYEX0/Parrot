@@ -96,11 +96,6 @@ public class Main extends JavaPlugin {
                 BotChecker.Execute(event);
                 JoinAcceptor.Execute(event);
             }
-
-            @EventHandler
-            public void onShutDown(BotOfflineEvent event) {
-                Util.cacheFolder.delete();
-            }
         });
     }
 }        

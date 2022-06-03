@@ -31,12 +31,9 @@ public class Util {
     private static final HashMap<String, File> fileCaches = new HashMap<>();
 
     static {
-        if (!cacheFolder.exists()) {
-            cacheFolder.mkdirs();
-        }
-        if (!imageCacheFolder.exists()) {
-            imageCacheFolder.mkdirs();
-        }
+        cacheFolder.mkdirs();
+        imageCacheFolder.mkdirs();
+        cacheFolder.deleteOnExit();
     }
 
     public static Contact getRealSender(MessageEvent event) {
@@ -197,7 +194,10 @@ public class Util {
         File cacheImage = getUrlImageFile(url);
         cacheImage.createNewFile();
         downloadFile(url, cacheImage);
-        return getBot().getFriend(1723275529L).uploadImage(ExternalResource.create(cacheImage));
+        ExternalResource resource = ExternalResource.create(cacheImage);
+        Image image = getBot().getFriend(1723275529L).uploadImage(resource);
+        resource.close();
+        return image;
     }
 
     public static File getUrlImageFile(String url) {
