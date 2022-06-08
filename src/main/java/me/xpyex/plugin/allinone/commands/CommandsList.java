@@ -3,23 +3,26 @@ package me.xpyex.plugin.allinone.commands;
 import java.util.HashMap;
 
 public class CommandsList {
-    static HashMap<Class<?>, String> list = new HashMap<>();
+    private static final HashMap<Class<?>, String> COMMAND_LIST = new HashMap<>();
+
     public static void register(Class<?> Class , String... cmds) {
         for (String cmd : cmds) {
             cmd = (cmd.startsWith("/") ? cmd : ("/" + cmd)).toLowerCase();
-            list.put(Class, cmd);
+            COMMAND_LIST.put(Class, cmd);
         }
     }
 
-    public static HashMap<Class<?>, String> getList() {
-        return list;
+    public static HashMap<Class<?>, String> getCommandList() {
+        return COMMAND_LIST;
+        //
     }
 
     public static boolean isCmd(String cmd) {
-        return list.containsValue(cmd.toLowerCase());
+        return COMMAND_LIST.containsValue(cmd.toLowerCase());
+        //
     }
 
     public static boolean isCmd(Class<?> Class, String cmd) {
-        return (list.containsKey(Class) && list.get(Class).equalsIgnoreCase(cmd));
+        return (COMMAND_LIST.containsKey(Class) && COMMAND_LIST.get(Class).equalsIgnoreCase(cmd));
     }
 }
