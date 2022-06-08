@@ -1,5 +1,6 @@
 package me.xpyex.plugin.allinone;
 
+import cn.hutool.cron.CronUtil;
 import me.xpyex.plugin.allinone.functions.botchecker.BotChecker;
 import me.xpyex.plugin.allinone.functions.informs.MsgToOwner;
 import me.xpyex.plugin.allinone.functions.informs.PokeAt;
@@ -14,13 +15,11 @@ import me.xpyex.plugin.allinone.functions.music.MiraiMusic;
 import me.xpyex.plugin.allinone.functions.networktasks.BiliBili;
 import me.xpyex.plugin.allinone.functions.nowankday.NoWankDay;
 import me.xpyex.plugin.allinone.functions.qqlists.Nide8Blacklist;
-import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
-import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
@@ -44,6 +43,9 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        CronUtil.setMatchSecond(true);
+        CronUtil.start();
+
         INSTANCE = this;
         LOGGER = getLogger();
 
@@ -69,6 +71,7 @@ public class Main extends JavaPlugin {
             @EventHandler
             public void onAsk(MemberJoinRequestEvent e) {
                 JoinAcceptor.Execute(e);
+                //
             }
             @EventHandler
             public void onGroupMsg(GroupMessageEvent event) {

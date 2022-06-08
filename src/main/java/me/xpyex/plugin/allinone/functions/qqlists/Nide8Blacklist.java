@@ -24,15 +24,11 @@ public class Nide8Blacklist {
 
     public static void load() {
         CommandsList.register(Nide8Blacklist.class, "/nide8blacklist", "/nide8bl");
-        boolean loadResult = true;
-        if (!loadLists()) {
-            loadResult = false;
-        }
-        boolean finalLoadResult = loadResult;
+        boolean loadResult = loadLists();
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost() {
             @EventHandler
             public void onOnline(BotOnlineEvent event) {
-                if (!finalLoadResult) {
+                if (!loadResult) {
                     Util.sendMsgToOwner("名单加载失败");
                 }
             }
@@ -43,7 +39,7 @@ public class Nide8Blacklist {
                 }
                 String[] cmd = Util.getPlainText(event.getMessage()).split(" ");
                 if (CommandsList.isCmd(Nide8Blacklist.class, cmd[0])) {
-                    if (!finalLoadResult) {
+                    if (!loadResult) {
                         Util.autoSendMsg(event, "名单加载失败，无法使用");
                         return;
                     }
@@ -96,14 +92,16 @@ public class Nide8Blacklist {
                         } else {
                             Util.autoSendMsg(event, "参数错误，请检查");
                         }
-                    } catch (NumberFormatException ignored) {
-                        Util.autoSendMsg(event, "QQ号类型错误");
-                    } catch (IOException e) {
+                    } catch (Exception e) {
+                        if (e instanceof NumberFormatException) {
+                            Util.autoSendMsg(event, "QQ号类型错误");
+                            return;
+                        } else if (e instanceof IOException) {
+                            Util.autoSendMsg(event, "输出文件错误");
+                        } else if (e instanceof JSONException) {
+                            Util.autoSendMsg(event, "JSON转换错误");
+                        }
                         Util.handleException(e);
-                        Util.autoSendMsg(event, "输出文件错误");
-                    } catch (JSONException e) {
-                        Util.handleException(e);
-                        Util.autoSendMsg(event, "JSON转换错误");
                     }
                 }
             }

@@ -8,7 +8,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 import me.xpyex.plugin.allinone.Main;
@@ -29,6 +31,7 @@ public class Util {
     public static final File cacheFolder = new File("cache");
     private static final File imageCacheFolder = new File(cacheFolder, "Images");
     private static final HashMap<String, File> fileCaches = new HashMap<>();
+    public static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
     static {
         cacheFolder.mkdirs();
@@ -122,22 +125,7 @@ public class Util {
     }
 
     public static String getTimeOfNow() {
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        int minute = Calendar.getInstance().get(Calendar.MINUTE);
-        int second = Calendar.getInstance().get(Calendar.SECOND);
-        String sHour = hour + "";
-        if (hour < 10) {
-            sHour = "0" + hour;
-        }
-        String sMinute = minute + "";
-        if (minute < 10) {
-            sMinute = "0" + minute;
-        }
-        String sSecond = second + "";
-        if (second < 10) {
-            sSecond = "0" + second;
-        }
-        return sHour + ":" + sMinute + ":" + sSecond;
+        return FORMATTER.format(new Date());
     }
 
     public static void sendMsgToOwner(String msg) {
@@ -152,14 +140,10 @@ public class Util {
 
     public static void handleException(Throwable e) {
         e.printStackTrace();
-        Throwable t = e;
-        while (t.getCause() != null) {
-            t = t.getCause();
-        }
-        sendMsgToOwner("在执行 " + t.getStackTrace()[0].getClassName() + " 类的方法 " +
-                t.getStackTrace()[0].getMethodName() + " 时出错: " +
-                t + "\n" +
-                "该代码位于该类的第 " + t.getStackTrace()[0].getLineNumber() + " 行");
+        sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
+                e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                e + "\n" +
+                "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
     }
 
 
