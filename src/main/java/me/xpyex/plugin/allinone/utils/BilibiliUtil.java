@@ -78,7 +78,6 @@ public class BilibiliUtil {
             Thread.sleep(5000L);
         }
 
-
         Main.LOGGER.info(result);
         JSONObject infos = new JSONObject(result);
         int success = infos.getInt("code");
