@@ -13,8 +13,7 @@ public class PokeAt extends Model {
 
     @Override
     public void register() {
-        listenEvent(NudgeEvent.class, (e) -> {
-            NudgeEvent event = (NudgeEvent) e;
+        listenEvent(NudgeEvent.class, (event) -> {
             if (event.getTarget().getId() != Util.getBot().getId()) {
                 return;
             }
