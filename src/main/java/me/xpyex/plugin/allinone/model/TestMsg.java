@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models;
+package me.xpyex.plugin.allinone.model;
 
 import java.util.Arrays;
 import me.xpyex.plugin.allinone.core.Model;

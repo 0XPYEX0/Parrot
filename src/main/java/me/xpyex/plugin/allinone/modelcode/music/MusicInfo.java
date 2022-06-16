@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models.music;
+package me.xpyex.plugin.allinone.modelcode.music;
 
 public class MusicInfo {
     public final String title;

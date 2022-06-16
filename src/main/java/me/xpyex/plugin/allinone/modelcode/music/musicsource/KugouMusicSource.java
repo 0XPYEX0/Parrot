@@ -1,12 +1,12 @@
-package me.xpyex.plugin.allinone.models.music.musicsource;
+package me.xpyex.plugin.allinone.modelcode.music.musicsource;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import me.xpyex.plugin.allinone.models.music.MusicInfo;
-import me.xpyex.plugin.allinone.models.music.MusicSource;
-import me.xpyex.plugin.allinone.models.music.MusicUtils;
+import me.xpyex.plugin.allinone.modelcode.music.MusicInfo;
+import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
 
 public class KugouMusicSource implements MusicSource {
     final static String COOKIE = "kg_mid=30f1713c23ab7bb496ab035b07dae834; ACK_SERVER_10015=%7B%22list%22%3A%5B%5B%22bjlogin-user.kugou.com%22%5D%5D%7D; ACK_SERVER_10016=%7B%22list%22%3A%5B%5B%22bjreg-user.kugou.com%22%5D%5D%7D; ACK_SERVER_10017=%7B%22list%22%3A%5B%5B%22bjverifycode.service.kugou.com%22%5D%5D%7D; Hm_lvt_aedee6983d4cfc62f509129360d6bb3d=1598198881; kg_dfid=1HZmYL0ngIYp0uu93N2m4s5P; kg_dfid_collect=d41d8cd98f00b204e9800998ecf8427e; Hm_lpvt_aedee6983d4cfc62f509129360d6bb3d=1598199021";

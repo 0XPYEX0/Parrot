@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models;
+package me.xpyex.plugin.allinone.model;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;

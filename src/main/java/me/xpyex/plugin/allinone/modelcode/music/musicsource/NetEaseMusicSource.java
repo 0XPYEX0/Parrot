@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models.music.musicsource;
+package me.xpyex.plugin.allinone.modelcode.music.musicsource;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -8,10 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import me.xpyex.plugin.allinone.models.music.MusicInfo;
-import me.xpyex.plugin.allinone.models.music.MusicSource;
-import me.xpyex.plugin.allinone.models.music.MusicUtils;
-import me.xpyex.plugin.allinone.models.music.NetEaseCrypto;
+import me.xpyex.plugin.allinone.modelcode.music.MusicInfo;
+import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
+import me.xpyex.plugin.allinone.modelcode.music.NetEaseCrypto;
 
 public class NetEaseMusicSource implements MusicSource {
 

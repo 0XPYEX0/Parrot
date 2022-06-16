@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models.music;
+package me.xpyex.plugin.allinone.modelcode.music;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

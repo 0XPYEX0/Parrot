@@ -1,4 +1,7 @@
-package me.xpyex.plugin.allinone.core;
+package me.xpyex.plugin.allinone.core.model;
+
+import me.xpyex.plugin.allinone.core.CommandHelper;
+import me.xpyex.plugin.allinone.core.Model;
 
 public class PluginManagerModel extends Model {
     @Override

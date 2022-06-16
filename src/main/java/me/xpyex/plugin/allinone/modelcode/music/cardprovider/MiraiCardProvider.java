@@ -1,9 +1,9 @@
-package me.xpyex.plugin.allinone.models.music.cardprovider;
+package me.xpyex.plugin.allinone.modelcode.music.cardprovider;
 
 import java.util.HashMap;
 import java.util.Map;
-import me.xpyex.plugin.allinone.models.music.MusicCardProvider;
-import me.xpyex.plugin.allinone.models.music.MusicInfo;
+import me.xpyex.plugin.allinone.modelcode.music.MusicCardProvider;
+import me.xpyex.plugin.allinone.modelcode.music.MusicInfo;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MusicKind;

@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.models.music;
+package me.xpyex.plugin.allinone.model;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -12,42 +12,46 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.models.music.cardprovider.MiraiCardProvider;
-import me.xpyex.plugin.allinone.models.music.musicsource.KugouMusicSource;
-import me.xpyex.plugin.allinone.models.music.musicsource.NetEaseMusicSource;
-import me.xpyex.plugin.allinone.models.music.musicsource.QQMusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.MusicCardProvider;
+import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.cardprovider.MiraiCardProvider;
+import me.xpyex.plugin.allinone.modelcode.music.musicsource.KugouMusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.musicsource.NetEaseMusicSource;
+import me.xpyex.plugin.allinone.modelcode.music.musicsource.QQMusicSource;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
-public class MiraiMusic extends Model {
+public class Music extends Model {
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
-    public static Map<String, BiConsumer<MessageEvent, String[]>> commands = new ConcurrentHashMap<>();
-    static Map<String, MusicSource> sources = Collections.synchronizedMap(new LinkedHashMap<>());
-    static Map<String, MusicCardProvider> cards = new ConcurrentHashMap<>();
+    public static final Map<String, BiConsumer<MessageEvent, String[]>> MUSIC_CMDS = new ConcurrentHashMap<>();
+    private static final Map<String, MusicSource> SOURCES = Collections.synchronizedMap(new LinkedHashMap<>());
+    private static final Map<String, MusicCardProvider> CARDS = new ConcurrentHashMap<>();
+    static {
+        SOURCES.put("QQ音乐", new QQMusicSource());
+        SOURCES.put("网易", new NetEaseMusicSource());
+        SOURCES.put("酷狗", new KugouMusicSource());
+        CARDS.put("MiraiCard", new MiraiCardProvider());
+        HttpURLConnection.setFollowRedirects(true);
+        MUSIC_CMDS.put("#点歌", makeTemplate("QQ音乐", "MiraiCard"));
+        MUSIC_CMDS.put("#网易", makeTemplate("网易", "MiraiCard"));
+        MUSIC_CMDS.put("#酷狗", makeTemplate("酷狗", "MiraiCard"));
+    }
 
     @Override
     public void register() {
-        sources.put("QQ音乐", new QQMusicSource());
-        sources.put("网易", new NetEaseMusicSource());
-        sources.put("酷狗", new KugouMusicSource());
-        cards.put("MiraiCard", new MiraiCardProvider());
-        HttpURLConnection.setFollowRedirects(true);
-        commands.put("#点歌", makeTemplate("QQ音乐", "MiraiCard"));
-        commands.put("#网易", makeTemplate("网易", "MiraiCard"));
-        commands.put("#酷狗", makeTemplate("酷狗", "MiraiCard"));
         listenEvent(MessageEvent.class, (event) -> {
             String[] args = Util.getPlainText(event.getMessage()).split(" ");
-            BiConsumer<MessageEvent, String[]> exec = commands.get(args[0]);
+            BiConsumer<MessageEvent, String[]> exec = MUSIC_CMDS.get(args[0]);
             if (exec != null)
                 exec.accept(event, args);
         });
     }
 
     public static BiConsumer<MessageEvent, String[]> makeTemplate(String source, String card) {
-        MusicCardProvider cb = cards.get(card);
+        MusicCardProvider cb = CARDS.get(card);
         if (cb == null)
             throw new IllegalArgumentException("card template not exists");
-        MusicSource mc = sources.get(source);
+        MusicSource mc = SOURCES.get(source);
         if (mc == null)
             throw new IllegalArgumentException("music source not exists");
         return (event, args) -> {

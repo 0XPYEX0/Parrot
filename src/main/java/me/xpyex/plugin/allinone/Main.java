@@ -3,7 +3,7 @@ package me.xpyex.plugin.allinone;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.core.PluginManagerModel;
+import me.xpyex.plugin.allinone.core.model.PluginManagerModel;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
