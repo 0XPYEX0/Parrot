@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.model;
 
-import me.xpyex.plugin.allinone.core.CommandHelper;
+import me.xpyex.plugin.allinone.core.CommandMenu;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
@@ -19,7 +19,7 @@ public class StaffTeam extends Model {
             }
             if (sender.getId() == 1723275529L) {
                 if (args.length == 0) {
-                    CommandHelper helper = new CommandHelper(label)
+                    CommandMenu helper = new CommandMenu(label)
                             .add("add <QQID>", "令群员成为管理员")
                             .add("remove <QQID>", "令管理员成为普通群员");
                     source.sendMessage(helper.toString());

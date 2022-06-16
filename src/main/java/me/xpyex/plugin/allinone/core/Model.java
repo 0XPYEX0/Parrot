@@ -10,6 +10,14 @@ import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.MessageEvent;
 
+/**
+ * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
+ * 你必须在子类覆写register()方法，你可以在这个方法内注册监听器及命令
+ * 覆写getName()方法以自定义你的模块名字，否则以类名作为模块名
+ * 调用listenEvent()方法以监听Mirai事件
+ * 调用registerCommand()方法以注册AllInOne命令
+ * 请勿覆写除了register()与getName()以外的方法
+ */
 public abstract class Model {
     public static final HashSet<Model> LOADED_MODELS = new HashSet<>();
     public static final HashSet<Model> DISABLED_MODELS = new HashSet<>();
@@ -26,7 +34,7 @@ public abstract class Model {
             LOADED_MODELS.add(this);
         } catch (Exception e) {
             e.printStackTrace();
-            Main.LOGGER.error("加载模块 " + getName() + "时出错: " + e);
+            Main.LOGGER.error("加载模块 " + getName() + " 时出错: " + e);
             return;
         }
         Main.LOGGER.info("成功加载 " + getName() + " 模块");
@@ -41,7 +49,7 @@ public abstract class Model {
     public void registerCommand(CommandExecutor exec, String... aliases) {
         CommandsList.register(this, aliases);
         COMMANDS.put(this, exec);
-        Main.LOGGER.info(getName() + "模块注册命令: " + Arrays.toString(aliases));
+        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases));
     }
 
     public <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
@@ -92,10 +100,12 @@ public abstract class Model {
 
     public void disable() {
         DISABLED_MODELS.add(this);
+        //
     }
 
     public void enable() {
         DISABLED_MODELS.remove(this);
+        //
     }
 
     public static Model getModel(String name) {

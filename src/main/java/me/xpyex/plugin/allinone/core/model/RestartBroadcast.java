@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.core.model;
 
-import me.xpyex.plugin.allinone.core.CommandHelper;
+import me.xpyex.plugin.allinone.core.CommandMenu;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.Util;
 
@@ -15,7 +15,7 @@ public class RestartBroadcast extends Model {
                 return;
             }
             if (args.length == 0) {
-                CommandHelper helper = new CommandHelper(label)
+                CommandMenu helper = new CommandMenu(label)
                         .add("start", "添加一个重启任务，在10秒后重启")
                         .add("stop", "停止现有的重启任务")
                         .add("now", "立刻重启")
