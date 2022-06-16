@@ -2,8 +2,11 @@ package me.xpyex.plugin.allinone;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
+import java.util.TreeSet;
+import me.xpyex.plugin.allinone.core.CommandsList;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.core.model.PluginManagerModel;
+import me.xpyex.plugin.allinone.core.model.RestartBroadcast;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
@@ -39,24 +42,34 @@ public class Main extends JavaPlugin {
         LOGGER.info("插件主模块已加载");
 
         new PluginManagerModel();
+        new RestartBroadcast();
 
-        for (Class<?> modelClass : ReflectUtil.getClasses("me.xpyex.plugin.allinone.models")) {
-            if (ClassUtil.isAssignable(modelClass, Model.class) || ClassUtil.isAssignable(Model.class, modelClass)) {
+        for (Class<?> modelClass : ReflectUtil.getClasses("me.xpyex.plugin.allinone.model")) {
+            if (ClassUtil.isAssignable(Model.class, modelClass)) {
                 try {
                     modelClass.newInstance();
                 } catch (Exception e) {
-                    Util.handleException(e);
+                    e.printStackTrace();
                 }
             }
         }
 
-        LOGGER.info("已注册的所有模块: " + Model.MODELS);
+        {
+            TreeSet<String> list = new TreeSet<>();
+            for (Model loadedModel : Model.LOADED_MODELS) {
+                list.add(loadedModel.getName());
+            }
+            LOGGER.info("已注册的所有模块: " + list);
+        }
 
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(INSTANCE.getCoroutineContext()) {
             @EventHandler
             public void onEvent(Event event) {
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    Model.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
+                    if (CommandsList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
+                        Model.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
+                        return;
+                    }
                 }
                 Model.callEvents(event);
                 //
@@ -68,6 +81,6 @@ public class Main extends JavaPlugin {
                 Thread.sleep(5000L);
             } catch (Exception ignored) {}
             Util.getBot().getFriend(1723275529L).sendMessage("已启动");
-        }).start();
+        }, "CallOwner").start();
     }
 }        

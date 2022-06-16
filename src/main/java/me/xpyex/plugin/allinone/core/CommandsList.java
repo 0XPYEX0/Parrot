@@ -12,17 +12,13 @@ public class CommandsList {
         }
     }
 
-    public static HashMap<String, Model> getCommandList() {
-        return COMMAND_LIST;
-        //
-    }
-
     public static boolean isCmd(String cmd) {
-        return COMMAND_LIST.containsKey(cmd.toLowerCase());
+        return COMMAND_LIST.containsKey((cmd.startsWith("#") ? cmd : ("#" + cmd)).toLowerCase());
         //
     }
 
     public static boolean isCmd(Model model, String cmd) {
+        cmd = (cmd.startsWith("#") ? cmd : ("#" + cmd)).toLowerCase();
         return (COMMAND_LIST.containsKey(cmd) && COMMAND_LIST.get(cmd).equals(model));
     }
 }
