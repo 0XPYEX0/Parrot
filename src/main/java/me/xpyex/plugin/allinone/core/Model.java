@@ -16,7 +16,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
  * 覆写getName()方法以自定义你的模块名字，否则以类名作为模块名
  * 调用listenEvent()方法以监听Mirai事件
  * 调用registerCommand()方法以注册AllInOne命令
- * 请勿覆写除了register()与getName()以外的方法
+ * 请勿覆写除了register()与getName()以外的方法/常量
  */
 public abstract class Model {
     public static final HashSet<Model> LOADED_MODELS = new HashSet<>();
@@ -86,7 +86,7 @@ public abstract class Model {
             if (DISABLED_MODELS.contains(model)) {
                 continue;
             }
-            if (CommandsList.isCmd(model, cmd.toLowerCase())) {
+            if (CommandsList.isCmd(model, cmd)) {
                 COMMANDS.get(model).execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), cmds);
                 return;
             }
