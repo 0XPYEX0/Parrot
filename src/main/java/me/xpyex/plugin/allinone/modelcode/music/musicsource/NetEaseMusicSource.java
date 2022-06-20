@@ -12,6 +12,7 @@ import me.xpyex.plugin.allinone.modelcode.music.MusicInfo;
 import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
 import me.xpyex.plugin.allinone.modelcode.music.NetEaseCrypto;
+import me.xpyex.plugin.allinone.utils.Util;
 
 public class NetEaseMusicSource implements MusicSource {
 
@@ -46,7 +47,7 @@ public class NetEaseMusicSource implements MusicSource {
         huc.getOutputStream().write(sb.toString().getBytes(StandardCharsets.UTF_8));
         JSONArray ja;
         String murl;
-        String data = new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
+        String data = new String(Util.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
         if (huc.getResponseCode() == 200) {
             ja = JSONUtil.parseObj(data)
                     .getJSONObject("result").getJSONArray("songs");

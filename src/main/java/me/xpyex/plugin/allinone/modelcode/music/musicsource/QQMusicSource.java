@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import me.xpyex.plugin.allinone.modelcode.music.MusicInfo;
 import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
+import me.xpyex.plugin.allinone.utils.Util;
 
 public class QQMusicSource implements MusicSource {
 
@@ -60,7 +61,7 @@ public class QQMusicSource implements MusicSource {
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36");
         huc.setRequestMethod("GET");
         huc.connect();
-        JSONArray ss = JSONUtil.parseObj(new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8))
+        JSONArray ss = JSONUtil.parseObj(new String(Util.readAll(huc.getInputStream()), StandardCharsets.UTF_8))
                 .getJSONObject("data").getJSONObject("song").getJSONArray("list");
         JSONObject song = ss.getJSONObject(0);// .data.song.list
         String mid = song.getStr("songmid");

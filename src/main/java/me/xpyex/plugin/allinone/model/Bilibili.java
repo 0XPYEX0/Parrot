@@ -44,14 +44,14 @@ public class Bilibili extends Model {
                         } else if (msg.toLowerCase().startsWith("#ep")) {
                             map.put("ep_id", msg.substring(3));
                         }
-                        String result = HttpUtil.get("http://api.bilibili.com/pgc/view/web/season", map);
+                        String result = HttpUtil.get("https://api.bilibili.com/pgc/view/web/season", map);
                         int failCount = 0;
                         while (result == null || result.isEmpty()) {
                             if (failCount > 5) {
                                 Util.autoSendMsg(event, "解析超时");
                                 return;
                             }
-                            result = HttpUtil.post("http://api.bilibili.cn/view/" + msg, map);
+                            result = HttpUtil.post("https://api.bilibili.cn/view/" + msg, map);
                             failCount++;
                             Thread.sleep(5000L);
                         }
@@ -83,14 +83,14 @@ public class Bilibili extends Model {
                         String keyword = msg.substring(17);
                         HashMap<String, Object> map = new HashMap<>();
                         map.put("keyword", keyword);
-                        String result = HttpUtil.get("http://api.bilibili.com/x/web-interface/search/all/v2", map);
+                        String result = HttpUtil.get("https://api.bilibili.com/x/web-interface/search/all/v2", map);
                         int count = 0;
                         while (result == null || result.isEmpty()) {
                             if (count >= 5) {
                                 Util.autoSendMsg(event, "搜索超时");
                                 return;
                             }
-                            result = HttpUtil.get("http://api.bilibili.com/x/web-interface/search/all/v2", map);
+                            result = HttpUtil.get("https://api.bilibili.com/x/web-interface/search/all/v2", map);
                             count++;
                             Thread.sleep(5000L);
                         }

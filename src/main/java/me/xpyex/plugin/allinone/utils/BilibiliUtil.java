@@ -11,14 +11,14 @@ import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.ExternalResource;
 
 public class BilibiliUtil {
-    public static String getVideoInfo(Map<String, Object> param) throws Exception {
-        String result = HttpUtil.get("http://api.bilibili.com/x/web-interface/view", param);
+    public static Message getVideoInfo(Map<String, Object> param) throws Exception {
+        String result = HttpUtil.get("https://api.bilibili.com/x/web-interface/view", param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
             if (failCount > 5) {
-                return "解析超时";
+                return new PlainText("解析超时");
             }
-            result = HttpUtil.post("http://api.bilibili.com/x/web-interface/view", param);
+            result = HttpUtil.post("https://api.bilibili.com/x/web-interface/view", param);
             failCount++;
             Thread.sleep(5000L);
         }
@@ -38,9 +38,9 @@ public class BilibiliUtil {
             } else {
                 Reason = "未知原因";
             }
-            return "解析失败: " + Reason
+            return new PlainText("解析失败: " + Reason
                     + "\n错误码: " + success
-                    + "\n错误信息: " + infos.getStr("message");
+                    + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
         int AvID = data.getInt("aid");
@@ -51,29 +51,31 @@ public class BilibiliUtil {
         JSONObject ownerInfo = data.getJSONObject("owner");
         String ownerName = ownerInfo.getStr("name");
         int ownerId = ownerInfo.getInt("mid");
+        String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
-        return "视频: " + videoID
-                + "\nAV号: AV" + AvID
+        return new PlainText("视频: " + videoID)
+                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceUrl)))
+                .plus("\nAV号: AV" + AvID
                 + "\nBV号: " + BvID
                 + "\n标题: " + title
                 + "\n简介: " + description
                 + "\n分P数: " + videoCount
                 + "\n播放地址:\nhttps://bilibili.com/video/av" + AvID + "\nhttps://bilibili.com/video/" + BvID + "\n"
                 + "\n作者: " + ownerName
-                + "\n作者主页: https://space.bilibili.com/" + ownerId;
+                + "\n作者主页: https://space.bilibili.com/" + ownerId);
     }
 
     public static Message getUserInfo(int userID) throws Exception {
         Map<String, Object> param = new HashMap<>();
         param.put("mid", userID);
-        String result = HttpUtil.get("http://api.bilibili.com/x/space/acc/info", param);
+        String result = HttpUtil.get("https://api.bilibili.com/x/space/acc/info", param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
             if (failCount > 5) {
                 return new PlainText("解析超时");
             }
-            result = HttpUtil.post("http://api.bilibili.com/x/space/acc/info", param);
+            result = HttpUtil.post("https://api.bilibili.com/x/space/acc/info", param);
             failCount++;
             Thread.sleep(5000L);
         }
@@ -142,7 +144,7 @@ public class BilibiliUtil {
         }
         return new PlainText("用户: " + userID + "\n" +
                 "昵称: " + name + "\n")
-                .plus(Util.getUrlImage(faceURL))
+                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceURL)))
                 .plus("性别: " + gender + "\n" +
                         "等级: LV" + level + "\n" +
                         "会员: " + vipInfo + "\n" +

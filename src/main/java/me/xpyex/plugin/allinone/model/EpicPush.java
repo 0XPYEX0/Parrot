@@ -23,7 +23,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
@@ -152,11 +151,7 @@ public class EpicPush extends Model {
 
                 String result = "游戏名:" + game_title + "\n描述:" + game_description + "\n发售商:" + game_seller + "\n\n原价:" + game_originalprice + "\n现价:" + game_discountPrice + "\n\n白嫖开始日期:" + game_startdate + "\n白嫖结束日期:" + game_enddate + "\n\n快去 Epic Game 领取吧~";
                 try {
-                    URL url = new URL(game_keyimages);
-                    URLConnection uc = url.openConnection();
-                    InputStream in = uc.getInputStream();
-                    byte[] bytes = MusicUtils.readAll(in);
-                    ExternalResource er = ExternalResource.create(bytes);
+                    ExternalResource er = Util.getImage(game_keyimages);
                     if (friend != null) {
                         Image image = Contact.uploadImage(friend, er);
                         MessageChain mc = new MessageChainBuilder()
@@ -176,7 +171,7 @@ public class EpicPush extends Model {
                         Objects.requireNonNull(bot.getGroup(group.getId())).sendMessage(mc);
                     }
                     er.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
