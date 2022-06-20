@@ -74,7 +74,6 @@ public class Main extends JavaPlugin {
                     }
                 }
                 Model.callEvents(event);
-                //
             }
         });  //广播事件
 

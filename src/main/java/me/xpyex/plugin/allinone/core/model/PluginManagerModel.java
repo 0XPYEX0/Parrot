@@ -2,12 +2,14 @@ package me.xpyex.plugin.allinone.core.model;
 
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandMenu;
+import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.core.Model;
+import net.mamoe.mirai.contact.Contact;
 
-public class PluginManagerModel extends Model {
+public class PluginManagerModel extends CoreModel {
     @Override
     public void register() {
-        registerCommand(((source, sender, label, args) -> {
+        registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.getId() == 1723275529) {
                 if (args.length == 0) {
                     CommandMenu helper = new CommandMenu(label)
@@ -25,6 +27,10 @@ public class PluginManagerModel extends Model {
                         source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表");
                         return;
                     }
+                    if (target instanceof CoreModel) {
+                        source.sendMessage("不允许操作核心模块");
+                        return;
+                    }
                     target.disable();
                     source.sendMessage("已关闭 " + target.getName() + " 模块");
                 } else if (args[0].equalsIgnoreCase("enable")) {
@@ -35,6 +41,10 @@ public class PluginManagerModel extends Model {
                     Model target = Model.getModel(args[1]);
                     if (target == null) {
                         source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表");
+                        return;
+                    }
+                    if (target instanceof CoreModel) {
+                        source.sendMessage("不允许操作核心模块");
                         return;
                     }
                     target.enable();
@@ -55,5 +65,6 @@ public class PluginManagerModel extends Model {
     @Override
     public String getName() {
         return "PluginManager";
+        //
     }
 }

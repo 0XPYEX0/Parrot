@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.MessageEvent;
 
@@ -25,7 +26,7 @@ public abstract class Model {
             Class<? extends Event>,
             HashMap<Model, Consumer<? extends Event>>
             > EVENT_BUS = new HashMap<>();
-    public static final HashMap<Model, CommandExecutor> COMMANDS = new HashMap<>();
+    private static final HashMap<Class<? extends Contact>, HashMap<Model, CommandExecutor<? extends Contact>>> COMMAND_BUS = new HashMap<>();
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
@@ -46,10 +47,16 @@ public abstract class Model {
         //
     }
 
-    public void registerCommand(CommandExecutor exec, String... aliases) {
+    public <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
         CommandsList.register(this, aliases);
-        COMMANDS.put(this, exec);
-        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases));
+        if (COMMAND_BUS.containsKey(contactType)) {
+            COMMAND_BUS.get(contactType).put(this, exec);
+        } else {
+            HashMap<Model, CommandExecutor<? extends Contact>> map = new HashMap<>();
+            map.put(this, exec);
+            COMMAND_BUS.put(contactType, map);
+        }
+        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + "; 命令监听范围: " + contactType.getSimpleName());
     }
 
     public <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
@@ -82,13 +89,16 @@ public abstract class Model {
         if (cmds.length == 1 && cmds[0].trim().isEmpty()) {
             cmds = new String[0];
         }
-        for (Model model : COMMANDS.keySet()) {
-            if (DISABLED_MODELS.contains(model)) {
-                continue;
-            }
-            if (CommandsList.isCmd(model, cmd)) {
-                COMMANDS.get(model).execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), cmds);
-                return;
+        for (Class<? extends Contact> contactClass : COMMAND_BUS.keySet()) {
+            if (ClassUtil.isAssignable(contactClass, Util.getRealSender(event).getClass())) {
+                for (Model model : COMMAND_BUS.get(contactClass).keySet()) {
+                    if (!DISABLED_MODELS.contains(model)) {
+                        if (CommandsList.isCmd(model, cmd)) {
+                            CommandExecutor executor = COMMAND_BUS.get(contactClass).get(model);
+                            executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), cmds);
+                        }
+                    }
+                }
             }
         }
     }

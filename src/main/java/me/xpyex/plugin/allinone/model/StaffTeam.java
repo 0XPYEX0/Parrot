@@ -8,28 +8,24 @@ import net.mamoe.mirai.contact.NormalMember;
 public class StaffTeam extends Model {
     @Override
     public void register() {
-        registerCommand(((source, sender, label, args) -> {
-            if (!(source instanceof Group)) {
-                source.sendMessage("该命令只能在群内使用");
-                return;
-            }
-            if (((Group) source).getBotPermission().getLevel() != 2) {
+        registerCommand(Group.class, ((source, sender, label, args) -> {
+            if (source.getBotPermission().getLevel() != 2) {
                 source.sendMessage("Bot非群主，无法执行此操作");
                 return;
             }
             if (sender.getId() == 1723275529L) {
                 if (args.length == 0) {
-                    CommandMenu helper = new CommandMenu(label)
+                    CommandMenu menu = new CommandMenu(label)
                             .add("add <QQID>", "令群员成为管理员")
                             .add("remove <QQID>", "令管理员成为普通群员");
-                    source.sendMessage(helper.toString());
+                    source.sendMessage(menu.toString());
                 } else if (args.length == 1) {
                     source.sendMessage("参数不足");
                 }
                 else {
                     try {
                         long targetID = Long.parseLong(args[1]);
-                        NormalMember target = ((Group) source).get(targetID);
+                        NormalMember target = source.get(targetID);
                         if (target == null) {
                             source.sendMessage("群内无该成员");
                             return;

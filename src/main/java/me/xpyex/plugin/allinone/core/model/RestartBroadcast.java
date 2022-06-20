@@ -1,15 +1,16 @@
 package me.xpyex.plugin.allinone.core.model;
 
 import me.xpyex.plugin.allinone.core.CommandMenu;
-import me.xpyex.plugin.allinone.core.Model;
+import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.contact.Contact;
 
-public class RestartBroadcast extends Model {
+public class RestartBroadcast extends CoreModel {
     private static boolean restartMode = false;
 
     @Override
     public void register() {
-        registerCommand(((source, sender, label, args) -> {
+        registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.getId() != 1723275529L) {
                 source.sendMessage("你没有权限");
                 return;
