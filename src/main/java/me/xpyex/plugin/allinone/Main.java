@@ -43,9 +43,6 @@ public class Main extends JavaPlugin {
         LOGGER = getLogger();
         LOGGER.info("插件主模块已加载");
 
-        new PluginManager();
-        new RestartBroadcast();
-
         for (Class<?> modelClass : ReflectUtil.getClasses("me.xpyex.plugin.allinone.model")) {
             if (ClassUtil.isAssignable(Model.class, modelClass)) {
                 try {
