@@ -35,10 +35,10 @@ public class CommandMenu {
      */
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        CommandMessager messager = new CommandMessager();
         for (String argument : helpList.keySet()) {
-            result.append("#").append(command).append(" ").append(argument).append(" - ").append(helpList.get(argument)).append("\n");
+            messager.plus("#" + command + " " + argument + " - " + helpList.get(argument));
         }
-        return result.substring(0, result.length() - 1);
+        return messager.toString();
     }
 }
