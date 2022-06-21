@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.model;
 
-import me.xpyex.plugin.allinone.core.CommandMenu;
+import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;

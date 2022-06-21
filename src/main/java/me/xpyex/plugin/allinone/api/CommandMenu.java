@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.core;
+package me.xpyex.plugin.allinone.api;
 
 import java.util.HashMap;
 

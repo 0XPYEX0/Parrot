@@ -1,6 +1,6 @@
 package me.xpyex.plugin.allinone.model.core;
 
-import me.xpyex.plugin.allinone.core.CommandMenu;
+import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;

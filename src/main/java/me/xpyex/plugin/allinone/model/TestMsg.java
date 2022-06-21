@@ -1,6 +1,7 @@
 package me.xpyex.plugin.allinone.model;
 
 import java.util.Arrays;
+import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
@@ -19,12 +20,14 @@ public class TestMsg extends Model {
                 Util.getRealSender(event).sendMessage("test");
             }
         });
-        registerCommand(Contact.class, ((source, sender, label, args) ->
-                source.sendMessage("这是全局反馈器\n" +
-                        "这是一个测试命令捏\n" +
-                        "你执行的命令是: " + label + "\n" +
-                        "你填入的参数是: " + Arrays.toString(args))
-        ), "testCmd");
+        registerCommand(Contact.class, ((source, sender, label, args) -> {
+            CommandMessager messager = new CommandMessager()
+                    .plus("这是全局反馈器")
+                    .plus("这是一个测试命令捏")
+                    .plus("你执行的命令是: " + label)
+                    .plus("你填入的参数是: " + Arrays.toString(args));
+            source.sendMessage(messager.toString());
+        }), "testCmd");
         registerCommand(Group.class, ((source, sender, label, args) ->
                 source.sendMessage("这是群反馈器")
         ), "testCmd");
