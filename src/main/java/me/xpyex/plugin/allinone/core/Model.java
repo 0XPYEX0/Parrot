@@ -26,7 +26,10 @@ public abstract class Model {
             Class<? extends Event>,
             HashMap<Model, Consumer<? extends Event>>
             > EVENT_BUS = new HashMap<>();
-    private static final HashMap<Class<? extends Contact>, HashMap<Model, CommandExecutor<? extends Contact>>> COMMAND_BUS = new HashMap<>();
+    private static final HashMap<
+            Class<? extends Contact>,
+            HashMap<Model, CommandExecutor<? extends Contact>>
+            > COMMAND_BUS = new HashMap<>();
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");

@@ -49,6 +49,7 @@ public class Main extends JavaPlugin {
                     modelClass.newInstance();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    LOGGER.error("加载模块 " + modelClass.getSimpleName() + " 时出错: " + e);
                 }
             }
         }

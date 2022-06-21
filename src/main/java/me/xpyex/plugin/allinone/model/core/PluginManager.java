@@ -52,9 +52,11 @@ public class PluginManager extends CoreModel {
                 } else if (args[0].equalsIgnoreCase("list")) {
                     TreeSet<String> list = new TreeSet<>();
                     for (Model loadedModel : Model.LOADED_MODELS) {
-                        list.add(loadedModel.getName());
+                        list.add(Model.DISABLED_MODELS.contains(loadedModel) ? loadedModel.getName() + "(未启用)" : loadedModel.getName());
                     }
                     source.sendMessage("所有模块列表: " + list);
+                } else {
+                    source.sendMessage("未知子命令");
                 }
             } else {
                 source.sendMessage("你没有权限");
