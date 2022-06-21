@@ -1,5 +1,6 @@
 package me.xpyex.plugin.allinone.model;
 
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -8,13 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -98,24 +94,9 @@ public class EpicPush extends Model {
         groupList.add(groupID);
     }
 
-    public String getJson() throws IOException {
-        StringBuilder json = new StringBuilder();
+    public String getJson() {
         String url = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=zh-CN&country=CN&allowCountries=CN";
-        URL urls = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) urls.openConnection();
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36");
-        conn.setDoOutput(true);
-        conn.setDoInput(true);
-        conn.setRequestMethod("GET");
-        //设置编码格式为UTF-8
-        conn.setRequestProperty("contentType", "UTF-8");
-        InputStream inputStream = conn.getInputStream();
-        try (BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = bf.readLine()) != null) json.append(line);
-        }
-        inputStream.close();
-        return json.toString();
+        return HttpUtil.get(url);
     }
 
     public void sendPushData(String str, Group group, Friend friend) {
@@ -239,7 +220,7 @@ public class EpicPush extends Model {
             try {
                 writeListToFile(userList, userData);
                 event.getSender().sendMessage("定时推送已开启，每周五晚定时推送");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Main.LOGGER.info("fail to writeUser");
             }
@@ -250,7 +231,7 @@ public class EpicPush extends Model {
                 try {
                     writeListToFile(userList, userData);
                     event.getSender().sendMessage("定时推送已关闭");
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else event.getSender().sendMessage("当前未开启推送！");
@@ -268,7 +249,7 @@ public class EpicPush extends Model {
             try {
                 writeListToFile(groupList, groupData);
                 event.getGroup().sendMessage("定时推送已开启，每周五晚定时推送");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Main.LOGGER.info("fail to writeGroup");
             }
@@ -279,7 +260,7 @@ public class EpicPush extends Model {
                 try {
                     writeListToFile(groupList, groupData);
                     event.getGroup().sendMessage("定时推送已关闭");
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else event.getGroup().sendMessage("当前未开启推送！");
@@ -290,7 +271,7 @@ public class EpicPush extends Model {
         if (Util.getPlainText(event.getMessage()).equals("#白嫖")) {
             try {
                 sendPushData(getJson(), event.getGroup(), null);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -300,7 +281,7 @@ public class EpicPush extends Model {
         if (Util.getPlainText(event.getMessage()).equals("#白嫖")) {
             try {
                 sendPushData(getJson(), null, event.getFriend());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.core.model;
+package me.xpyex.plugin.allinone.model.core;
 
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandMenu;
@@ -6,7 +6,7 @@ import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Contact;
 
-public class PluginManagerModel extends CoreModel {
+public class PluginManager extends CoreModel {
     @Override
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
@@ -60,11 +60,5 @@ public class PluginManagerModel extends CoreModel {
                 source.sendMessage("你没有权限");
             }
         }), "pl", "plugin");
-    }
-
-    @Override
-    public String getName() {
-        return "PluginManager";
-        //
     }
 }

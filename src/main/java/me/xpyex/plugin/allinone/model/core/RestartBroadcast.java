@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.core.model;
+package me.xpyex.plugin.allinone.model.core;
 
 import me.xpyex.plugin.allinone.core.CommandMenu;
 import me.xpyex.plugin.allinone.core.CoreModel;

@@ -56,7 +56,7 @@ public abstract class Model {
             map.put(this, exec);
             COMMAND_BUS.put(contactType, map);
         }
-        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + "; 命令监听范围: " + contactType.getSimpleName());
+        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
     public <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
@@ -119,7 +119,7 @@ public abstract class Model {
     }
 
     public static Model getModel(String name) {
-        if (name == null || name.isEmpty()) return null;
+        if (name == null || name.trim().isEmpty()) return null;
         for (Model loadedModel : LOADED_MODELS) {
             if (loadedModel.getName().equalsIgnoreCase(name)) return loadedModel;
         }

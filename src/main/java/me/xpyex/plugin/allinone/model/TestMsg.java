@@ -19,12 +19,12 @@ public class TestMsg extends Model {
                 Util.getRealSender(event).sendMessage("test");
             }
         });
-        registerCommand(Contact.class, (source, sender, label, args) ->
+        registerCommand(Contact.class, ((source, sender, label, args) ->
                 source.sendMessage("这是全局反馈器\n" +
                         "这是一个测试命令捏\n" +
                         "你执行的命令是: " + label + "\n" +
-                        "你填入的参数是: " + Arrays.toString(args)
-                ), "testCmd");
+                        "你填入的参数是: " + Arrays.toString(args))
+        ), "testCmd");
         registerCommand(Group.class, ((source, sender, label, args) ->
                 source.sendMessage("这是群反馈器")
         ), "testCmd");

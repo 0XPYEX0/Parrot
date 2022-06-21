@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandsList;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.core.model.PluginManagerModel;
-import me.xpyex.plugin.allinone.core.model.RestartBroadcast;
+import me.xpyex.plugin.allinone.model.core.PluginManager;
+import me.xpyex.plugin.allinone.model.core.RestartBroadcast;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
@@ -26,7 +26,7 @@ public class Main extends JavaPlugin {
     public static boolean tellOwner = false;
     public static Main INSTANCE;
     public Main() {
-        super(new JvmPluginDescriptionBuilder("AllInOne","1.0.0")
+        super(new JvmPluginDescriptionBuilder("AllInOne","3.0.1")
                 .id("me.xpyex.plugin.allinone.Main")
                 .author("XPYEX")
                 .info("Everything in this")
@@ -43,7 +43,7 @@ public class Main extends JavaPlugin {
         LOGGER = getLogger();
         LOGGER.info("插件主模块已加载");
 
-        new PluginManagerModel();
+        new PluginManager();
         new RestartBroadcast();
 
         for (Class<?> modelClass : ReflectUtil.getClasses("me.xpyex.plugin.allinone.model")) {

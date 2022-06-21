@@ -24,22 +24,22 @@ public class BilibiliUtil {
         }
         Main.LOGGER.info(result);
         JSONObject infos = new JSONObject(result);
-        int success = infos.getInt("code");
-        if (success != 0) {
+        int failed = infos.getInt("code");
+        if (failed != 0) {
             String Reason;
-            if (success == -400) {
+            if (failed == -400) {
                 Reason = "请求错误";
-            } else if (success == -403) {
+            } else if (failed == -403) {
                 Reason = "权限不足";
-            } else if (success == -404) {
+            } else if (failed == -404) {
                 Reason = "视频不存在";
-            } else if (success == 62002) {
+            } else if (failed == 62002) {
                 Reason = "视频不可见(被锁定)";
             } else {
                 Reason = "未知原因";
             }
             return new PlainText("解析失败: " + Reason
-                    + "\n错误码: " + success
+                    + "\n错误码: " + failed
                     + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
