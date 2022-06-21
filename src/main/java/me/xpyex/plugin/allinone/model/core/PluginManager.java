@@ -12,11 +12,11 @@ public class PluginManager extends CoreModel {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.getId() == 1723275529) {
                 if (args.length == 0) {
-                    CommandMenu helper = new CommandMenu(label)
+                    CommandMenu menu = new CommandMenu(label)
                             .add("enable <模块>", "启用该模块")
                             .add("disable <模块>", "关闭该模块")
                             .add("list", "查询所有模块");
-                    source.sendMessage(helper.toString());
+                    source.sendMessage(menu.toString());
                 } else if (args[0].equalsIgnoreCase("disable")) {
                     if (args.length == 1) {
                         source.sendMessage("参数不足");
