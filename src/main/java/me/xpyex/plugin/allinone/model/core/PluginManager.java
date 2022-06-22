@@ -14,7 +14,7 @@ public class PluginManager extends CoreModel {
                 if (args.length == 0) {
                     CommandMenu menu = new CommandMenu(label)
                             .add("enable <模块>", "启用该模块")
-                            .add("disable <模块>", "关闭该模块")
+                            .add("disable <模块>", "禁用该模块")
                             .add("list", "查询所有模块");
                     source.sendMessage(menu.toString());
                 } else if (args[0].equalsIgnoreCase("disable")) {
@@ -31,8 +31,11 @@ public class PluginManager extends CoreModel {
                         source.sendMessage("不允许操作核心模块");
                         return;
                     }
-                    target.disable();
-                    source.sendMessage("已关闭 " + target.getName() + " 模块");
+                    if (target.disable()) {
+                        source.sendMessage("已禁用 " + target.getName() + " 模块");
+                    } else {
+                        source.sendMessage("模块 " + target.getName() + " 已被禁用，无需重复禁用");
+                    }
                 } else if (args[0].equalsIgnoreCase("enable")) {
                     if (args.length == 1) {
                         source.sendMessage("参数不足");
@@ -47,8 +50,11 @@ public class PluginManager extends CoreModel {
                         source.sendMessage("不允许操作核心模块");
                         return;
                     }
-                    target.enable();
-                    source.sendMessage("已启用 " + target.getName() + " 模块");
+                    if (target.enable()) {
+                        source.sendMessage("已启用 " + target.getName() + " 模块");
+                    } else {
+                        source.sendMessage("模块 " + target.getName() + " 已被启用，无需重复启用");
+                    }
                 } else if (args[0].equalsIgnoreCase("list")) {
                     TreeSet<String> list = new TreeSet<>();
                     for (Model loadedModel : Model.LOADED_MODELS) {

@@ -20,6 +20,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
  * 请勿覆写除了register()与getName()以外的方法/常量
  */
 public abstract class Model {
+    public boolean DEFAULT_DISABLED = false;
     public static final HashSet<Model> LOADED_MODELS = new HashSet<>();
     public static final HashSet<Model> DISABLED_MODELS = new HashSet<>();
     private static final HashMap<
@@ -41,6 +42,10 @@ public abstract class Model {
             Main.LOGGER.error("加载模块 " + getName() + " 时出错: " + e);
             return;
         }
+        if (this.DEFAULT_DISABLED) {
+            this.disable();
+            Main.LOGGER.info("模块 " + getName() + " 注册时选用默认关闭，已关闭它");
+        }
         Main.LOGGER.info("成功加载 " + getName() + " 模块");
         Main.LOGGER.info(" ");
     }
@@ -51,6 +56,11 @@ public abstract class Model {
     }
 
     public <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
+        for (String s : aliases) {
+            if (s.contains(" ")) {
+                throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
+            }
+        }
         CommandsList.register(this, aliases);
         if (COMMAND_BUS.containsKey(contactType)) {
             COMMAND_BUS.get(contactType).put(this, exec);
@@ -111,14 +121,16 @@ public abstract class Model {
         //
     }
 
-    public void disable() {
+    public boolean disable() {
+        int count = DISABLED_MODELS.size();
         DISABLED_MODELS.add(this);
-        //
+        return DISABLED_MODELS.size() != count;
     }
 
-    public void enable() {
+    public boolean enable() {
+        int count = DISABLED_MODELS.size();
         DISABLED_MODELS.remove(this);
-        //
+        return DISABLED_MODELS.size() != count;
     }
 
     public static Model getModel(String name) {
