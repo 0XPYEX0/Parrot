@@ -32,7 +32,7 @@ public abstract class Model {
             HashMap<Model, CommandExecutor<? extends Contact>>
             > COMMAND_BUS = new HashMap<>();
 
-    public Model() {
+    private Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
         try {
             register();
@@ -55,7 +55,7 @@ public abstract class Model {
         //
     }
 
-    public <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
+    public final <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
         for (String s : aliases) {
             if (s.contains(" ")) {
                 throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
@@ -72,7 +72,7 @@ public abstract class Model {
         Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
-    public <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
+    public final <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
         if (EVENT_BUS.containsKey(eventType)) {
             EVENT_BUS.get(eventType).put(this, listener);
         } else {
@@ -121,13 +121,13 @@ public abstract class Model {
         //
     }
 
-    public boolean disable() {
+    public final boolean disable() {
         int count = DISABLED_MODELS.size();
         DISABLED_MODELS.add(this);
         return DISABLED_MODELS.size() != count;
     }
 
-    public boolean enable() {
+    public final boolean enable() {
         int count = DISABLED_MODELS.size();
         DISABLED_MODELS.remove(this);
         return DISABLED_MODELS.size() != count;
