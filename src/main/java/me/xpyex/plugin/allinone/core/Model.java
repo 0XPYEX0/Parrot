@@ -17,7 +17,6 @@ import net.mamoe.mirai.event.events.MessageEvent;
  * 覆写getName()方法以自定义你的模块名字，否则以类名作为模块名
  * 调用listenEvent()方法以监听Mirai事件
  * 调用registerCommand()方法以注册AllInOne命令
- * 请勿覆写除了register()与getName()以外的方法/常量
  */
 public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
@@ -32,7 +31,7 @@ public abstract class Model {
             HashMap<Model, CommandExecutor<? extends Contact>>
             > COMMAND_BUS = new HashMap<>();
 
-    private Model() {
+    public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
         try {
             register();
