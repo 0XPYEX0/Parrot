@@ -3,17 +3,24 @@ package me.xpyex.plugin.allinone.model;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.utils.BilibiliUtil;
+import me.xpyex.plugin.allinone.modelcode.bilibili.BilibiliUtil;
+import me.xpyex.plugin.allinone.utils.StringUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 public class Bilibili extends Model {
     private static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
+    private static final String URL_B23 = "b23.tv/";
+    private static final String URL_BILIBILI_1 = "www.bilibili.com/video/";
+    private static final String URL_BILIBILI_2 = "bilibili.com/video/";
 
     @Override
     public void register() {
@@ -67,13 +74,15 @@ public class Bilibili extends Model {
                         JSONObject newestEP = infos.getJSONObject("result").getJSONObject("new_ep");
                         String title = infos.getJSONObject("result").getStr("title");
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
-                        Util.autoSendMsg(event, "番剧: " + msg.substring(1) + "\n" +
-                                "番剧名: " + title + "\n" +
-                                "已完结: " + finished + "\n" +
-                                "上映时间: " + publishTime + "\n" +
-                                "番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId + "\n" +
-                                "最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id") + "\n" +
-                                "最新集: " + newestEP.getStr("title"));
+                        CommandMessager messager = new CommandMessager()
+                                .plus("番剧: " + msg.substring(1))
+                                .plus("番剧名: " + title)
+                                .plus("已完结: " + finished)
+                                .plus("上映时间: " + publishTime)
+                                .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
+                                .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
+                                .plus("最新集: " + newestEP.getStr("title"));
+                        Util.autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
                         Util.autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
@@ -107,10 +116,10 @@ public class Bilibili extends Model {
                         JSONObject data = json.getJSONObject("data");
                         JSONArray results = data.getJSONArray("result").getJSONObject(10).getJSONArray("data");
                         int limit = 5;  //限制展示几条信息
-                        StringBuilder out = new StringBuilder("关键词: " + keyword + "\n" +
-                                "仅展示前 " + limit + " 条结果！");
+                        CommandMessager messager = new CommandMessager("关键词: " + keyword)
+                                .plus("仅展示前 " + limit + " 条结果！");
                         for (int i = 0; i < limit; i++) {
-                            out.append("\n\n");
+                            messager.plus("").plus("");
                             JSONObject videoInfo = results.getJSONObject(i);
                             if (videoInfo == null) {
                                 continue;
@@ -120,50 +129,22 @@ public class Bilibili extends Model {
                             String url = videoInfo.getStr("arcurl");
                             String author = videoInfo.getStr("author");
                             String description = videoInfo.getStr("description");
-                            out
-                                    .append("视频 ").append(bvid)
-                                    .append("\n")
-                                    .append("标题: ").append(title)
-                                    .append("\n")
-                                    .append("作者: ").append(author)
-                                    .append("\n")
-                                    .append("简介: ").append(description)
-                                    .append("\n")
-                                    .append("播放地址: ").append(url);
+                            messager.plus("视频 " + bvid)
+                                    .plus("标题: " + title)
+                                    .plus("作者: " + author)
+                                    .plus("简介: " + description)
+                                    .plus("播放地址: " + url);
                         }
-                        out.append("\n\n篇幅受限，仅展示前 ").append(limit).append(" 条结果");
-                        Util.autoSendMsg(event, out.toString());
+                        messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果");
+                        Util.autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
                         Util.autoSendMsg(event, "搜索错误: " + e);
                         Util.handleException(e);
                     }
-                } else if (msg.contains("https://www.bilibili.com/video/") || msg.contains("https://bilibili.com/video/")) {
+                } else if (msg.contains(URL_BILIBILI_1) || msg.contains(URL_BILIBILI_2)) {
                     try {
-                        String link = msg.contains("https://www.bilibili.com/video/") ? "https://www.bilibili.com/video/" : "https://bilibili.com/video/";
-                        int linkIndex = msg.indexOf(link) + link.length();
-                        String id = msg.substring(linkIndex, msg.substring(linkIndex).contains("?") ? linkIndex + msg.substring(linkIndex).indexOf("?") : msg.length()).split("\n")[0];
-                        Main.LOGGER.info("截取到的ID: " + id);
-                        HashMap<String, Object> map = new HashMap<>();
-                        if (id.toLowerCase().startsWith("av")) {
-                            map.put("aid", id.substring(2));
-                        } else if (id.toLowerCase().startsWith("bv")) {
-                            if (id.length() != 12) {
-                                return;
-                            }
-                            map.put("bvid", id.substring(2));
-                        } else {
-                            return;
-                        }
-                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
-                    } catch (Exception e) {
-                        Util.autoSendMsg(event, "解析错误: " + e);
-                        Util.handleException(e);
-                    }
-                } else if (msg.contains("http://www.bilibili.com/video/") || msg.contains("http://bilibili.com/video/")) {
-                    try {
-                        String link = msg.contains("http://www.bilibili.com/video/") ? "http://www.bilibili.com/video/" : "http://bilibili.com/video/";
-                        int linkIndex = msg.indexOf(link) + link.length();
-                        String id = msg.substring(linkIndex, msg.substring(linkIndex).contains("?") ? linkIndex + msg.substring(linkIndex).indexOf("?") : msg.length()).split("\n")[0];
+                        String link = msg.contains(URL_BILIBILI_1) ? URL_BILIBILI_1 : URL_BILIBILI_2;
+                        String id = StringUtil.getStrBeforeChar(link + StringUtil.getStrBeforeChar(msg, link, "?"), link, "\"");
                         Main.LOGGER.info("截取到的ID: " + id);
                         HashMap<String, Object> map = new HashMap<>();
                         if (id.toLowerCase().startsWith("av")) {
@@ -192,6 +173,20 @@ public class Bilibili extends Model {
                             Util.autoSendMsg(event, "出现错误: " + e);
                             Util.handleException(e);
                         }
+                    }
+                } else if (msg.contains(URL_B23)) {
+                    try {
+                        String b23ID = StringUtil.getStrBeforeChar(URL_B23 + StringUtil.getStrBeforeChar(msg, URL_B23, "?"), URL_B23, "\"");
+                        String path = "https://" + URL_B23 + b23ID;
+                        System.out.println(path);
+                        HttpURLConnection conn = (HttpURLConnection) new URL(path).openConnection();
+                        conn.setInstanceFollowRedirects(false);
+                        conn.setConnectTimeout(5000);
+                        System.out.println(conn.getHeaderFields());
+                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(conn.getHeaderField("Location")));
+                    } catch (Exception e) {
+                        Util.autoSendMsg(event, "解析错误: " + e);
+                        Util.handleException(e);
                     }
                 }
             });

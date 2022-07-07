@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.utils;
+package me.xpyex.plugin.allinone.modelcode.bilibili;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -6,11 +6,31 @@ import cn.hutool.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
-import net.mamoe.mirai.utils.ExternalResource;
 
 public class BilibiliUtil {
+    public static Message getVideoInfo(String url) throws Exception {
+        String link = url.contains("www.bilibili.com/video/") ? "www.bilibili.com/video/" : "bilibili.com/video/";
+        int linkIndex = url.indexOf(link) + link.length();
+        String id = url.substring(linkIndex, url.substring(linkIndex).contains("?") ? linkIndex + url.substring(linkIndex).indexOf("?") : url.length()).split("\n")[0];
+        Main.LOGGER.info("截取到的ID: " + id);
+        HashMap<String, Object> map = new HashMap<>();
+        if (id.toLowerCase().startsWith("av")) {
+            map.put("aid", id.substring(2));
+        } else if (id.toLowerCase().startsWith("bv")) {
+            if (id.length() != 12) {
+                return null;
+            }
+            map.put("bvid", id.substring(2));
+        } else {
+            return null;
+        }
+        return BilibiliUtil.getVideoInfo(map);
+    }
+
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
         String result = HttpUtil.get("https://api.bilibili.com/x/web-interface/view", param);
         int failCount = 0;
@@ -54,16 +74,21 @@ public class BilibiliUtil {
         String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
+        CommandMessager messager = new CommandMessager("")
+                .plus("AV号: AV" + AvID)
+                .plus("BV号: " + BvID)
+                .plus("标题: " + title)
+                .plus("简介: " + description)
+                .plus("分P数: " + videoCount)
+                .plus("播放地址:")
+                .plus("https://bilibili.com/video/av" + AvID)
+                .plus("https://bilibili.com/video/" + BvID)
+                .plus("")
+                .plus("作者: " + ownerName)
+                .plus("作者主页: https://space.bilibili.com/" + ownerId);
         return new PlainText("视频: " + videoID)
                 .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceUrl)))
-                .plus("\nAV号: AV" + AvID
-                + "\nBV号: " + BvID
-                + "\n标题: " + title
-                + "\n简介: " + description
-                + "\n分P数: " + videoCount
-                + "\n播放地址:\nhttps://bilibili.com/video/av" + AvID + "\nhttps://bilibili.com/video/" + BvID + "\n"
-                + "\n作者: " + ownerName
-                + "\n作者主页: https://space.bilibili.com/" + ownerId);
+                .plus(messager.toString());
     }
 
     public static Message getUserInfo(int userID) throws Exception {

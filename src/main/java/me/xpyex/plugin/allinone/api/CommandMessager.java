@@ -9,6 +9,7 @@ public class CommandMessager {
 
     public CommandMessager(String message) {
         messages.add(message);
+        //
     }
 
     public CommandMessager plus(String message) {
