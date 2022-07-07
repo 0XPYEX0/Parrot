@@ -1,14 +1,12 @@
 package me.xpyex.plugin.allinone.utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import me.xpyex.plugin.allinone.core.CommandsList;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
