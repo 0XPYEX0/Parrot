@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.utils.StringUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
@@ -13,8 +14,7 @@ import net.mamoe.mirai.message.data.PlainText;
 public class BilibiliUtil {
     public static Message getVideoInfo(String url) throws Exception {
         String link = url.contains("www.bilibili.com/video/") ? "www.bilibili.com/video/" : "bilibili.com/video/";
-        int linkIndex = url.indexOf(link) + link.length();
-        String id = url.substring(linkIndex, url.substring(linkIndex).contains("?") ? linkIndex + url.substring(linkIndex).indexOf("?") : url.length()).split("\n")[0];
+        String id = StringUtil.getStrBeforeChar(url, link, "?").split("\n")[0].split("/")[0];
         Main.LOGGER.info("截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (id.toLowerCase().startsWith("av")) {
@@ -27,7 +27,7 @@ public class BilibiliUtil {
         } else {
             return null;
         }
-        return BilibiliUtil.getVideoInfo(map);
+        return getVideoInfo(map);
     }
 
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
@@ -67,9 +67,9 @@ public class BilibiliUtil {
         int videoCount = data.getInt("videos");
         String title = data.getStr("title");
         String description = data.getStr("desc");
-        JSONObject ownerInfo = data.getJSONObject("owner");
-        String ownerName = ownerInfo.getStr("name");
-        int ownerId = ownerInfo.getInt("mid");
+        JSONObject authorInfo = data.getJSONObject("owner");
+        String authorName = authorInfo.getStr("name");
+        int authorId = authorInfo.getInt("mid");
         String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
@@ -83,8 +83,8 @@ public class BilibiliUtil {
                 .plus("https://bilibili.com/video/av" + AvID)
                 .plus("https://bilibili.com/video/" + BvID)
                 .plus("")
-                .plus("作者: " + ownerName)
-                .plus("作者主页: https://space.bilibili.com/" + ownerId);
+                .plus("作者: " + authorName)
+                .plus("作者主页: https://space.bilibili.com/" + authorId);
         return new PlainText("视频: " + videoID)
                 .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceUrl)))
                 .plus(messager.toString());
@@ -149,9 +149,6 @@ public class BilibiliUtil {
                 break;
             case 2:
                 switch (data.getJSONObject("vip").getJSONObject("label").getStr("label_theme")) {
-                    case "annual_vip":
-                        vipInfo = "年度大会员";
-                        break;
                     case "ten_annual_vip":
                         vipInfo = "十年大会员";
                         break;
