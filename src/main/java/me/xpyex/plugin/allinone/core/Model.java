@@ -49,10 +49,7 @@ public abstract class Model {
         Main.LOGGER.info(" ");
     }
 
-    public void register() {
-        throw new UnsupportedOperationException("你不应该调用Model根类的方法");
-        //
-    }
+    public abstract void register();
 
     public final <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
         for (String s : aliases) {
