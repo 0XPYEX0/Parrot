@@ -36,17 +36,17 @@ public class RestartBroadcast extends CoreModel {
                         Thread.sleep(1000);
                     }
                     source.sendMessage("开始重启");
-                    Util.runCmdFile("cmd /c start /b RestartMirai.bat");
+                    Util.runCmd("cmd /c start /b RestartMirai.bat");
                 } catch (Throwable ignored) {}
             } else if (args[0].equalsIgnoreCase("stop")) {
                 restartMode = false;
                 source.sendMessage("已取消重启计划");
             } else if (args[0].equalsIgnoreCase("now")) {
                 source.sendMessage("开始重启");
-                Util.runCmdFile("cmd /c start /b RestartMirai.bat");
+                Util.runCmd("cmd /c start /b RestartMirai.bat");
             } else if (args[0].equalsIgnoreCase("exit")) {
                 source.sendMessage("关闭Bot");
-                Util.runCmdFile("cmd /c start /b StopMirai.bat");
+                Util.runCmd("cmd /c start /b StopMirai.bat");
             } else {
                 source.sendMessage("未知子命令");
             }

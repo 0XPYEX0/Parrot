@@ -1,5 +1,6 @@
 package me.xpyex.plugin.allinone.model;
 
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -19,8 +20,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 public class Bilibili extends Model {
     private static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
     private static final String URL_B23 = "b23.tv/";
-    private static final String URL_BILIBILI_1 = "www.bilibili.com/video/";
-    private static final String URL_BILIBILI_2 = "bilibili.com/video/";
+    private static final String URL_BILIBILI = "bilibili.com/video/";
 
     @Override
     public void register() {
@@ -141,23 +141,10 @@ public class Bilibili extends Model {
                         Util.autoSendMsg(event, "搜索错误: " + e);
                         Util.handleException(e);
                     }
-                } else if (msg.contains(URL_BILIBILI_1) || msg.contains(URL_BILIBILI_2)) {
+                } else if (msg.contains(URL_BILIBILI)) {
                     try {
-                        String link = msg.contains(URL_BILIBILI_1) ? URL_BILIBILI_1 : URL_BILIBILI_2;
-                        String id = StringUtil.getStrBeforeChar(link + StringUtil.getStrBeforeChar(msg, link, "?"), link, "\"");
-                        Main.LOGGER.info("截取到的ID: " + id);
-                        HashMap<String, Object> map = new HashMap<>();
-                        if (id.toLowerCase().startsWith("av")) {
-                            map.put("aid", id.substring(2));
-                        } else if (id.toLowerCase().startsWith("bv")) {
-                            if (id.length() != 12) {
-                                return;
-                            }
-                            map.put("bvid", id.substring(2));
-                        } else {
-                            return;
-                        }
-                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
+                        String id = StringUtil.getStrBetweenChars(URL_BILIBILI + StringUtil.getStrBetweenChars(msg, URL_BILIBILI, "?"), URL_BILIBILI, "\"");
+                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo("https://" + URL_BILIBILI + id));
                     } catch (Exception e) {
                         Util.autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
@@ -176,12 +163,11 @@ public class Bilibili extends Model {
                     }
                 } else if (msg.contains(URL_B23)) {
                     try {
-                        String b23ID = StringUtil.getStrBeforeChar(URL_B23 + StringUtil.getStrBeforeChar(msg, URL_B23, "?"), URL_B23, "\"");
+                        String b23ID = StringUtil.getStrBetweenChars(URL_B23 + StringUtil.getStrBetweenChars(msg, URL_B23, "?"), URL_B23, "\"");
                         String path = "https://" + URL_B23 + b23ID;
-                        System.out.println(path);
-                        HttpURLConnection conn = (HttpURLConnection) new URL(path).openConnection();
-                        conn.setInstanceFollowRedirects(false);
-                        conn.setConnectTimeout(5000);
+                        HttpRequest r = HttpUtil.createGet(path, false);
+                        r.execute();
+                        HttpURLConnection conn = r.getConnection().getHttpURLConnection();
                         System.out.println(conn.getHeaderFields());
                         Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(conn.getHeaderField("Location")));
                     } catch (Exception e) {

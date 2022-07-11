@@ -23,18 +23,16 @@ public class Util {
     public static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
     public static Contact getRealSender(MessageEvent event) {
-        if (isGroupEvent(event)) {
-            return ((GroupMessageEvent) event).getGroup();
-        } else {
-            return event.getSender();
-        }
+        if (isGroupEvent(event)) return ((GroupMessageEvent) event).getGroup();
+
+        return event.getSender();
     }
 
     public static String getPlainText(MessageChain msg) {
         MessageContent pt = msg.get(PlainText.Key);
-        if (pt == null) {
-            return "";
-        }
+
+        if (pt == null) return "";
+
         return pt.contentToString().trim();
     }
 
@@ -54,8 +52,8 @@ public class Util {
     }
 
     public static void autoSendMsg(MessageEvent event, Message msg) {
+        if (msg == null) return;
         getRealSender(event).sendMessage(msg);
-        //
     }
 
     public static boolean isFriendEvent(MessageEvent event) {
@@ -93,7 +91,7 @@ public class Util {
         //
     }
 
-    public static void runCmdFile(String cmd) {
+    public static void runCmd(String cmd) {
         Runtime rt = Runtime.getRuntime();
         Process ps = null;
         try {
@@ -142,7 +140,7 @@ public class Util {
         //
     }
 
-    public static byte[] readAll(final InputStream i) throws IOException {
+    public static byte[] readAll(InputStream i) throws IOException {
         ByteArrayOutputStream ba = new ByteArrayOutputStream(16384);
         byte[] data = new byte[4096];
         int nRead;

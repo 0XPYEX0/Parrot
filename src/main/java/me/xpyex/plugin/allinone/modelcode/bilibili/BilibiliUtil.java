@@ -13,8 +13,8 @@ import net.mamoe.mirai.message.data.PlainText;
 
 public class BilibiliUtil {
     public static Message getVideoInfo(String url) throws Exception {
-        String link = url.contains("www.bilibili.com/video/") ? "www.bilibili.com/video/" : "bilibili.com/video/";
-        String id = StringUtil.getStrBeforeChar(url, link, "?").split("\n")[0].split("/")[0];
+        Main.LOGGER.info(url);
+        String id = StringUtil.getStrBetweenChars("bilibili.com/video/" + StringUtil.getStrBetweenChars(url, "bilibili.com/video/", "?").split("\n")[0], "bilibili.com/video/", "/");
         Main.LOGGER.info("截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (id.toLowerCase().startsWith("av")) {
