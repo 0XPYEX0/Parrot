@@ -22,6 +22,7 @@ public class Bilibili extends Model {
     private static final String URL_BILIBILI = "bilibili.com/video/";
     private static final String URL_SPACE = "space.bilibili.com/";
     private static final String URL_DYNAMIC = "bilibili.com/dynamic/";
+    private static final String URL_LIVE = "live.bilibili.com/";
 
     @Override
     public void register() {
@@ -144,7 +145,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_BILIBILI)) {
                     try {
-                        String id = StringUtil.getStrBetweenChars(URL_BILIBILI + StringUtil.getStrBetweenChars(msg, URL_BILIBILI, "?"), URL_BILIBILI, "\"");
+                        String id = StringUtil.getStrBetweenChars(URL_BILIBILI + StringUtil.getStrBetweenChars(msg, URL_BILIBILI, "?"), URL_BILIBILI, "\"").split("\n")[0].split("/")[0];
                         Util.autoSendMsg(event, BilibiliUtil.getVideoInfo("https://" + URL_BILIBILI + id));
                     } catch (Exception e) {
                         Util.autoSendMsg(event, "解析错误: " + e);
@@ -152,7 +153,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#user")) {
                     try {
-                        int ID = Integer.parseInt(msg.substring(5));
+                        int ID = Integer.parseInt(msg.substring(5).split("/")[0]);
                         Util.autoSendMsg(event, BilibiliUtil.getUserInfo(ID));
                     } catch (Exception e) {
                         if (e instanceof NumberFormatException) {
@@ -164,7 +165,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_B23)) {
                     try {
-                        String b23ID = StringUtil.getStrBetweenChars(URL_B23 + StringUtil.getStrBetweenChars(msg, URL_B23, "?"), URL_B23, "\"");
+                        String b23ID = StringUtil.getStrBetweenChars(URL_B23 + StringUtil.getStrBetweenChars(msg, URL_B23, "?"), URL_B23, "\"").split("\n")[0].split("/")[0];
                         String path = "https://" + URL_B23 + b23ID;
                         Main.LOGGER.info("解析b23.tv链接时截取到的ID为: " + b23ID);
                         HttpRequest r = HttpUtil.createGet(path, false);
@@ -176,11 +177,14 @@ public class Bilibili extends Model {
                         if (StringUtil.containsIgnoreCase(reconnectLink, URL_BILIBILI)) {
                             Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_SPACE)) {
-                            String userID = StringUtil.getStrBetweenChars(reconnectLink, URL_SPACE, "?").split("\n")[0];
+                            String userID = StringUtil.getStrBetweenChars(reconnectLink, URL_SPACE, "?").split("\n")[0].split("/")[0];
                             Util.autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(userID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_DYNAMIC)) {
-                            String dID = StringUtil.getStrBetweenChars(reconnectLink, URL_DYNAMIC, "?").split("\n")[0];
+                            String dID = StringUtil.getStrBetweenChars(reconnectLink, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
                             Util.autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
+                        } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_LIVE)) {
+                            String liveID = StringUtil.getStrBetweenChars(reconnectLink, URL_LIVE, "?").split("\n")[0].split("/")[0];
+                            Util.autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(liveID)));
                         }
                     } catch (Exception e) {
                         Util.autoSendMsg(event, "解析错误: " + e);
@@ -188,7 +192,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_SPACE)) {
                     try {
-                        String userID = StringUtil.getStrBetweenChars(msg, URL_SPACE, "?").split("\n")[0];
+                        String userID = StringUtil.getStrBetweenChars(msg, URL_SPACE, "?").split("\n")[0].split("/")[0];
                         Util.autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(userID)));
                     } catch (Exception e) {
                         Util.handleException(e);
@@ -196,8 +200,16 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_DYNAMIC)) {
                     try {
-                        String dID = StringUtil.getStrBetweenChars(msg, URL_DYNAMIC, "?").split("\n")[0];
+                        String dID = StringUtil.getStrBetweenChars(msg, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
                         Util.autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
+                    } catch (Exception e) {
+                        Util.handleException(e);
+                        Util.autoSendMsg(event, "解析错误: " + e);
+                    }
+                } else if (StringUtil.containsIgnoreCase(msg, URL_LIVE)) {
+                    try {
+                        String liveID = StringUtil.getStrBetweenChars(msg, URL_LIVE, "?").split("\n")[0].split("/")[0];
+                        Util.autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(liveID)));
                     } catch (Exception e) {
                         Util.handleException(e);
                         Util.autoSendMsg(event, "解析错误: " + e);

@@ -13,14 +13,15 @@ import net.mamoe.mirai.message.data.PlainText;
 
 public class BilibiliUtil {
 
-    private static final String URL_BILIBILI = "bilibili.com/video/";
-    public static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
-    public static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
-    public static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
+    private static final String URL_BILIBILI_VIDEO = "bilibili.com/video/";
+    private static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
+    private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
+    private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
+    private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld";
 
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
-        String id = StringUtil.getStrBetweenChars(URL_BILIBILI + StringUtil.getStrBetweenChars(url, URL_BILIBILI, "?").split("\n")[0], URL_BILIBILI, "/");
+        String id = StringUtil.getStrBetweenChars(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenChars(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
         Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (id.toLowerCase().startsWith("av")) {
@@ -205,7 +206,6 @@ public class BilibiliUtil {
             Thread.sleep(5000L);
         }
 
-        System.out.println(result);
         JSONObject obj = new JSONObject(result);
         if (obj.getInt("code") != 0) {
             String reason;
@@ -225,5 +225,44 @@ public class BilibiliUtil {
                 .plus("动态: " + ID)
                 .plus("内容: " + card.getStr("desc"));
         return new PlainText(messager.toString());
+    }
+
+    public static Message getLiveInfo(int userID) throws Exception {
+        Main.LOGGER.info("getLiveInfo时的ID: " + userID);
+
+        HashMap<String, Object> param = new HashMap<>();
+        param.put("mid", userID);
+        String result = HttpUtil.get(API_URL_BILIBILI_LIVE_ROOM, param);
+
+        Main.LOGGER.info("请求结果: " + result);
+
+        JSONObject obj = new JSONObject(result);
+        if (obj.getInt("code") != 0) {
+            String reason;
+            switch (obj.getInt("code")) {
+                case -400:
+                    reason = "请求错误";
+                    break;
+                default:
+                    reason = "未知原因";
+                    break;
+            }
+            return new PlainText("解析失败: " + reason + "\n" +
+                    "错误代码: " + obj.getInt("code") + "\n" +
+                    "错误信息: " + obj.getStr("message"));
+        }
+        JSONObject data = obj.getJSONObject("data");
+        String isOnline = data.getInt("liveStatus") == 1 ? "已开播" : "未开播";
+        CommandMessager messager1 = new CommandMessager()
+                .plus("直播间: " + userID)
+                .plus("标题: " + data.getStr("title"));
+        CommandMessager messager2 = new CommandMessager("")
+                .plus("开播状态: " + isOnline)
+                .plus("直播间地址: " + data.getStr("url"));
+        return new PlainText(messager1.toString())
+                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(data.getStr("cover"))))
+                .plus(messager2.toString())
+                .plus("\n")
+                .plus(getUserInfo(userID));
     }
 }
