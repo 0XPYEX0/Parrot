@@ -12,10 +12,16 @@ import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 
 public class BilibiliUtil {
+
+    private static final String URL_BILIBILI = "bilibili.com/video/";
+    public static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
+    public static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
+    public static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
+
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
-        String id = StringUtil.getStrBetweenChars("bilibili.com/video/" + StringUtil.getStrBetweenChars(url, "bilibili.com/video/", "?").split("\n")[0], "bilibili.com/video/", "/");
-        Main.LOGGER.info("截取到的ID: " + id);
+        String id = StringUtil.getStrBetweenChars(URL_BILIBILI + StringUtil.getStrBetweenChars(url, URL_BILIBILI, "?").split("\n")[0], URL_BILIBILI, "/");
+        Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (id.toLowerCase().startsWith("av")) {
             map.put("aid", id.substring(2));
@@ -31,13 +37,13 @@ public class BilibiliUtil {
     }
 
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
-        String result = HttpUtil.get("https://api.bilibili.com/x/web-interface/view", param);
+        String result = HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
             if (failCount > 5) {
                 return new PlainText("解析超时");
             }
-            result = HttpUtil.post("https://api.bilibili.com/x/web-interface/view", param);
+            result = HttpUtil.post(API_URL_BILIBILI_VIDEO, param);
             failCount++;
             Thread.sleep(5000L);
         }
@@ -45,19 +51,25 @@ public class BilibiliUtil {
         JSONObject infos = new JSONObject(result);
         int failed = infos.getInt("code");
         if (failed != 0) {
-            String Reason;
-            if (failed == -400) {
-                Reason = "请求错误";
-            } else if (failed == -403) {
-                Reason = "权限不足";
-            } else if (failed == -404) {
-                Reason = "视频不存在";
-            } else if (failed == 62002) {
-                Reason = "视频不可见(被锁定)";
-            } else {
-                Reason = "未知原因";
+            String reason;
+            switch (failed) {
+                case -400:
+                    reason = "请求错误";
+                    break;
+                case -403:
+                    reason = "权限不足";
+                    break;
+                case -404:
+                    reason = "视频不存在";
+                    break;
+                case 62002:
+                    reason = "视频不可见(被锁定)";
+                    break;
+                default:
+                    reason = "未知原因";
+                    break;
             }
-            return new PlainText("解析失败: " + Reason
+            return new PlainText("解析失败: " + reason
                     + "\n错误码: " + failed
                     + "\n错误信息: " + infos.getStr("message"));
         }
@@ -93,29 +105,29 @@ public class BilibiliUtil {
     public static Message getUserInfo(int userID) throws Exception {
         Map<String, Object> param = new HashMap<>();
         param.put("mid", userID);
-        String result = HttpUtil.get("https://api.bilibili.com/x/space/acc/info", param);
+        String result = HttpUtil.get(API_URL_BILIBILI_USER, param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
             if (failCount > 5) {
                 return new PlainText("解析超时");
             }
-            result = HttpUtil.post("https://api.bilibili.com/x/space/acc/info", param);
+            result = HttpUtil.post(API_URL_BILIBILI_USER, param);
             failCount++;
             Thread.sleep(5000L);
         }
 
         Main.LOGGER.info(result);
         JSONObject infos = new JSONObject(result);
-        int success = infos.getInt("code");
-        if (success != 0) {
-            String Reason;
-            if (success == -400) {
-                Reason = "请求错误";
+        int failed = infos.getInt("code");
+        if (failed != 0) {
+            String reason;
+            if (failed == -400) {
+                reason = "请求错误";
             } else {
-                Reason = "未知原因";
+                reason = "未知原因";
             }
-            return new PlainText("查找用户失败: " + Reason
-                    + "\n错误码: " + success
+            return new PlainText("查找用户失败: " + reason
+                    + "\n错误码: " + failed
                     + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
@@ -171,5 +183,47 @@ public class BilibiliUtil {
                         "会员: " + vipInfo + "\n" +
                         "认证信息: " + officialInfo + "\n" +
                         "空间地址: https://space.bilibili.com/" + userID);
+    }
+
+    public static Message getDynamicInfo(long ID) throws Exception {
+        Main.LOGGER.info("getDynamicInfo时的ID: " + ID);
+        if (true) {
+            return new PlainText("动态: " + ID + "\n" +
+                    "暂不可用");
+        }
+
+        HashMap<String, Object> param = new HashMap<>();
+        param.put("dynamic_id", ID);
+        String result = HttpUtil.get(API_URL_BILIBILI_DYNAMIC, param);
+        int failCount = 0;
+        while (result == null || result.isEmpty()) {
+            if (failCount > 5) {
+                return new PlainText("解析超时");
+            }
+            result = HttpUtil.post(API_URL_BILIBILI_DYNAMIC, param);
+            failCount++;
+            Thread.sleep(5000L);
+        }
+
+        System.out.println(result);
+        JSONObject obj = new JSONObject(result);
+        if (obj.getInt("code") != 0) {
+            String reason;
+            switch (obj.getInt("code")) {
+                default:
+                    reason = "未知原因";
+                    break;
+            }
+            return new PlainText("解析失败: " + reason + "\n" +
+                    "错误代码: " + obj.getInt("code") + "\n" +
+                    "错误信息: " + obj.getStr("message"));
+        }
+
+        JSONObject card = obj.getJSONObject("data").getJSONObject("card");
+
+        CommandMessager messager = new CommandMessager()
+                .plus("动态: " + ID)
+                .plus("内容: " + card.getStr("desc"));
+        return new PlainText(messager.toString());
     }
 }
