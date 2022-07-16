@@ -5,7 +5,9 @@ import cn.hutool.cron.CronUtil;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.TreeSet;
+import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.CommandsList;
+import me.xpyex.plugin.allinone.core.EventBus;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -54,7 +56,7 @@ public class Main extends JavaPlugin {
 
         {
             TreeSet<String> list = new TreeSet<>();
-            for (Model loadedModel : Model.LOADED_MODELS) {
+            for (Model loadedModel : Model.LOADED_MODELS.values()) {
                 list.add(loadedModel.getName());
             }
             LOGGER.info("已注册的所有模块: " + list);
@@ -65,11 +67,11 @@ public class Main extends JavaPlugin {
             public void onEvent(Event event) {
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
                     if (CommandsList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
-                        Model.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
+                        CommandBus.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
                         return;
                     }
                 }
-                Model.callEvents(event);
+                EventBus.callEvents(event);
             }
         });  //广播事件
 
