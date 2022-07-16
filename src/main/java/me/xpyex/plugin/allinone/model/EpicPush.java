@@ -51,7 +51,7 @@ public class EpicPush extends Model {
             readDataToList(groupData, groupList);
         } catch (IOException e) {
             e.printStackTrace();
-            Main.LOGGER.info("读取数据失败！");
+            info("读取数据失败！");
         }
     }
 
@@ -88,10 +88,12 @@ public class EpicPush extends Model {
 
     public void addUser(String userID) {
         userList.add(userID);
+        //
     }
 
     public void addGroup(String groupID) {
         groupList.add(groupID);
+        //
     }
 
     public String getJson() {
@@ -184,7 +186,7 @@ public class EpicPush extends Model {
                             sendPushData(json, bot.getGroup(Long.parseLong(s)), null);
                         }
                     } catch (Exception e) {
-                        Main.LOGGER.info(e);
+                        info(e);
                     }
                 }
             }, startTime, 24 * 60 * 60 * 1000 * 7);
@@ -222,7 +224,7 @@ public class EpicPush extends Model {
                 event.getSender().sendMessage("定时推送已开启，每周五晚定时推送");
             } catch (Exception e) {
                 e.printStackTrace();
-                Main.LOGGER.info("fail to writeUser");
+                info("fail to writeUser");
             }
         } else if (Util.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
             String id = String.valueOf(event.getSender().getId());
@@ -251,7 +253,7 @@ public class EpicPush extends Model {
                 event.getGroup().sendMessage("定时推送已开启，每周五晚定时推送");
             } catch (Exception e) {
                 e.printStackTrace();
-                Main.LOGGER.info("fail to writeGroup");
+                info("fail to writeGroup");
             }
         } else if (Util.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
             String id = String.valueOf(event.getGroup().getId());

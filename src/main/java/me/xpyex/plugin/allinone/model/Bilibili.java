@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.bilibili.BilibiliUtil;
@@ -167,7 +166,7 @@ public class Bilibili extends Model {
                     try {
                         String b23ID = StringUtil.getStrBetweenChars(URL_B23 + StringUtil.getStrBetweenChars(msg, URL_B23, "?"), URL_B23, "\"").split("\n")[0].split("/")[0];
                         String path = "https://" + URL_B23 + b23ID;
-                        Main.LOGGER.info("解析b23.tv链接时截取到的ID为: " + b23ID);
+                        info("解析b23.tv链接时截取到的ID为: " + b23ID);
                         HttpRequest r = HttpUtil.createGet(path, false);
                         r.execute();
                         HttpURLConnection conn = r.getConnection().getHttpURLConnection();

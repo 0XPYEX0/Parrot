@@ -57,7 +57,7 @@ public class PluginManager extends CoreModel {
                     }
                 } else if (args[0].equalsIgnoreCase("list")) {
                     TreeSet<String> list = new TreeSet<>();
-                    for (Model loadedModel : Model.LOADED_MODELS) {
+                    for (Model loadedModel : Model.LOADED_MODELS.values()) {
                         list.add(Model.DISABLED_MODELS.contains(loadedModel) ? loadedModel.getName() + "(未启用)" : loadedModel.getName());
                     }
                     source.sendMessage("所有模块列表: " + list);
