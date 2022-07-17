@@ -17,6 +17,11 @@ public class TestMsg extends Model {
                 Util.getRealSender(event).sendMessage("test");
             }
         });
+        listenEvent(MessageEvent.class, (event) -> {
+            if (Util.getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
+                Util.getRealSender(event).sendMessage("test2, 第二个监听器也成功注册了！");
+            }
+        });
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             CommandMessager messager = new CommandMessager()
                     .plus("这是全局反馈器")

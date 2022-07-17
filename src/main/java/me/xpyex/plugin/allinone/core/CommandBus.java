@@ -21,16 +21,16 @@ public class CommandBus {
 
     public static void callCommands(MessageEvent event, String msg) {
         String cmd = msg.split(" ")[0];
-        String[] cmds = msg.substring(cmd.length()).trim().split(" ");
-        if (cmds.length == 1 && cmds[0].trim().isEmpty()) {
-            cmds = new String[0];
+        String[] args = msg.substring(cmd.length()).trim().split(" ");
+        if (args.length == 1 && args[0].trim().isEmpty()) {
+            args = new String[0];
         }
         for (CommandBus commandBus : COMMAND_BUSES) {
             if (ClassUtil.isAssignable(commandBus.contactType, Util.getRealSender(event).getClass())) {
                 if (!Model.DISABLED_MODELS.contains(commandBus.model)) {
                     if (CommandsList.isCmd(commandBus.model, cmd)) {
                         CommandExecutor executor = commandBus.executor;
-                        executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), cmds);
+                        executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);
                     }
                 }
             }

@@ -89,5 +89,6 @@ public abstract class Model {
 
     public void info(Throwable e) {
         Main.LOGGER.info(e);
+        //
     }
 }
