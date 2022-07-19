@@ -15,7 +15,7 @@ public class CommandBus {
         //
     }
 
-    public static <C extends Contact> void callCommands(MessageEvent event, String msg) {
+    public static void callCommands(MessageEvent event, String msg) {
         String cmd = msg.split(" ")[0];
         String[] args = msg.substring(cmd.length()).trim().split(" ");
         if (args.length == 1 && args[0].trim().isEmpty()) {
