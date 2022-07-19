@@ -21,7 +21,7 @@ public class BilibiliUtil {
 
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
-        String id = StringUtil.getStrBetweenChars(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenChars(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
+        String id = StringUtil.getStrBetweenKeywords(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenKeywords(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
         Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (id.toLowerCase().startsWith("av")) {
