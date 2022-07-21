@@ -1,13 +1,14 @@
 package me.xpyex.plugin.allinone.api;
 
-import java.util.HashMap;
+import cn.hutool.core.lang.Pair;
+import java.util.ArrayList;
 
 /**
  * 命令帮助菜单，替开发者完成帮助菜单的任务
  */
 public class CommandMenu {
     private final String command;
-    private final HashMap<String, String> helpList = new HashMap<>();
+    private final ArrayList<Pair<String, String>> helpList = new ArrayList<>();
 
     /**
      * 构造函数
@@ -25,7 +26,7 @@ public class CommandMenu {
      * @return 返回自身，制造链式调用
      */
     public CommandMenu add(String argument, String help) {
-        helpList.put(argument, help);
+        helpList.add(new Pair<>(argument, help));
         return this;
     }
 
@@ -36,8 +37,8 @@ public class CommandMenu {
     @Override
     public String toString() {
         CommandMessager messager = new CommandMessager();
-        for (String argument : helpList.keySet()) {
-            messager.plus("#" + command + " " + argument + " - " + helpList.get(argument));
+        for (Pair<String, String> pair : helpList) {
+            messager.plus("#" + command + " " + pair.getKey() + " - " + pair.getValue());
         }
         return messager.toString();
     }
