@@ -16,9 +16,9 @@ public class EventBus {
 
     public static <T extends Event> void callEvents(Event event) {
         for (XPTuple eventBus : EVENT_BUSES) {
-            if (ClassUtil.isAssignable(eventBus.get(1), event.getClass())) {
-                if (!Model.DISABLED_MODELS.contains(eventBus.get(2, Model.class))) {
-                    Consumer listener = eventBus.get(3);
+            if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
+                if (!Model.DISABLED_MODELS.contains(eventBus.get(1, Model.class))) {
+                    Consumer listener = eventBus.get(2);
                     listener.accept(event);
                 }
             }

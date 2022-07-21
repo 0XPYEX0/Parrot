@@ -22,10 +22,10 @@ public class CommandBus {
             args = new String[0];
         }
         for (XPTuple commandBus : COMMAND_BUSES) {
-            if (ClassUtil.isAssignable(commandBus.get(1), Util.getRealSender(event).getClass())) {
-                if (!Model.DISABLED_MODELS.contains(commandBus.get(2, Model.class))) {
-                    if (CommandsList.isCmd(commandBus.get(2), cmd)) {
-                        CommandExecutor executor = commandBus.get(3);
+            if (ClassUtil.isAssignable(commandBus.get(0), Util.getRealSender(event).getClass())) {
+                if (!Model.DISABLED_MODELS.contains(commandBus.get(1, Model.class))) {
+                    if (CommandsList.isCmd(commandBus.get(1), cmd)) {
+                        CommandExecutor executor = commandBus.get(2);
                         executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);
                     }
                 }
