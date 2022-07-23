@@ -10,7 +10,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 public class CommandBus {
     private static final ArrayList<Tuple> COMMAND_BUSES = new ArrayList<>();
 
-    public <C extends Contact> CommandBus(Class<C> contactType, Model model, CommandExecutor<C> executor) {
+    public <_Contact extends Contact> CommandBus(Class<_Contact> contactType, Model model, CommandExecutor<_Contact> executor) {
         COMMAND_BUSES.add(new Tuple(contactType, model, executor));
         //
     }

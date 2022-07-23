@@ -40,7 +40,7 @@ public abstract class Model {
 
     public abstract void register();
 
-    public final <T extends Contact> void registerCommand(Class<T> contactType, CommandExecutor<T> exec, String... aliases) {
+    public final <_Contact extends Contact> void registerCommand(Class<_Contact> contactType, CommandExecutor<_Contact> exec, String... aliases) {
         for (String s : aliases) {
             if (s.contains(" ")) {
                 throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
@@ -51,7 +51,7 @@ public abstract class Model {
         Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
-    public final <T extends Event> void listenEvent(Class<T> eventType, Consumer<T> listener) {
+    public final <_Event extends Event> void listenEvent(Class<_Event> eventType, Consumer<_Event> listener) {
         new EventBus(eventType, this, listener);
         Main.LOGGER.info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }

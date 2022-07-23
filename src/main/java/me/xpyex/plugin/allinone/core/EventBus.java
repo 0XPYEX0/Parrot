@@ -9,13 +9,13 @@ import net.mamoe.mirai.event.Event;
 public class EventBus {
     private static final ArrayList<Tuple> EVENT_BUSES = new ArrayList<>();
 
-    public <T extends Event> EventBus(Class<T> eventType, Model model, Consumer<T> eventExecutor) {
+    public <_Event extends Event> EventBus(Class<_Event> eventType, Model model, Consumer<_Event> eventExecutor) {
         EVENT_BUSES.add(new Tuple(eventType, model, eventExecutor));
         //
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <T extends Event> void callEvents(Event event) {
+    public static void callEvents(Event event) {
         for (Tuple eventBus : EVENT_BUSES) {
             if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
                 Model model = eventBus.get(1);
