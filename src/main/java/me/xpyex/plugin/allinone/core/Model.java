@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.PlainText;
 
 /**
  * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
@@ -75,7 +79,9 @@ public abstract class Model {
 
     public static Model getModel(String name) {
         if (name == null || name.trim().isEmpty()) return null;
+
         if (LOADED_MODELS.containsKey(name)) return LOADED_MODELS.get(name);
+
         for (String s : LOADED_MODELS.keySet()) {
             if (s.equalsIgnoreCase(name)) return LOADED_MODELS.get(s);
         }
@@ -90,5 +96,22 @@ public abstract class Model {
     public void info(Throwable e) {
         Main.LOGGER.info(e);
         //
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Contact> T getRealSender(MessageEvent event) {
+        return (T) Util.getRealSender(event);
+        //
+    }
+
+    public void autoSendMsg(MessageEvent event, Message msg) {
+        if (msg == null) return;
+
+        getRealSender(event).sendMessage(msg);
+    }
+
+    public void autoSendMsg(MessageEvent event, String msg) {
+        if (msg == null || msg.isEmpty()) return;
+        autoSendMsg(event, new PlainText(msg));
     }
 }

@@ -14,12 +14,12 @@ public class TestMsg extends Model {
     public void register() {
         listenEvent(MessageEvent.class, (event) -> {
             if (Util.getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
-                Util.getRealSender(event).sendMessage("test");
+                autoSendMsg(event, "test");
             }
         });
         listenEvent(MessageEvent.class, (event) -> {
             if (Util.getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
-                Util.getRealSender(event).sendMessage("test2, 第二个监听器也成功注册了！");
+                autoSendMsg(event, "test2, 第二个监听器也成功注册了！");
             }
         });
         registerCommand(Contact.class, ((source, sender, label, args) -> {

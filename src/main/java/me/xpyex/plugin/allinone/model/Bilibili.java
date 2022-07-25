@@ -40,9 +40,9 @@ public class Bilibili extends Model {
                             }
                             map.put("bvid", msg.substring(3, 13));
                         }
-                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
+                        autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
                     } catch (Exception e) {
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#ss", "#ep")) {
@@ -57,7 +57,7 @@ public class Bilibili extends Model {
                         int failCount = 0;
                         while (result == null || result.isEmpty()) {
                             if (failCount > 5) {
-                                Util.autoSendMsg(event, "解析超时");
+                                autoSendMsg(event, "解析超时");
                                 return;
                             }
                             result = HttpUtil.post("https://api.bilibili.cn/view/" + msg, map);
@@ -66,7 +66,7 @@ public class Bilibili extends Model {
                         }
                         JSONObject infos = new JSONObject(result);
                         if (infos.getInt("code") != 0) {
-                            Util.autoSendMsg(event, "无法找到番剧: " + infos.getStr("message")
+                            autoSendMsg(event, "无法找到番剧: " + infos.getStr("message")
                                     + "\n错误码: " + infos.getInt("code"));
                             return;
                         }
@@ -84,9 +84,9 @@ public class Bilibili extends Model {
                                 .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
                                 .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
                                 .plus("最新集: " + newestEP.getStr("title"));
-                        Util.autoSendMsg(event, messager.toString());
+                        autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#search bilibili ")) {
@@ -98,7 +98,7 @@ public class Bilibili extends Model {
                         int count = 0;
                         while (result == null || result.isEmpty()) {
                             if (count >= 5) {
-                                Util.autoSendMsg(event, "搜索超时");
+                                autoSendMsg(event, "搜索超时");
                                 return;
                             }
                             result = HttpUtil.get("https://api.bilibili.com/x/web-interface/search/all/v2", map);
@@ -108,7 +108,7 @@ public class Bilibili extends Model {
                         JSONObject json = new JSONObject(result);
                         int code = json.getInt("code");
                         if (code != 0) {
-                            Util.autoSendMsg(event, "搜索错误: 请求错误" +
+                            autoSendMsg(event, "搜索错误: 请求错误" +
                                     "\n" +
                                     "错误码: " + code +
                                     "错误信息: " + json.getStr("message")
@@ -138,29 +138,29 @@ public class Bilibili extends Model {
                                     .plus("播放地址: " + url);
                         }
                         messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果");
-                        Util.autoSendMsg(event, messager.toString());
+                        autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
-                        Util.autoSendMsg(event, "搜索错误: " + e);
+                        autoSendMsg(event, "搜索错误: " + e);
                         Util.handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#user")) {
                     try {
                         int ID = Integer.parseInt(msg.substring(5).split("/")[0]);
-                        Util.autoSendMsg(event, BilibiliUtil.getUserInfo(ID));
+                        autoSendMsg(event, BilibiliUtil.getUserInfo(ID));
                     } catch (Exception e) {
                         if (e instanceof NumberFormatException) {
-                            Util.autoSendMsg(event, "请输入正确的ID");
+                            autoSendMsg(event, "请输入正确的ID");
                         } else {
-                            Util.autoSendMsg(event, "出现错误: " + e);
+                            autoSendMsg(event, "出现错误: " + e);
                             Util.handleException(e);
                         }
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_BILIBILI)) {
                     try {
                         String id = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(URL_BILIBILI + StringUtil.getStrBetweenKeywords(msg, URL_BILIBILI, "?"), URL_BILIBILI, "\"").split("\n")[0].split("/")[0]);
-                        Util.autoSendMsg(event, BilibiliUtil.getVideoInfo("https://" + URL_BILIBILI + id));
+                        autoSendMsg(event, BilibiliUtil.getVideoInfo("https://" + URL_BILIBILI + id));
                     } catch (Exception e) {
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_B23)) {
@@ -175,44 +175,44 @@ public class Bilibili extends Model {
                         String reconnectLink = conn.getHeaderField("Location");
 
                         if (StringUtil.containsIgnoreCase(reconnectLink, URL_BILIBILI)) {
-                            Util.autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));
+                            autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_SPACE)) {
                             String userID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_SPACE, "?").split("\n")[0].split("/")[0];
-                            Util.autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(userID)));
+                            autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(userID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_DYNAMIC)) {
                             String dID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
-                            Util.autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
+                            autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_LIVE)) {
                             String liveID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_LIVE, "?").split("\n")[0].split("/")[0];
-                            Util.autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(liveID)));
+                            autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(liveID)));
                         }
                     } catch (Exception e) {
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                         Util.handleException(e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_SPACE)) {
                     try {
                         String userID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(msg, URL_SPACE, "?").split("\n")[0].split("/")[0]);
-                        Util.autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(BilibiliUtil.getFixedID(userID))));
+                        autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(BilibiliUtil.getFixedID(userID))));
                     } catch (Exception e) {
                         Util.handleException(e);
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_DYNAMIC)) {
                     try {
                         String dID = StringUtil.getStrBetweenKeywords(msg, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
-                        Util.autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(BilibiliUtil.getFixedID(dID))));
+                        autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(BilibiliUtil.getFixedID(dID))));
                     } catch (Exception e) {
                         Util.handleException(e);
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_LIVE)) {
                     try {
                         String liveID = StringUtil.getStrBetweenKeywords(msg, URL_LIVE, "?").split("\n")[0].split("/")[0];
-                        Util.autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(BilibiliUtil.getFixedID(liveID))));
+                        autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(BilibiliUtil.getFixedID(liveID))));
                     } catch (Exception e) {
                         Util.handleException(e);
-                        Util.autoSendMsg(event, "解析错误: " + e);
+                        autoSendMsg(event, "解析错误: " + e);
                     }
                 }
             });
