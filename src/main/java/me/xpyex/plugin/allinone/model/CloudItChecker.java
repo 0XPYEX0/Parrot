@@ -7,6 +7,7 @@ import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 
+@SuppressWarnings("unused")
 public class CloudItChecker extends Model {
     private static final String URL = "http://SQ-A1.NatServer.cn:1201";
     private static final String USER_AUTH_URL = URL + "/api/user/auth";

@@ -21,6 +21,7 @@ import me.xpyex.plugin.allinone.modelcode.music.musicsource.QQMusicSource;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
+@SuppressWarnings("unused")
 public class Music extends Model {
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
     public static final Map<String, BiConsumer<MessageEvent, String[]>> MUSIC_CMDS = new ConcurrentHashMap<>();

@@ -9,6 +9,7 @@ import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 
+@SuppressWarnings("unused")
 public class PokeAt extends Model {
 
     @Override

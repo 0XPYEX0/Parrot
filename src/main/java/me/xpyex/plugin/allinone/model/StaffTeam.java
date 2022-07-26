@@ -5,6 +5,7 @@ import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
 
+@SuppressWarnings("unused")
 public class StaffTeam extends Model {
     @Override
     public void register() {

@@ -7,6 +7,7 @@ import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.utils.ExternalResource;
 
+@SuppressWarnings("unused")
 public class JoinMessage extends Model {
     @Override
     public void register() {

@@ -9,6 +9,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 
+@SuppressWarnings("unused")
 public class TestMsg extends Model {
     @Override
     public void register() {

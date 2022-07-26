@@ -6,6 +6,7 @@ import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Contact;
 
+@SuppressWarnings("unused")
 public class PluginManager extends CoreModel {
     @Override
     public void register() {

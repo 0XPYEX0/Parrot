@@ -77,13 +77,14 @@ public abstract class Model {
         return DISABLED_MODELS.size() != count;
     }
 
-    public static Model getModel(String name) {
+    @SuppressWarnings("unchecked")
+    public static <M extends Model> M getModel(String name) {
         if (name == null || name.trim().isEmpty()) return null;
 
-        if (LOADED_MODELS.containsKey(name)) return LOADED_MODELS.get(name);
+        if (LOADED_MODELS.containsKey(name)) return (M) LOADED_MODELS.get(name);
 
         for (String s : LOADED_MODELS.keySet()) {
-            if (s.equalsIgnoreCase(name)) return LOADED_MODELS.get(s);
+            if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
         }
         return null;
     }
@@ -112,6 +113,7 @@ public abstract class Model {
 
     public void autoSendMsg(MessageEvent event, String msg) {
         if (msg == null || msg.isEmpty()) return;
+
         autoSendMsg(event, new PlainText(msg));
     }
 }

@@ -4,6 +4,7 @@ import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Group;
 
+@SuppressWarnings("unused")
 public class MohistQuestion extends Model {
     @Override
     public void register() {

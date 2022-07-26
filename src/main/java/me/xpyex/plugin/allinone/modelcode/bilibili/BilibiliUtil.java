@@ -11,6 +11,7 @@ import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 
+@SuppressWarnings("all")  //不切实际的警告，编译器哪懂我(确信
 public class BilibiliUtil {
 
     private static final String URL_BILIBILI_VIDEO = "bilibili.com/video/";
@@ -18,15 +19,16 @@ public class BilibiliUtil {
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
     private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld";
+    private static final HashMap<String, Message> VIDEO_CACHES = new HashMap<>();
 
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
         String id = StringUtil.getStrBetweenKeywords(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenKeywords(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
         Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
-        if (id.toLowerCase().startsWith("av")) {
+        if (StringUtil.startsWithIgnoreCase(id, "AV")) {
             map.put("aid", id.substring(2));
-        } else if (id.toLowerCase().startsWith("bv")) {
+        } else if (StringUtil.startsWithIgnoreCase(id, "BV")) {
             if (id.length() != 12) {
                 return null;
             }
@@ -38,6 +40,15 @@ public class BilibiliUtil {
     }
 
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
+        if (param.containsKey("aid")) {
+            if (VIDEO_CACHES.containsKey("AV" + param.get("aid"))) {
+                return VIDEO_CACHES.get("AV" + param.get("aid"));
+            }
+        } else if (param.containsKey("bvid")) {
+            if (VIDEO_CACHES.containsKey("BV" + param.get("bvid"))) {
+                return VIDEO_CACHES.get("BV" + param.get("bvid"));
+            }
+        }
         String result = HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
@@ -98,9 +109,12 @@ public class BilibiliUtil {
                 .plus("")
                 .plus("作者: " + authorName)
                 .plus("作者主页: https://space.bilibili.com/" + authorId);
-        return new PlainText("视频: " + videoID)
+        Message out = new PlainText("视频: " + videoID)
                 .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceUrl)))
                 .plus(messager.toString());
+        VIDEO_CACHES.put("AV" + AvID, out);
+        VIDEO_CACHES.put(BvID, out);
+        return out;
     }
 
     public static Message getUserInfo(int userID) throws Exception {

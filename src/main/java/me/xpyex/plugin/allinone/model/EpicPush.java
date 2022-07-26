@@ -31,6 +31,7 @@ import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.utils.ExternalResource;
 
+@SuppressWarnings("unused")
 public class EpicPush extends Model {
     private static File adminUser;
     private static File userData;

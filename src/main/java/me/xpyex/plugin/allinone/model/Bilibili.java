@@ -71,7 +71,7 @@ public class Bilibili extends Model {
                             return;
                         }
                         JSONObject publish = infos.getJSONObject("result").getJSONObject("publish");
-                        boolean finished = (publish.getInt("is_finish") == 1);
+                        boolean finished = publish.getInt("is_finish") == 1;
                         String publishTime = publish.getStr("pub_time");
                         JSONObject newestEP = infos.getJSONObject("result").getJSONObject("new_ep");
                         String title = infos.getJSONObject("result").getStr("title");
