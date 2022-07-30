@@ -120,12 +120,18 @@ public class Util {
         //
     }
 
-    public static void handleException(Throwable e) {
+    public static void handleException(Throwable e, boolean noticeOwner) {
         e.printStackTrace();
-        sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
-                e.getStackTrace()[0].getMethodName() + " 时出错: " +
-                e + "\n" +
-                "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
+        if (noticeOwner) {
+            sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
+                    e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                    e + "\n" +
+                    "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
+        }
+    }
+
+    public static void handleException(Throwable e) {
+        handleException(e, true);
     }
 
     public static ExternalResource getImage(URL url) throws Exception {

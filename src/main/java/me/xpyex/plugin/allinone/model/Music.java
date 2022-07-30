@@ -67,7 +67,7 @@ public class Music extends Model {
                     Util.autoSendMsg(event, cb.process(mc.get(sn), Util.getRealSender(event)));
                 } catch (Throwable e) {
                     Util.autoSendMsg(event, "无法找到歌曲");
-                    Util.handleException(e);
+                    Util.handleException(e, false);
                 }
             });
         };

@@ -281,13 +281,7 @@ public class BilibiliUtil {
     }
 
     public static String getFixedID(String s) {
-        StringBuilder result = new StringBuilder();
-        for (char char1 : s.toCharArray()) {
-            if (!Character.isLetterOrDigit(char1)) {
-                break;
-            }
-            result.append(char1);
-        }
-        return result.toString();
+        Main.LOGGER.info("getFixedID中参数s为: " + s);
+        return s.replaceAll("_|\\W", "");
     }
 }
