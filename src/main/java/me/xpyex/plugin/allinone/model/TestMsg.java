@@ -1,6 +1,7 @@
 package me.xpyex.plugin.allinone.model;
 
 import java.util.Arrays;
+import java.util.UUID;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -37,5 +38,18 @@ public class TestMsg extends Model {
         registerCommand(User.class, ((source, sender, label, args) ->
                 source.sendMessage("这是私聊反馈器")
         ), "testCmd");
+        runTaskLater(() ->
+                        Util.getBot().getFriend(1723275529L).sendMessage("已启动"),
+                5
+        );
+        UUID taskUUID = runTaskTimer(() ->
+                        info("这是一条测试消息的亲"),
+                10,
+                0
+        );
+        runTaskLater(() -> {
+            shutdownRepeatTask(taskUUID);
+            info("已停止定时任务 " + taskUUID);
+        }, 20);
     }
 }

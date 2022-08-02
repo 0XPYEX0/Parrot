@@ -3,6 +3,9 @@ package me.xpyex.plugin.allinone.core;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -23,9 +26,12 @@ public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
     public static final HashMap<String, Model> LOADED_MODELS = new HashMap<>();
     public static final HashSet<Model> DISABLED_MODELS = new HashSet<>();
+    private static final ExecutorService SCHEDULER = Executors.newFixedThreadPool(10);
+    private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
+        TASKS.put(this, new HashSet<>());
         try {
             register();
             LOADED_MODELS.put(getName(), this);
@@ -115,5 +121,62 @@ public abstract class Model {
         if (msg == null || msg.isEmpty()) return;
 
         autoSendMsg(event, new PlainText(msg));
+    }
+
+    public void runTaskLater(Runnable r, long seconds) {
+        SCHEDULER.submit(() -> {
+            try {
+                Thread.sleep(seconds * 1000L);
+                r.run();
+            } catch (Exception e) {
+                Util.handleException(e);
+            }
+        });
+    }
+
+    public UUID runTaskTimer(Runnable r, long repeatPeriodSeconds) {
+        return runTaskTimer(r, repeatPeriodSeconds, 0);
+        //
+    }
+
+    public UUID runTaskTimer(Runnable r, long repeatPeriodSeconds, long waitSeconds) {
+        if (repeatPeriodSeconds <= 0) {
+            throw new IllegalArgumentException("周期为0将堵塞任务线程");
+        }
+        if (waitSeconds < 0) {
+            throw new IllegalArgumentException("你可以不填这个参数的，谢谢");
+        }
+        UUID uuid = UUID.randomUUID();
+        TASKS.get(this).add(uuid);
+        SCHEDULER.submit(() -> {
+           try {
+               Thread.sleep(waitSeconds * 1000L);
+           } catch (Exception ignored) {}
+
+           while (true) {
+               try {
+                   r.run();
+               } catch (Exception e) {
+                   Util.handleException(e);
+               }
+
+               try {
+                   Thread.sleep(repeatPeriodSeconds * 1000L);
+               } catch (Exception ignored) {}
+
+               if (TASKS.get(this).contains(uuid)) {
+                   continue;
+               }
+               break;
+           }
+        });
+        return uuid;
+    }
+
+    public boolean shutdownRepeatTask(UUID uuid) {
+        if (uuid == null) {
+            return false;
+        }
+        return TASKS.get(this).remove(uuid);
     }
 }

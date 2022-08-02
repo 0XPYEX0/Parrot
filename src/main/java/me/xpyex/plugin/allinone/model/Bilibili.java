@@ -217,5 +217,8 @@ public class Bilibili extends Model {
                 }
             });
         });
+        runTaskTimer(() -> {
+            BilibiliUtil.VIDEO_CACHES = new HashMap<>();
+        }, 12 * 60 * 60);
     }
 }

@@ -19,7 +19,7 @@ public class BilibiliUtil {
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
     private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld";
-    private static final HashMap<String, Message> VIDEO_CACHES = new HashMap<>();
+    public static HashMap<String, Message> VIDEO_CACHES = new HashMap<>();
 
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
@@ -273,8 +273,12 @@ public class BilibiliUtil {
         CommandMessager messager2 = new CommandMessager("")
                 .plus("开播状态: " + isOnline)
                 .plus("直播间地址: " + data.getStr("url"));
+        Message image = null;
+        if (data.containsKey("cover")) {
+            image = Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(data.getStr("cover")));
+        }
         return new PlainText(messager1.toString())
-                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(data.getStr("cover"))))
+                .plus(null != image ? image : Util.getEmptyMessage())
                 .plus(messager2.toString())
                 .plus("\n")
                 .plus(getUserInfo(userID));

@@ -21,6 +21,7 @@ import net.mamoe.mirai.utils.ExternalResource;
 
 public class Util {
     public static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
+    private static final Message EMPTY_MSG = new PlainText("");
 
     public static Contact getRealSender(MessageEvent event) {
         if (isGroupEvent(event)) return ((GroupMessageEvent) event).getGroup();
@@ -154,5 +155,10 @@ public class Util {
             ba.write(data, 0, nRead);
         }
         return ba.toByteArray();
+    }
+
+    public static Message getEmptyMessage() {
+        return EMPTY_MSG;
+        //
     }
 }

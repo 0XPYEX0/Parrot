@@ -23,8 +23,8 @@ import net.mamoe.mirai.utils.MiraiLogger;
 
 public class Main extends JavaPlugin {
     public static MiraiLogger LOGGER;
-    public static boolean tellOwner = false;
     public static Main INSTANCE;
+
     public Main() {
         super(new JvmPluginDescriptionBuilder("AllInOne","3.0.1")
                 .id("me.xpyex.plugin.allinone.Main")
@@ -37,7 +37,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         CronUtil.setMatchSecond(true);
-        CronUtil.start();
+        CronUtil.start();  //启用定时任务
 
         INSTANCE = this;
         LOGGER = getLogger();
@@ -76,13 +76,6 @@ public class Main extends JavaPlugin {
         });  //广播事件
 
         outBatFiles();
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(5000L);
-            } catch (Exception ignored) {}
-            Util.getBot().getFriend(1723275529L).sendMessage("已启动");
-        }, "CallOwner").start();
     }
 
     public static void outBatFiles() {
