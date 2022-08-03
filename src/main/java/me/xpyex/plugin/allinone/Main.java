@@ -37,7 +37,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         CronUtil.setMatchSecond(true);
-        CronUtil.start();  //启用定时任务
+        CronUtil.start();  //启用HuTool定时任务
 
         INSTANCE = this;
         LOGGER = getLogger();

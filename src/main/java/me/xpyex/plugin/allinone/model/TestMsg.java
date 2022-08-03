@@ -44,9 +44,7 @@ public class TestMsg extends Model {
         );
         UUID taskUUID = runTaskTimer(() ->
                         info("这是一条测试消息的亲"),
-                10,
-                0
-        );
+                10);
         runTaskLater(() -> {
             shutdownRepeatTask(taskUUID);
             info("已停止定时任务 " + taskUUID);

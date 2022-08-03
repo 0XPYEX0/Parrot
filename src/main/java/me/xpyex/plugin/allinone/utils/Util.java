@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import me.xpyex.plugin.allinone.core.CommandsList;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
@@ -74,21 +73,6 @@ public class Util {
 
     public static void sendFriendMsg(Long QQ, Message Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
-        //
-    }
-
-    public static void sendGroupMsg(Long QG, Message Msg) {
-        getBot().getGroup(QG).sendMessage(Msg);
-        //
-    }
-
-    public static boolean isCmdMsg(MessageChain msg) {
-        String[] cmd = getPlainText(msg).split(" ");
-        return CommandsList.isCmd(cmd[0]);
-    }
-
-    public static boolean canExecute(MessageEvent event) {
-        return ((event.getSender().getId() == 1723275529L) || (isGroupEvent(event) && ((GroupMessageEvent)event).getPermission().getLevel() >= 1));
         //
     }
 
