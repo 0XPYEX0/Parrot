@@ -110,7 +110,7 @@ public class BilibiliUtil {
                 .plus("作者: " + authorName)
                 .plus("作者主页: https://space.bilibili.com/" + authorId);
         Message out = new PlainText("视频: " + videoID)
-                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceUrl)))
+                .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(Util.getImage(faceUrl)))
                 .plus(messager.toString());
         VIDEO_CACHES.put("AV" + AvID, out);
         VIDEO_CACHES.put(BvID, out);
@@ -192,7 +192,7 @@ public class BilibiliUtil {
         }
         return new PlainText("用户: " + userID + "\n" +
                 "昵称: " + name + "\n")
-                .plus(Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(faceURL)))
+                .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(Util.getImage(faceURL)))
                 .plus("性别: " + gender + "\n" +
                         "等级: LV" + level + "\n" +
                         "会员: " + vipInfo + "\n" +
@@ -275,7 +275,7 @@ public class BilibiliUtil {
                 .plus("直播间地址: " + data.getStr("url"));
         Message image = null;
         if (data.containsKey("cover")) {
-            image = Util.getBot().getFriend(1723275529L).uploadImage(Util.getImage(data.getStr("cover")));
+            image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(Util.getImage(data.getStr("cover")));
         }
         return new PlainText(messager1.toString())
                 .plus(null != image ? image : Util.getEmptyMessage())

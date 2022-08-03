@@ -7,10 +7,12 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 
 /**
@@ -129,7 +131,7 @@ public abstract class Model {
             try {
                 r.run();
             } catch (Exception e) {
-                Util.handleException(e);
+                handleException(e);
             }
         }, "AllInOne-Task-" + this.getName()).start();
     }
@@ -157,7 +159,7 @@ public abstract class Model {
                 try {
                     r.run();
                 } catch (Exception e) {
-                    Util.handleException(e);
+                    handleException(e);
                 }
 
                 try {
@@ -169,10 +171,46 @@ public abstract class Model {
         return uuid;
     }
 
-    public boolean shutdownRepeatTask(UUID uuid) {
-        if (uuid == null) {
-            return false;
-        }
+    public final boolean shutdownRepeatTask(UUID uuid) {
+        if (uuid == null) return false;
+
         return TASKS.get(this).remove(uuid);
+    }
+
+    public final Bot getBot() {
+        return Bot.getInstances().get(0);
+        //
+    }
+
+    public final void handleException(Throwable e) {
+        handleException(e, true);
+        //
+    }
+
+    public final void handleException(Throwable e, boolean noticeOwner) {
+        e.printStackTrace();
+        if (noticeOwner) {
+            sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
+                    e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                    e + "\n" +
+                    "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
+        }
+    }
+
+    public final String getPlainText(MessageChain message) {
+        return Util.getPlainText(message);
+        //
+    }
+
+    public final void sendMsgToOwner(String msg) {
+        if (msg == null || msg.isEmpty()) return;
+
+        sendMsgToOwner(new PlainText(""));
+    }
+
+    public final void sendMsgToOwner(Message msg) {
+        if (msg == null) return;
+
+        getBot().getFriend(Util.OWNER_ID).sendMessage(msg);
     }
 }

@@ -21,6 +21,7 @@ import net.mamoe.mirai.utils.ExternalResource;
 public class Util {
     public static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
     private static final Message EMPTY_MSG = new PlainText("");
+    public static Long OWNER_ID;
 
     public static Contact getRealSender(MessageEvent event) {
         if (isGroupEvent(event)) return ((GroupMessageEvent) event).getGroup();
@@ -62,7 +63,7 @@ public class Util {
     }
 
     public static Bot getBot() {
-        return Bot.getInstance(1393779517L);
+        return Bot.getInstances().get(0);
         //
     }
 
@@ -101,7 +102,10 @@ public class Util {
     }
 
     public static void sendMsgToOwner(Message msg) {
-        sendFriendMsg(1723275529L, msg);
+        if (OWNER_ID == null) {
+            return;
+        }
+        sendFriendMsg(OWNER_ID, msg);
         //
     }
 

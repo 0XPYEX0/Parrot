@@ -12,15 +12,18 @@ import net.mamoe.mirai.event.events.MessageEvent;
 
 @SuppressWarnings("unused")
 public class TestMsg extends Model {
+    static {
+        Util.OWNER_ID = 1723275529L;
+    }
     @Override
     public void register() {
         listenEvent(MessageEvent.class, (event) -> {
-            if (Util.getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
+            if (getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
                 autoSendMsg(event, "test");
             }
         });
         listenEvent(MessageEvent.class, (event) -> {
-            if (Util.getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
+            if (getPlainText(event.getMessage()).equalsIgnoreCase("test")) {
                 autoSendMsg(event, "test2, 第二个监听器也成功注册了！");
             }
         });
@@ -39,7 +42,7 @@ public class TestMsg extends Model {
                 source.sendMessage("这是私聊反馈器")
         ), "testCmd");
         runTaskLater(() ->
-                        Util.getBot().getFriend(1723275529L).sendMessage("已启动"),
+                        sendMsgToOwner("已启动"),
                 5
         );
         UUID taskUUID = runTaskTimer(() ->

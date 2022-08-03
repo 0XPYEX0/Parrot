@@ -37,7 +37,7 @@ public class ReflectUtil {
                 }
             }
         } catch (Exception e) {
-            Util.handleException(e);
+            Util.handleException(e, false);
         }
         return classList;
     }

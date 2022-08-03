@@ -43,7 +43,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
-                        Util.handleException(e);
+                        handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#ss", "#ep")) {
                     try {
@@ -87,7 +87,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
-                        Util.handleException(e);
+                        handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#search bilibili ")) {
                     try {
@@ -141,7 +141,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, messager.toString());
                     } catch (Exception e) {
                         autoSendMsg(event, "搜索错误: " + e);
-                        Util.handleException(e);
+                        handleException(e);
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#user")) {
                     try {
@@ -152,7 +152,7 @@ public class Bilibili extends Model {
                             autoSendMsg(event, "请输入正确的ID");
                         } else {
                             autoSendMsg(event, "出现错误: " + e);
-                            Util.handleException(e);
+                            handleException(e);
                         }
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_BILIBILI)) {
@@ -161,7 +161,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, BilibiliUtil.getVideoInfo("https://" + URL_BILIBILI + id));
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
-                        Util.handleException(e);
+                        handleException(e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_B23)) {
                     try {
@@ -188,14 +188,14 @@ public class Bilibili extends Model {
                         }
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
-                        Util.handleException(e);
+                        handleException(e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_SPACE)) {
                     try {
                         String userID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(msg, URL_SPACE, "?").split("\n")[0].split("/")[0]);
                         autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(BilibiliUtil.getFixedID(userID))));
                     } catch (Exception e) {
-                        Util.handleException(e);
+                        handleException(e);
                         autoSendMsg(event, "解析错误: " + e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_DYNAMIC)) {
@@ -203,7 +203,7 @@ public class Bilibili extends Model {
                         String dID = StringUtil.getStrBetweenKeywords(msg, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
                         autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(BilibiliUtil.getFixedID(dID))));
                     } catch (Exception e) {
-                        Util.handleException(e);
+                        handleException(e);
                         autoSendMsg(event, "解析错误: " + e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_LIVE)) {
@@ -211,7 +211,7 @@ public class Bilibili extends Model {
                         String liveID = StringUtil.getStrBetweenKeywords(msg, URL_LIVE, "?").split("\n")[0].split("/")[0];
                         autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(BilibiliUtil.getFixedID(liveID))));
                     } catch (Exception e) {
-                        Util.handleException(e);
+                        handleException(e);
                         autoSendMsg(event, "解析错误: " + e);
                     }
                 }
