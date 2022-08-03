@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -26,7 +24,6 @@ public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
     public static final HashMap<String, Model> LOADED_MODELS = new HashMap<>();
     public static final HashSet<Model> DISABLED_MODELS = new HashSet<>();
-    private static final ExecutorService SCHEDULER = Executors.newFixedThreadPool(10);
     private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();
 
     public Model() {
@@ -124,14 +121,17 @@ public abstract class Model {
     }
 
     public final void runTaskLater(Runnable r, long seconds) {
-        SCHEDULER.submit(() -> {
+        new Thread(() -> {
             try {
                 Thread.sleep(seconds * 1000L);
+            } catch (Exception ignored) { }
+
+            try {
                 r.run();
             } catch (Exception e) {
                 Util.handleException(e);
             }
-        });
+        }, "AllInOne-Task-" + this.getName()).start();
     }
 
     public final UUID runTaskTimer(Runnable r, long repeatPeriodSeconds) {
@@ -151,11 +151,8 @@ public abstract class Model {
         }
         UUID uuid = UUID.randomUUID();
         TASKS.get(this).add(uuid);
-        SCHEDULER.submit(() -> {
-           try {
-               Thread.sleep(waitSeconds * 1000L);
-           } catch (Exception ignored) {}
 
+        runTaskLater(() -> {
             while (TASKS.get(this).contains(uuid)) {
                 try {
                     r.run();
@@ -168,7 +165,7 @@ public abstract class Model {
                 } catch (Exception ignored) {
                 }
             }
-        });
+        }, waitSeconds);
         return uuid;
     }
 
