@@ -19,8 +19,11 @@ import net.mamoe.mirai.message.data.PlainText;
  * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
  * 你必须在子类覆写register()方法，你可以在这个方法内注册监听器及命令
  * 覆写getName()方法以自定义你的模块名字，否则以类名作为模块名
- * 调用listenEvent()方法以监听Mirai事件
- * 调用registerCommand()方法以注册AllInOne命令
+ *
+ * 调用 listenEvent()     方法以监听Mirai事件
+ * 调用 registerCommand() 方法以注册AllInOne命令
+ * 调用 runTaskLater()    方法以延时执行任务
+ * 调用 runTaskTimer()    方法以创建循环任务
  */
 public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
@@ -71,15 +74,13 @@ public abstract class Model {
     }
 
     public final boolean disable() {
-        int count = DISABLED_MODELS.size();
-        DISABLED_MODELS.add(this);
-        return DISABLED_MODELS.size() != count;
+        return DISABLED_MODELS.add(this);
+        //
     }
 
     public final boolean enable() {
-        int count = DISABLED_MODELS.size();
-        DISABLED_MODELS.remove(this);
-        return DISABLED_MODELS.size() != count;
+        return DISABLED_MODELS.remove(this);
+        //
     }
 
     @SuppressWarnings("unchecked")
