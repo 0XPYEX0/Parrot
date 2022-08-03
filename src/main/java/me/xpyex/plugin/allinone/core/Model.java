@@ -57,12 +57,12 @@ public abstract class Model {
             }
         }
         CommandsList.register(this, aliases);
-        new CommandBus(contactType, this, exec);
+        CommandBus.takeInBus(contactType, this, exec);
         Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
     public final <_Event extends Event> void listenEvent(Class<_Event> eventType, Consumer<_Event> listener) {
-        new EventBus(eventType, this, listener);
+        EventBus.takeInBus(eventType, this, listener);
         Main.LOGGER.info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }
 
@@ -95,35 +95,35 @@ public abstract class Model {
         return null;
     }
 
-    public void info(String s) {
+    public final void info(String s) {
         Main.LOGGER.info("[" + getName() + "] " + s);
         //
     }
 
-    public void info(Throwable e) {
+    public final void info(Throwable e) {
         Main.LOGGER.info(e);
         //
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Contact> T getRealSender(MessageEvent event) {
+    public final  <T extends Contact> T getRealSender(MessageEvent event) {
         return (T) Util.getRealSender(event);
         //
     }
 
-    public void autoSendMsg(MessageEvent event, Message msg) {
+    public final void autoSendMsg(MessageEvent event, Message msg) {
         if (msg == null) return;
 
         getRealSender(event).sendMessage(msg);
     }
 
-    public void autoSendMsg(MessageEvent event, String msg) {
+    public final void autoSendMsg(MessageEvent event, String msg) {
         if (msg == null || msg.isEmpty()) return;
 
         autoSendMsg(event, new PlainText(msg));
     }
 
-    public void runTaskLater(Runnable r, long seconds) {
+    public final void runTaskLater(Runnable r, long seconds) {
         SCHEDULER.submit(() -> {
             try {
                 Thread.sleep(seconds * 1000L);
@@ -134,12 +134,15 @@ public abstract class Model {
         });
     }
 
-    public UUID runTaskTimer(Runnable r, long repeatPeriodSeconds) {
+    public final UUID runTaskTimer(Runnable r, long repeatPeriodSeconds) {
         return runTaskTimer(r, repeatPeriodSeconds, 0);
         //
     }
 
-    public UUID runTaskTimer(Runnable r, long repeatPeriodSeconds, long waitSeconds) {
+    public final UUID runTaskTimer(Runnable r, long repeatPeriodSeconds, long waitSeconds) {
+        if (r == null) {
+            return null;
+        }
         if (repeatPeriodSeconds <= 0) {
             throw new IllegalArgumentException("周期为0将堵塞任务线程");
         }
@@ -153,22 +156,18 @@ public abstract class Model {
                Thread.sleep(waitSeconds * 1000L);
            } catch (Exception ignored) {}
 
-           while (true) {
-               try {
-                   r.run();
-               } catch (Exception e) {
-                   Util.handleException(e);
-               }
+            while (TASKS.get(this).contains(uuid)) {
+                try {
+                    r.run();
+                } catch (Exception e) {
+                    Util.handleException(e);
+                }
 
-               try {
-                   Thread.sleep(repeatPeriodSeconds * 1000L);
-               } catch (Exception ignored) {}
-
-               if (TASKS.get(this).contains(uuid)) {
-                   continue;
-               }
-               break;
-           }
+                try {
+                    Thread.sleep(repeatPeriodSeconds * 1000L);
+                } catch (Exception ignored) {
+                }
+            }
         });
         return uuid;
     }

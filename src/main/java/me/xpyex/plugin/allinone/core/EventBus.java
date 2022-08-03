@@ -9,7 +9,7 @@ import net.mamoe.mirai.event.Event;
 public class EventBus {
     private static final ArrayList<Tuple> EVENT_BUSES = new ArrayList<>();
 
-    public <_Event extends Event> EventBus(Class<_Event> eventType, Model model, Consumer<_Event> eventExecutor) {
+    public static <_Event extends Event> void takeInBus(Class<_Event> eventType, Model model, Consumer<_Event> eventExecutor) {
         EVENT_BUSES.add(new Tuple(eventType, model, eventExecutor));
         //
     }
