@@ -52,6 +52,10 @@ public abstract class Model {
 
     public abstract void register();
 
+    /*
+    从此往下为模块方法
+     */
+
     public final <_Contact extends Contact> void registerCommand(Class<_Contact> contactType, CommandExecutor<_Contact> exec, String... aliases) {
         for (String s : aliases) {
             if (s.contains(" ")) {
@@ -83,6 +87,20 @@ public abstract class Model {
         //
     }
 
+    public final void info(String s) {
+        Main.LOGGER.info("[" + getName() + "] " + s);
+        //
+    }
+
+    public final void info(Throwable e) {
+        Main.LOGGER.info(e);
+        //
+    }
+
+    /*
+    从此往下为工具方法
+     */
+
     @SuppressWarnings("unchecked")
     public static <M extends Model> M getModel(String name) {
         if (name == null || name.trim().isEmpty()) return null;
@@ -93,16 +111,6 @@ public abstract class Model {
             if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
         }
         return null;
-    }
-
-    public final void info(String s) {
-        Main.LOGGER.info("[" + getName() + "] " + s);
-        //
-    }
-
-    public final void info(Throwable e) {
-        Main.LOGGER.info(e);
-        //
     }
 
     @SuppressWarnings("unchecked")
@@ -206,7 +214,7 @@ public abstract class Model {
     public final void sendMsgToOwner(String msg) {
         if (msg == null || msg.isEmpty()) return;
 
-        sendMsgToOwner(new PlainText(""));
+        sendMsgToOwner(new PlainText(msg));
     }
 
     public final void sendMsgToOwner(Message msg) {

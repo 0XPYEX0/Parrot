@@ -149,4 +149,9 @@ public class Util {
         return EMPTY_MSG;
         //
     }
+
+    public static <T> T getOrDefault(T value, T defaulted) {
+        return value == null ? defaulted : value;
+        //
+    }
 }
