@@ -78,6 +78,12 @@ public class Music extends Model {
             EXEC.execute(() -> {
                 try {
                     Util.autoSendMsg(event, cb.process(mc.get(sn), Util.getRealSender(event)));
+                    if (Util.isGroupEvent(event)) {
+                        GroupMessageEvent gEvent = (GroupMessageEvent) event;
+                        if (GROUP_LIMITER.containsKey(gEvent.getGroup().getId())) {
+                            GROUP_LIMITER.put(gEvent.getGroup().getId(), GROUP_LIMITER.get(gEvent.getGroup().getId()) + 1);
+                        }
+                    }
                 } catch (Throwable e) {
                     Util.autoSendMsg(event, "无法找到歌曲");
                     Util.handleException(e, false);
