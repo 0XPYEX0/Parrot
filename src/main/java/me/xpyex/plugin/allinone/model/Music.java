@@ -65,8 +65,8 @@ public class Music extends Model {
         if (mc == null)
             throw new IllegalArgumentException("music source not exists");
         return (event, args) -> {
-            if (Util.isGroupEvent(event) && GROUP_LIMITER.containsKey(((GroupMessageEvent) event).getGroup().getId()) && GROUP_LIMITER.get(((GroupMessageEvent) event).getGroup().getId()) > 20) {
-                Util.autoSendMsg(event, "抱歉，根据管理员设定，该群每个小时仅允许点歌20首\n当前已超出限制");
+            if (Util.isGroupEvent(event) && GROUP_LIMITER.containsKey(((GroupMessageEvent) event).getGroup().getId()) && GROUP_LIMITER.get(((GroupMessageEvent) event).getGroup().getId()) > 15) {
+                Util.autoSendMsg(event, "抱歉，根据管理员设定，该群每个小时仅允许点歌15首\n当前已超出限制");
                 return;
             }
             String sn;
