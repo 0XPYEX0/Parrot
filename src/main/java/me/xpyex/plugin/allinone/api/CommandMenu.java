@@ -2,6 +2,7 @@ package me.xpyex.plugin.allinone.api;
 
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;
+import net.mamoe.mirai.contact.Contact;
 
 /**
  * 命令帮助菜单，替开发者完成帮助菜单的任务
@@ -41,5 +42,10 @@ public class CommandMenu {
             messager.plus("#" + command + " " + pair.getKey() + " - " + pair.getValue());
         }
         return messager.toString();
+    }
+
+    public void send(Contact target) {
+        target.sendMessage(this.toString());
+        //
     }
 }

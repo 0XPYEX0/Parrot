@@ -76,15 +76,15 @@ public class Bilibili extends Model {
                         JSONObject newestEP = infos.getJSONObject("result").getJSONObject("new_ep");
                         String title = infos.getJSONObject("result").getStr("title");
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
-                        CommandMessager messager = new CommandMessager()
+                        new CommandMessager()
                                 .plus("番剧: " + msg.substring(1))
                                 .plus("番剧名: " + title)
                                 .plus("已完结: " + finished)
                                 .plus("上映时间: " + publishTime)
                                 .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
                                 .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
-                                .plus("最新集: " + newestEP.getStr("title"));
-                        autoSendMsg(event, messager.toString());
+                                .plus("最新集: " + newestEP.getStr("title"))
+                                .send(event);
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e);
@@ -137,8 +137,8 @@ public class Bilibili extends Model {
                                     .plus("简介: " + description)
                                     .plus("播放地址: " + url);
                         }
-                        messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果");
-                        autoSendMsg(event, messager.toString());
+                        messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果")
+                                .send(event);
                     } catch (Exception e) {
                         autoSendMsg(event, "搜索错误: " + e);
                         handleException(e);

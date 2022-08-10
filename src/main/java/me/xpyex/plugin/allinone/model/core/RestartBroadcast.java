@@ -16,12 +16,12 @@ public class RestartBroadcast extends CoreModel {
                 return;
             }
             if (args.length == 0) {
-                CommandMenu helper = new CommandMenu(label)
+                new CommandMenu(label)
                         .add("start", "添加一个重启任务，在10秒后重启")
                         .add("stop", "停止现有的重启任务")
                         .add("now", "立刻重启")
-                        .add("exit", "退出机器人，不重启");
-                source.sendMessage(helper.toString());
+                        .add("exit", "退出机器人，不重启")
+                        .send(source);
             } else if (args[0].equalsIgnoreCase("start")) {
                 restartMode = true;
                 source.sendMessage("Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");

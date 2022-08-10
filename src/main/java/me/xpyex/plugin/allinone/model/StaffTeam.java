@@ -16,10 +16,10 @@ public class StaffTeam extends Model {
             }
             if (sender.getId() == 1723275529L) {
                 if (args.length == 0) {
-                    CommandMenu menu = new CommandMenu(label)
+                    new CommandMenu(label)
                             .add("add <QQID>", "令群员成为管理员")
-                            .add("remove <QQID>", "令管理员成为普通群员");
-                    source.sendMessage(menu.toString());
+                            .add("remove <QQID>", "令管理员成为普通群员")
+                            .send(source);
                 } else if (args.length == 1) {
                     source.sendMessage("参数不足");
                 }

@@ -12,9 +12,9 @@ public class MCPinger extends Model {
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (args.length == 0) {
-                CommandMenu menu = new CommandMenu(label)
-                        .add("<IP>", "获取服务器信息");
-                source.sendMessage(menu.toString());
+                new CommandMenu(label)
+                        .add("<IP>", "获取服务器信息")
+                        .send(source);
                 return;
             }
             if (args.length != 1) {
@@ -34,13 +34,13 @@ public class MCPinger extends Model {
                 Pinger pinger = new Pinger(address, port);
                 pinger.setTimeout(10000);
                 if (pinger.fetchData()) {
-                    CommandMessager messager = new CommandMessager()
+                    new CommandMessager()
                             .plus("IP: " + pinger.getAddress() + ":" + pinger.getPort())
                             .plus("在线人数: " + Util.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + Util.getOrDefault(pinger.getMaxPlayers(), 0))
                             .plus("MOTD: " + Util.getOrDefault(pinger.getMotd(), ""))
                             .plus("游戏版本: " + Util.getOrDefault(pinger.getGameVersion(), ""))
-                            .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""));
-                    source.sendMessage(messager.toString());
+                            .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
+                            .send(source);
                 } else {
                     source.sendMessage("解析失败");
                 }
