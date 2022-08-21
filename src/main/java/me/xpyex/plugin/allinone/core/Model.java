@@ -17,13 +17,17 @@ import net.mamoe.mirai.message.data.PlainText;
 
 /**
  * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
- * 你必须在子类覆写register()方法，你可以在这个方法内注册监听器及命令
- * 覆写getName()方法以自定义你的模块名字，否则以类名作为模块名
  *
- * 调用 listenEvent()     方法以监听Mirai事件
- * 调用 registerCommand() 方法以注册AllInOne命令
- * 调用 runTaskLater()    方法以延时执行任务
- * 调用 runTaskTimer()    方法以创建循环任务
+ * 覆写 getName()         方法 - 自定义模块名
+ * 覆写 register()        方法 - 注册
+ *
+ * 调用 listenEvent()     方法 - 监听Mirai事件
+ * 调用 registerCommand() 方法 - 注册AllInOne命令
+ * 调用 runTaskLater()    方法 - 延时执行任务
+ * 调用 runTaskTimer()    方法 - 创建循环任务
+ * 调用 disable()         方法 - 禁用本模块
+ * 调用 enable()          方法 - 启用本模块
+ * 调用 info()            方法 - 向控制台发送信息
  */
 public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
