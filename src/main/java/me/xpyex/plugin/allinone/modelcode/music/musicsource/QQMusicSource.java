@@ -13,10 +13,10 @@ import me.xpyex.plugin.allinone.modelcode.music.MusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.MusicUtils;
 
 public class QQMusicSource implements MusicSource {
-
+    
     public QQMusicSource() {
     }
-
+    
     public String queryRealUrl(String songmid) {
         try {
             StringBuilder urlsb = new StringBuilder("https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22");
@@ -28,43 +28,42 @@ public class QQMusicSource implements MusicSource {
                 return null;
             }
             StringBuilder sb = new StringBuilder(out.getJSONObject("req_0").getJSONObject("data")
-                    .getJSONArray("sip").getStr(0));
-
+                                                     .getJSONArray("sip").getStr(0));
             sb.append(out.getJSONObject("req_0").getJSONObject("data").getJSONArray("midurlinfo")
-                    .getJSONObject(0).getStr("purl"));
+                          .getJSONObject(0).getStr("purl"));
             return sb.toString();
         } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;
     }
-
+    
     @Override
     public MusicInfo get(String keyword) throws Exception {
         URL url = new URL("https://u.y.qq.com/cgi-bin/musicu.fcg");
         HttpURLConnection huc = (HttpURLConnection) url.openConnection();
         huc.setRequestProperty("User-Agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36");
-    
+        
         JSONObject scs = new JSONObject();
         JSONObject search = new JSONObject();
         JSONObject searchParam = new JSONObject();
         searchParam.set("query", keyword);
-        searchParam.set("num_per_page",3);
-        searchParam.set("search_type",0);
-        searchParam.set("page_num",1);
-        search.set("param",searchParam);
-        search.set("module","music.search.SearchCgiService");
+        searchParam.set("num_per_page", 3);
+        searchParam.set("search_type", 0);
+        searchParam.set("page_num", 1);
+        search.set("param", searchParam);
+        search.set("module", "music.search.SearchCgiService");
         search.set("method", "DoSearchForQQMusicDesktop");
         scs.set("music.search.SearchCgiService", search);
         huc.setRequestMethod("POST");
-        huc.setRequestProperty("referer","https://y.qq.com");
+        huc.setRequestProperty("referer", "https://y.qq.com");
         huc.setDoOutput(true);
         huc.connect();
         huc.getOutputStream().write(scs.toString().getBytes(StandardCharsets.UTF_8));
         String s = new String(MusicUtils.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
         s = s.substring(s.indexOf("{"));
-        s = s.substring(0,s.lastIndexOf("}") + 1);
+        s = s.substring(0, s.lastIndexOf("}") + 1);
         JSONArray ss = new JSONObject(s).getJSONObject("music.search.SearchCgiService")
                            .getJSONObject("data").getJSONObject("body").getJSONObject("song").getJSONArray("list");
         JSONObject song = ss.getJSONObject(0);// .data.song.list
@@ -89,7 +88,7 @@ public class QQMusicSource implements MusicSource {
         } catch (Exception e) {
             desc = song.getJSONObject("album").getStr("name");
         }
-    
+        
         if (musicURL == null) {
             throw new FileNotFoundException();
         }
@@ -99,5 +98,4 @@ public class QQMusicSource implements MusicSource {
                           + "&source=qqshare&ADTAG=qqshare",
             "QQ音乐", "https://url.cn/PwqZ4Jpi", 100497308);
     }
-
 }
