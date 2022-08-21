@@ -173,8 +173,7 @@ public abstract class Model {
 
                 try {
                     Thread.sleep(repeatPeriodSeconds * 1000L);
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) { }
             }
         }, waitSeconds);
         return uuid;

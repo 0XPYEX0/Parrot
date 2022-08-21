@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.Event;
 
 public class EventBus {
@@ -21,7 +22,12 @@ public class EventBus {
                 Model model = eventBus.get(1);
                 if (!Model.DISABLED_MODELS.contains(model)) {
                     Consumer listener = eventBus.get(2);
-                    listener.accept(event);
+                    try {
+                        listener.accept(event);
+                    } catch (Throwable e) {
+                        Util.handleException(e, false);
+                        Util.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + event.getClass().getSimpleName() + " 时出现异常，已被捕获");
+                    }
                 }
             }
         }
