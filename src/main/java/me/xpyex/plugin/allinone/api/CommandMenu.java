@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import net.mamoe.mirai.contact.Contact;
 
 /**
- * 命令帮助菜单，替开发者完成帮助菜单的任务
+ * 命令帮助菜单
+ * 替开发者完成帮助菜单的任务
  */
 public class CommandMenu {
     private final String command;
