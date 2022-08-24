@@ -10,12 +10,11 @@ import net.mamoe.mirai.event.events.MessageEvent;
 public class CommandBus {
     private static final ArrayList<Tuple> COMMAND_BUSES = new ArrayList<>();
 
-    public static <_Contact extends Contact> void takeInBus(Class<_Contact> contactType, Model model, CommandExecutor<_Contact> executor) {
+    public static <C extends Contact> void takeInBus(Class<C> contactType, Model model, CommandExecutor<C> executor) {
         COMMAND_BUSES.add(new Tuple(contactType, model, executor));
         //
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public static void callCommands(MessageEvent event, String msg) {
         String cmd = msg.split(" ")[0];
         String[] args = msg.substring(cmd.length()).trim().split(" ");
@@ -27,8 +26,13 @@ public class CommandBus {
                 Model model = commandBus.get(1);
                 if (!Model.DISABLED_MODELS.contains(model)) {
                     if (CommandsList.isCmd(commandBus.get(1), cmd)) {
-                        CommandExecutor executor = commandBus.get(2);
-                        executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);
+                        CommandExecutor<Contact> executor = commandBus.get(2);
+                        try {
+                            executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);
+                        } catch (Throwable e) {
+                            Util.handleException(e, false);
+                            Util.sendMsgToOwner("模块 " + model.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
+                        }
                     }
                 }
             }

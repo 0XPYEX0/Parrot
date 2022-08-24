@@ -60,7 +60,7 @@ public abstract class Model {
     从此往下为模块方法
      */
 
-    public final <_Contact extends Contact> void registerCommand(Class<_Contact> contactType, CommandExecutor<_Contact> exec, String... aliases) {
+    public final <C extends Contact> void registerCommand(Class<C> contactType, CommandExecutor<C> exec, String... aliases) {
         for (String s : aliases) {
             if (s.contains(" ")) {
                 throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
@@ -71,7 +71,7 @@ public abstract class Model {
         Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
-    public final <_Event extends Event> void listenEvent(Class<_Event> eventType, Consumer<_Event> listener) {
+    public final <E extends Event> void listenEvent(Class<E> eventType, Consumer<E> listener) {
         EventBus.takeInBus(eventType, this, listener);
         Main.LOGGER.info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }
@@ -118,8 +118,8 @@ public abstract class Model {
     }
 
     @SuppressWarnings("unchecked")
-    public final  <T extends Contact> T getRealSender(MessageEvent event) {
-        return (T) Util.getRealSender(event);
+    public final  <C extends Contact> C getRealSender(MessageEvent event) {
+        return (C) Util.getRealSender(event);
         //
     }
 
@@ -137,9 +137,12 @@ public abstract class Model {
 
     public final void runTaskLater(Runnable r, long seconds) {
         new Thread(() -> {
-            try {
-                Thread.sleep(seconds * 1000L);
-            } catch (Exception ignored) { }
+            if (seconds != 0L) {
+                try {
+                    Thread.sleep(seconds * 1000L);
+                } catch (Exception ignored) {
+                }
+            }
 
             try {
                 r.run();
