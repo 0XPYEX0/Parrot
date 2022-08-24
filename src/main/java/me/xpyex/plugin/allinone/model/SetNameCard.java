@@ -1,6 +1,5 @@
 package me.xpyex.plugin.allinone.model;
 
-import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Group;
 
@@ -17,11 +16,7 @@ public class SetNameCard extends Model {
                 source.sendMessage("参数不足");
                 return;
             }
-            CommandMessager messager = new CommandMessager();
-            for (String s : args) {
-                messager.plus(s);
-            }
-            source.getBotAsMember().setNameCard(messager.toString().replace("\n", " "));
+            source.getBotAsMember().setNameCard(String.join(" ", args));
             source.sendMessage("已修改");
         }), "setNameCard", "nameCard");
         DEFAULT_DISABLED = true;
