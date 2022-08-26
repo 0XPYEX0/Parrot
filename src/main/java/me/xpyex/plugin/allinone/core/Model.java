@@ -14,6 +14,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.utils.MiraiLogger;
 
 /**
  * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
@@ -227,5 +228,10 @@ public abstract class Model {
         if (msg == null) return;
 
         getBot().getFriend(Util.OWNER_ID).sendMessage(msg);
+    }
+
+    public final MiraiLogger getLogger() {
+        return Main.LOGGER;
+        //
     }
 }
