@@ -16,11 +16,11 @@ public class JoinMessage extends Model {
     @Override
     public void register() {
         listenEvent(MemberJoinEvent.class, (event) -> {
-            Image newMember = event.getGroup().uploadImage(ExternalResource.create(IMAGE_NEW_MEMBER_FILE));
+            Image newMember = event.getGroup().uploadImage(ExternalResource.create(IMAGE_NEW_MEMBER_FILE).toAutoCloseable());
             event.getGroup().sendMessage(newMember);
             if (event.getGroupId() == 906768617) {
-                Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(IMAGE_HOW_TO_ASK_FILE));
-                Image doNotFly = event.getGroup().uploadImage(ExternalResource.create(IMAGE_DONT_FLY_FILE));
+                Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(IMAGE_HOW_TO_ASK_FILE).toAutoCloseable());
+                Image doNotFly = event.getGroup().uploadImage(ExternalResource.create(IMAGE_DONT_FLY_FILE).toAutoCloseable());
                 event.getGroup().sendMessage(new At(event.getMember().getId())
                         .plus(" 欢迎入群\n" +
                                 "提问前请先阅读文档\n" +
