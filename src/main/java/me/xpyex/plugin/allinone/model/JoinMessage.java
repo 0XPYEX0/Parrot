@@ -9,12 +9,18 @@ import net.mamoe.mirai.utils.ExternalResource;
 
 @SuppressWarnings("unused")
 public class JoinMessage extends Model {
+    private static final File IMAGE_NEW_MEMBER_FILE = new File("pictures/地位-1.jpg");
+    public static final File IMAGE_HOW_TO_ASK_FILE = new File("pictures/提问の艺术.png");
+    public static final File IMAGE_DONT_FLY_FILE = new File("pictures/一步登天.png");
+
     @Override
     public void register() {
         listenEvent(MemberJoinEvent.class, (event) -> {
+            Image newMember = event.getGroup().uploadImage(ExternalResource.create(IMAGE_NEW_MEMBER_FILE));
+            event.getGroup().sendMessage(newMember);
             if (event.getGroupId() == 906768617) {
-                Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(new File("pictures/提问の艺术.png")));
-                Image doNotFly = event.getGroup().uploadImage(ExternalResource.create(new File("pictures/一步登天.png")));
+                Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(IMAGE_HOW_TO_ASK_FILE));
+                Image doNotFly = event.getGroup().uploadImage(ExternalResource.create(IMAGE_DONT_FLY_FILE));
                 event.getGroup().sendMessage(new At(event.getMember().getId())
                         .plus(" 欢迎入群\n" +
                                 "提问前请先阅读文档\n" +

@@ -47,7 +47,7 @@ public class Main extends JavaPlugin {
             if (ClassUtil.isAssignable(Model.class, modelClass)) {
                 try {
                     modelClass.newInstance();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                     LOGGER.error("加载模块 " + modelClass.getSimpleName() + " 时出错: " + e);
                 }
@@ -64,6 +64,7 @@ public class Main extends JavaPlugin {
 
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(INSTANCE.getCoroutineContext()) {
             @EventHandler
+            @SuppressWarnings("unused")
             public void onEvent(Event event) {
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
                     if (CommandsList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {

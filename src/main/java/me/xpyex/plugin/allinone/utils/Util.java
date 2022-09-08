@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -105,7 +106,11 @@ public class Util {
         if (OWNER_ID == null) {
             return;
         }
-        sendFriendMsg(OWNER_ID, msg);
+        getOwner().sendMessage(msg);
+    }
+
+    public static Friend getOwner() {
+        return getBot().getFriend(OWNER_ID);
         //
     }
 
