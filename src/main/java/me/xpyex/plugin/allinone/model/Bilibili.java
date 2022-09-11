@@ -4,6 +4,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -145,7 +146,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.startsWithIgnoreCase(msg, "#user")) {
                     try {
-                        int ID = Integer.parseInt(msg.substring(5).split("/")[0]);
+                        BigInteger ID = new BigInteger(msg.substring(5).split("/")[0]);
                         autoSendMsg(event, BilibiliUtil.getUserInfo(ID));
                     } catch (Exception e) {
                         if (e instanceof NumberFormatException) {
@@ -178,13 +179,13 @@ public class Bilibili extends Model {
                             autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_SPACE)) {
                             String userID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_SPACE, "?").split("\n")[0].split("/")[0];
-                            autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(userID)));
+                            autoSendMsg(event, BilibiliUtil.getUserInfo(new BigInteger(userID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_DYNAMIC)) {
                             String dID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
                             autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_LIVE)) {
                             String liveID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_LIVE, "?").split("\n")[0].split("/")[0];
-                            autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(liveID)));
+                            autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(liveID)));
                         }
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
@@ -193,7 +194,7 @@ public class Bilibili extends Model {
                 } else if (StringUtil.containsIgnoreCase(msg, URL_SPACE)) {
                     try {
                         String userID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(msg, URL_SPACE, "?").split("\n")[0].split("/")[0]);
-                        autoSendMsg(event, BilibiliUtil.getUserInfo(Integer.parseInt(BilibiliUtil.getFixedID(userID))));
+                        autoSendMsg(event, BilibiliUtil.getUserInfo(new BigInteger(BilibiliUtil.getFixedID(userID))));
                     } catch (Exception e) {
                         handleException(e);
                         autoSendMsg(event, "解析错误: " + e);
@@ -209,7 +210,7 @@ public class Bilibili extends Model {
                 } else if (StringUtil.containsIgnoreCase(msg, URL_LIVE)) {
                     try {
                         String liveID = StringUtil.getStrBetweenKeywords(msg, URL_LIVE, "?").split("\n")[0].split("/")[0];
-                        autoSendMsg(event, BilibiliUtil.getLiveInfo(Integer.parseInt(BilibiliUtil.getFixedID(liveID))));
+                        autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(BilibiliUtil.getFixedID(liveID))));
                     } catch (Exception e) {
                         handleException(e);
                         autoSendMsg(event, "解析错误: " + e);

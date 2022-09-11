@@ -2,6 +2,7 @@ package me.xpyex.plugin.allinone.modelcode.bilibili;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import me.xpyex.plugin.allinone.Main;
@@ -93,7 +94,7 @@ public class BilibiliUtil {
         String description = data.getStr("desc");
         JSONObject authorInfo = data.getJSONObject("owner");
         String authorName = authorInfo.getStr("name");
-        int authorId = authorInfo.getInt("mid");
+        BigInteger authorId = authorInfo.getBigInteger("mid");
         String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
@@ -117,7 +118,7 @@ public class BilibiliUtil {
         return out;
     }
 
-    public static Message getUserInfo(int userID) throws Exception {
+    public static Message getUserInfo(BigInteger userID) throws Exception {
         Map<String, Object> param = new HashMap<>();
         param.put("mid", userID);
         String result = HttpUtil.get(API_URL_BILIBILI_USER, param);
@@ -241,7 +242,7 @@ public class BilibiliUtil {
         return new PlainText(messager.toString());
     }
 
-    public static Message getLiveInfo(int userID) throws Exception {
+    public static Message getLiveInfo(BigInteger userID) throws Exception {
         Main.LOGGER.info("getLiveInfo时的ID: " + userID);
 
         HashMap<String, Object> param = new HashMap<>();
