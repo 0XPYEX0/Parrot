@@ -133,21 +133,21 @@ public class Util {
 
     public static void handleException(Throwable e, boolean noticeOwner, @Nullable Event event) {
         e.printStackTrace();
-        String eventCause;
-        if (event != null) {
-            if (event instanceof MessageEvent) {
-                if (event instanceof GroupMessageEvent) {
-                    eventCause = "群聊-" + ((GroupMessageEvent) event).getGroup().getId() + "";
+        if (noticeOwner) {
+            String eventCause;
+            if (event != null) {
+                if (event instanceof MessageEvent) {
+                    if (event instanceof GroupMessageEvent) {
+                        eventCause = "群聊-" + ((GroupMessageEvent) event).getGroup().getId() + "";
+                    } else {
+                        eventCause = "私聊-" + ((MessageEvent) event).getSender().getId();
+                    }
                 } else {
-                    eventCause = "私聊-" + ((MessageEvent) event).getSender().getId();
+                    eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
                 }
             } else {
-                eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
+                eventCause = "未知事件";
             }
-        } else {
-            eventCause = "未知事件";
-        }
-        if (noticeOwner) {
             sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
                                e.getStackTrace()[0].getMethodName() + " 时出错: " +
                                e + "\n" +
