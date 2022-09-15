@@ -10,6 +10,7 @@ import java.util.Date;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -18,6 +19,7 @@ import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageContent;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.ExternalResource;
+import org.jetbrains.annotations.Nullable;
 
 public class Util {
     public static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
@@ -114,18 +116,44 @@ public class Util {
         //
     }
 
-    public static void handleException(Throwable e, boolean noticeOwner) {
-        e.printStackTrace();
-        if (noticeOwner) {
-            sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
-                    e.getStackTrace()[0].getMethodName() + " 时出错: " +
-                    e + "\n" +
-                    "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
-        }
-    }
-
     public static void handleException(Throwable e) {
         handleException(e, true);
+        //
+    }
+
+    public static void handleException(Throwable e, boolean noticeOwner) {
+        handleException(e, noticeOwner, null);
+        //
+    }
+
+    public static void handleException(Throwable e, @Nullable Event event) {
+        handleException(e, true, event);
+        //
+    }
+
+    public static void handleException(Throwable e, boolean noticeOwner, @Nullable Event event) {
+        e.printStackTrace();
+        String eventCause;
+        if (event != null) {
+            if (event instanceof MessageEvent) {
+                if (event instanceof GroupMessageEvent) {
+                    eventCause = "群聊-" + ((GroupMessageEvent) event).getGroup().getId() + "";
+                } else {
+                    eventCause = "私聊-" + ((MessageEvent) event).getSender().getId();
+                }
+            } else {
+                eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
+            }
+        } else {
+            eventCause = "未知事件";
+        }
+        if (noticeOwner) {
+            sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
+                               e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                               e + "\n" +
+                               "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行" +
+                               "\n" + "该错误由 " + eventCause + " 触发");
+        }
     }
 
     public static ExternalResource getImage(URL url) throws Exception {

@@ -199,18 +199,23 @@ public abstract class Model {
     }
 
     public final void handleException(Throwable e) {
-        handleException(e, true);
+        Util.handleException(e);
+        //
+    }
+
+    public final void handleException(Throwable e, Event event) {
+        Util.handleException(e, event);
+        //
+    }
+
+    public final void handleException(Throwable e, boolean noticeOwner, Event event) {
+        Util.handleException(e, noticeOwner, event);
         //
     }
 
     public final void handleException(Throwable e, boolean noticeOwner) {
-        e.printStackTrace();
-        if (noticeOwner) {
-            sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
-                    e.getStackTrace()[0].getMethodName() + " 时出错: " +
-                    e + "\n" +
-                    "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行");
-        }
+        Util.handleException(e, noticeOwner);
+        //
     }
 
     public final String getPlainText(MessageChain message) {
