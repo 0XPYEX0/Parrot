@@ -70,12 +70,12 @@ public class Util {
         //
     }
 
-    public static void sendFriendMsg(Long QQ, String Msg) {
+    public static void sendFriendMsg(long QQ, String Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
         //
     }
 
-    public static void sendFriendMsg(Long QQ, Message Msg) {
+    public static void sendFriendMsg(long QQ, Message Msg) {
         getBot().getFriend(QQ).sendMessage(Msg);
         //
     }

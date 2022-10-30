@@ -25,7 +25,22 @@ public class EventBus {
                         listener.accept(event);
                     } catch (Throwable e) {
                         Util.handleException(e, false);
-                        Util.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + event.getClass().getSimpleName() + " 时出现异常，已被捕获: " + e);
+                        StringBuilder eventName = new StringBuilder();
+                        Class<?> coreClass = event.getClass();
+                        while (!coreClass.isInterface()) {
+                            eventName.insert(0, "." + coreClass.getSimpleName());
+                            coreClass = coreClass.getSuperclass();
+                            if (coreClass == null) {
+                                if (eventName.toString().length() != 0) {
+                                    eventName.delete(0, 1);
+                                }
+                                break;
+                            }
+                        }
+                        if (eventName.toString().trim().isEmpty()) {
+                            eventName = new StringBuilder();
+                        }
+                        Util.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
                     }
                 }
             }

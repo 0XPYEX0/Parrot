@@ -28,10 +28,4 @@ public class PokeAt extends Model {
             event.component3().sendMessage(msg);
         });
     }
-
-    @Override
-    public String getName() {
-        return "PokeAt";
-        //
-    }
 }

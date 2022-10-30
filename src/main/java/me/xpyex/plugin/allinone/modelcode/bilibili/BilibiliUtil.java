@@ -19,7 +19,7 @@ public class BilibiliUtil {
     private static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
-    private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld";
+    private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/get_info";
     public static HashMap<String, Message> VIDEO_CACHES = new HashMap<>();
 
     public static Message getVideoInfo(String url) throws Exception {
@@ -246,7 +246,7 @@ public class BilibiliUtil {
         Main.LOGGER.info("getLiveInfo时的ID: " + userID);
 
         HashMap<String, Object> param = new HashMap<>();
-        param.put("mid", userID);
+        param.put("room_id", userID);
         String result = HttpUtil.get(API_URL_BILIBILI_LIVE_ROOM, param);
 
         Main.LOGGER.info("请求结果: " + result);
@@ -255,6 +255,9 @@ public class BilibiliUtil {
         if (obj.getInt("code") != 0) {
             String reason;
             switch (obj.getInt("code")) {
+                case 1:
+                    reason = "直播间不存在";
+                    break;
                 case -400:
                     reason = "请求错误";
                     break;
@@ -263,14 +266,27 @@ public class BilibiliUtil {
                     break;
             }
             return new PlainText("解析失败: " + reason + "\n" +
-                    "错误代码: " + obj.getInt("code") + "\n" +
-                    "错误信息: " + obj.getStr("message"));
+                                     "错误代码: " + obj.getInt("code") + "\n" +
+                                     "错误信息: " + obj.getStr("message"));
         }
         JSONObject data = obj.getJSONObject("data");
-        String isOnline = data.getInt("liveStatus") == 1 ? "已开播" : "未开播";
+        BigInteger uID = data.getBigInteger("uid");
+        String isOnline;
+        switch (data.getInt("live_status")) {
+            case 1:
+                isOnline = "直播中";
+                break;
+            case 2:
+                isOnline = "轮播中，主播不在线";
+                break;
+            default:
+                isOnline = "未开播";
+                break;
+        }
         CommandMessager messager1 = new CommandMessager()
-                .plus("直播间: " + userID)
-                .plus("标题: " + data.getStr("title"));
+                .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
+                .plus("标题: " + data.getStr("title"))
+                .plus("描述: " + data.getStr("description"));
         CommandMessager messager2 = new CommandMessager("")
                 .plus("开播状态: " + isOnline)
                 .plus("直播间地址: " + data.getStr("url"));
@@ -279,10 +295,10 @@ public class BilibiliUtil {
             image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(Util.getImage(data.getStr("cover")));
         }
         return new PlainText(messager1.toString())
-                .plus(null != image ? image : Util.getEmptyMessage())
-                .plus(messager2.toString())
-                .plus("\n")
-                .plus(getUserInfo(userID));
+                   .plus(null != image ? image : Util.getEmptyMessage())
+                   .plus(messager2.toString())
+                   .plus("\n")
+                   .plus(getUserInfo(userID));
     }
 
     public static String getFixedID(String s) {

@@ -24,6 +24,7 @@ public class Bilibili extends Model {
     private static final String URL_SPACE = "space.bilibili.com/";
     private static final String URL_DYNAMIC = "bilibili.com/dynamic/";
     private static final String URL_LIVE = "live.bilibili.com/";
+    private static final String URL_NEW_LIVE = URL_LIVE + "h5/";
 
     @Override
     public void register() {
@@ -178,13 +179,16 @@ public class Bilibili extends Model {
                         if (StringUtil.containsIgnoreCase(reconnectLink, URL_BILIBILI)) {
                             autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_SPACE)) {
-                            String userID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_SPACE, "?").split("\n")[0].split("/")[0];
+                            String userID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_SPACE, "?").split("\n")[0].split("/")[0].split(" ")[0];
                             autoSendMsg(event, BilibiliUtil.getUserInfo(new BigInteger(userID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_DYNAMIC)) {
-                            String dID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
+                            String dID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_DYNAMIC, "?").split("\n")[0].split("/")[0].split(" ")[0];
                             autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(dID)));
+                        } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_NEW_LIVE)) {
+                            String liveID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_NEW_LIVE, "?").split("\n")[0].split("/")[0].split(" ")[0];
+                            autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(liveID)));
                         } else if (StringUtil.containsIgnoreCase(reconnectLink, URL_LIVE)) {
-                            String liveID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_LIVE, "?").split("\n")[0].split("/")[0];
+                            String liveID = StringUtil.getStrBetweenKeywords(reconnectLink, URL_LIVE, "?").split("\n")[0].split("/")[0].split(" ")[0];
                             autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(liveID)));
                         }
                     } catch (Exception e) {
@@ -193,7 +197,7 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_SPACE)) {
                     try {
-                        String userID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(msg, URL_SPACE, "?").split("\n")[0].split("/")[0]);
+                        String userID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(msg, URL_SPACE, "?").split("\n")[0].split("/")[0].split(" ")[0]);
                         autoSendMsg(event, BilibiliUtil.getUserInfo(new BigInteger(BilibiliUtil.getFixedID(userID))));
                     } catch (Exception e) {
                         handleException(e, event);
@@ -201,15 +205,23 @@ public class Bilibili extends Model {
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_DYNAMIC)) {
                     try {
-                        String dID = StringUtil.getStrBetweenKeywords(msg, URL_DYNAMIC, "?").split("\n")[0].split("/")[0];
+                        String dID = StringUtil.getStrBetweenKeywords(msg, URL_DYNAMIC, "?").split("\n")[0].split("/")[0].split(" ")[0];
                         autoSendMsg(event, BilibiliUtil.getDynamicInfo(Long.parseLong(BilibiliUtil.getFixedID(dID))));
+                    } catch (Exception e) {
+                        handleException(e, event);
+                        autoSendMsg(event, "解析错误: " + e);
+                    }
+                } else if (StringUtil.containsIgnoreCase(msg, URL_NEW_LIVE)) {
+                    try {
+                        String liveID = StringUtil.getStrBetweenKeywords(msg, URL_NEW_LIVE, "?").split("\n")[0].split("/")[0].split(" ")[0];
+                        autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(liveID)));
                     } catch (Exception e) {
                         handleException(e, event);
                         autoSendMsg(event, "解析错误: " + e);
                     }
                 } else if (StringUtil.containsIgnoreCase(msg, URL_LIVE)) {
                     try {
-                        String liveID = StringUtil.getStrBetweenKeywords(msg, URL_LIVE, "?").split("\n")[0].split("/")[0];
+                        String liveID = StringUtil.getStrBetweenKeywords(msg, URL_LIVE, "?").split("\n")[0].split("/")[0].split(" ")[0];
                         autoSendMsg(event, BilibiliUtil.getLiveInfo(new BigInteger(BilibiliUtil.getFixedID(liveID))));
                     } catch (Exception e) {
                         handleException(e, event);
