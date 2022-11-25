@@ -16,6 +16,7 @@ import net.mamoe.mirai.message.data.PlainText;
 public class BilibiliUtil {
 
     private static final String URL_BILIBILI_VIDEO = "bilibili.com/video/";
+    private static final String URL_LIVE = "live.bilibili.com/";
     private static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
@@ -27,9 +28,9 @@ public class BilibiliUtil {
         String id = StringUtil.getStrBetweenKeywords(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenKeywords(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
         Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
-        if (StringUtil.startsWithIgnoreCase(id, "AV")) {
+        if (StringUtil.startsWithIgnoreCaseOr(id, "AV")) {
             map.put("aid", id.substring(2));
-        } else if (StringUtil.startsWithIgnoreCase(id, "BV")) {
+        } else if (StringUtil.startsWithIgnoreCaseOr(id, "BV")) {
             if (id.length() != 12) {
                 return null;
             }
@@ -286,10 +287,10 @@ public class BilibiliUtil {
         CommandMessager messager1 = new CommandMessager()
                 .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
                 .plus("标题: " + data.getStr("title"))
-                .plus("描述: " + data.getStr("description"));
+                .plus("描述: " + data.getStr("description").replace("<p>", "").replace("</p>", ""));
         CommandMessager messager2 = new CommandMessager("")
                 .plus("开播状态: " + isOnline)
-                .plus("直播间地址: " + data.getStr("url"));
+                .plus("直播间地址: https://" + URL_LIVE + data.getBigInteger("room_id"));
         Message image = null;
         if (data.containsKey("cover")) {
             image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(Util.getImage(data.getStr("cover")));
@@ -298,7 +299,7 @@ public class BilibiliUtil {
                    .plus(null != image ? image : Util.getEmptyMessage())
                    .plus(messager2.toString())
                    .plus("\n")
-                   .plus(getUserInfo(userID));
+                   .plus(getUserInfo(uID));
     }
 
     public static String getFixedID(String s) {

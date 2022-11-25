@@ -31,12 +31,12 @@ public class Bilibili extends Model {
         listenEvent(MessageEvent.class, (event) -> {
             SERVICE.submit(() -> {
                 String msg = Util.getPlainText(event.getMessage()).replace("\\/", "/");
-                if (StringUtil.startsWithIgnoreCase(msg, "#AV", "#BV")) {
+                if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV", "#BV")) {
                     try {
                         HashMap<String, Object> map = new HashMap<>();
-                        if (StringUtil.startsWithIgnoreCase(msg, "#AV")) {
+                        if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV")) {
                             map.put("aid", msg.substring(3));
-                        } else if (StringUtil.startsWithIgnoreCase(msg, "#BV")) {
+                        } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#BV")) {
                             if (msg.length() != 13) {
                                 return;
                             }
@@ -47,7 +47,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e, event);
                     }
-                } else if (StringUtil.startsWithIgnoreCase(msg, "#ss", "#ep")) {
+                } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#ss", "#ep")) {
                     try {
                         HashMap<String, Object> map = new HashMap<>();
                         if (msg.toLowerCase().startsWith("#ss")) {
@@ -91,7 +91,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e, event);
                     }
-                } else if (StringUtil.startsWithIgnoreCase(msg, "#search bilibili ")) {
+                } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#search bilibili ")) {
                     try {
                         String keyword = msg.substring(17);
                         HashMap<String, Object> map = new HashMap<>();
@@ -145,7 +145,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event, "搜索错误: " + e);
                         handleException(e, event);
                     }
-                } else if (StringUtil.startsWithIgnoreCase(msg, "#user")) {
+                } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#user")) {
                     try {
                         BigInteger ID = new BigInteger(msg.substring(5).split("/")[0]);
                         autoSendMsg(event, BilibiliUtil.getUserInfo(ID));

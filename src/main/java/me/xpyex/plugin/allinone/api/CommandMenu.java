@@ -28,6 +28,9 @@ public class CommandMenu {
      * @return 返回自身，制造链式调用
      */
     public CommandMenu add(String argument, String help) {
+        if (argument == null || help == null || argument.isEmpty()) {  //help可为空，仅描述有子参数，但不提供教程
+            return this;
+        }
         helpList.add(new Pair<>(argument, help));
         return this;
     }
