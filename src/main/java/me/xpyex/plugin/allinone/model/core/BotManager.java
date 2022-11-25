@@ -102,7 +102,7 @@ public class BotManager extends CoreModel {
                     return;
                 }
                 if (args.length == 2) {
-                    if (args[1].equalsIgnoreCase("ignore")) {
+                    if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
                         source.sendMessage("参数不足，请填写ID");
                         return;
                     }
@@ -115,6 +115,26 @@ public class BotManager extends CoreModel {
                         messager.send(source);
                         return;
                     }
+                }
+                Friend friend;
+                try {
+                    long id = Long.parseLong(args[2]);
+                    friend = Util.getBot().getFriendOrFail(id);
+                } catch (NumberFormatException ignored) {
+                    source.sendMessage("填入的群号非整数");
+                    return;
+                } catch (NullPointerException ignored) {
+                    source.sendMessage("机器人并未进入指定群，无法操作");
+                    return;
+                }
+                if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
+                    if (friend.getId() == Util.OWNER_ID) {
+                        source.sendMessage("不允许删除该好友");
+                        return;
+                    }
+                    source.sendMessage("执行操作: 删除好友 " + friend.getId());
+                    friend.delete();
+                    return;
                 }
             }
 
