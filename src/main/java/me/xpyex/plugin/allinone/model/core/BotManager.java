@@ -1,6 +1,7 @@
 package me.xpyex.plugin.allinone.model.core;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.CoreModel;
@@ -75,7 +76,7 @@ public class BotManager extends CoreModel {
                 } catch (NumberFormatException ignored) {
                     source.sendMessage("填入的群号非整数");
                     return;
-                } catch (NullPointerException ignored) {
+                } catch (NoSuchElementException ignored) {
                     source.sendMessage("机器人并未进入指定群，无法操作");
                     return;
                 }
@@ -123,8 +124,8 @@ public class BotManager extends CoreModel {
                 } catch (NumberFormatException ignored) {
                     source.sendMessage("填入的群号非整数");
                     return;
-                } catch (NullPointerException ignored) {
-                    source.sendMessage("机器人并未进入指定群，无法操作");
+                } catch (NoSuchElementException ignored) {
+                    source.sendMessage("机器人并非指定QQ的好友，无法操作");
                     return;
                 }
                 if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
