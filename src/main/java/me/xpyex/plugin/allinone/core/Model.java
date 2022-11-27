@@ -29,12 +29,17 @@ import net.mamoe.mirai.utils.MiraiLogger;
  * 调用 disable()         方法 - 禁用本模块
  * 调用 enable()          方法 - 启用本模块
  * 调用 info()            方法 - 向控制台发送信息
+ *
+ * 获取 getLogger()       方法 - 获取AllInOne的MiraiLogger
+ * 获取 isDisabled()      方法 - 获取该插件是否已被禁用
+ * 获取 isEnabled()       方法 - 获取该插件是否已被启用
  */
+
 public abstract class Model {
     public boolean DEFAULT_DISABLED = false;
     public static final HashMap<String, Model> LOADED_MODELS = new HashMap<>();
-    public static final HashSet<Model> DISABLED_MODELS = new HashSet<>();
-    private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();
+    private static final HashSet<Model> DISABLED_MODELS = new HashSet<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
+    private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
@@ -42,7 +47,7 @@ public abstract class Model {
         try {
             register();
             LOADED_MODELS.put(getName(), this);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             Main.LOGGER.error("加载模块 " + getName() + " 时出错: " + e);
             return;
@@ -67,7 +72,7 @@ public abstract class Model {
                 throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
             }
         }
-        CommandsList.register(this, aliases);
+        CommandList.register(this, aliases);
         CommandBus.takeInBus(contactType, this, exec);
         Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
@@ -119,7 +124,7 @@ public abstract class Model {
     }
 
     @SuppressWarnings("unchecked")
-    public final  <C extends Contact> C getRealSender(MessageEvent event) {
+    public final <C extends Contact> C getRealSender(MessageEvent event) {
         return (C) Util.getRealSender(event);
         //
     }
@@ -147,7 +152,7 @@ public abstract class Model {
 
             try {
                 r.run();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 handleException(e);
             }
         }, "AllInOne-Task-" + this.getName()).start();
@@ -175,7 +180,7 @@ public abstract class Model {
             while (TASKS.get(this).contains(uuid)) {
                 try {
                     r.run();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     handleException(e);
                 }
 
@@ -237,6 +242,16 @@ public abstract class Model {
 
     public final MiraiLogger getLogger() {
         return Main.LOGGER;
+        //
+    }
+
+    public final boolean isDisabled() {
+        return DISABLED_MODELS.contains(this);
+        //
+    }
+
+    public final boolean isEnabled() {
+        return !DISABLED_MODELS.contains(this);
         //
     }
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import me.xpyex.plugin.allinone.api.DoNotContinueException;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.Event;
 
@@ -15,11 +16,19 @@ public class EventBus {
         //
     }
 
+    public static void callToCoreModel(Event event) throws DoNotContinueException {  //先将事件发送到CoreModel审核，看是否需要取消
+        for (Model model : Model.LOADED_MODELS.values()) {
+            if (model instanceof CoreModel) {
+                if (((CoreModel) model).interceptEvent(event)) throw new DoNotContinueException();
+            }
+        }
+    }
+
     public static void callEvents(Event event) {
         for (Tuple eventBus : EVENT_BUSES) {
             if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
                 Model model = eventBus.get(1);
-                if (!Model.DISABLED_MODELS.contains(model)) {
+                if (model.isEnabled()) {
                     Consumer<Event> listener = eventBus.get(2);
                     try {
                         listener.accept(event);

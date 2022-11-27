@@ -24,8 +24,8 @@ public class CommandBus {
         for (Tuple commandBus : COMMAND_BUSES) {
             if (ClassUtil.isAssignable(commandBus.get(0), Util.getRealSender(event).getClass())) {
                 Model model = commandBus.get(1);
-                if (!Model.DISABLED_MODELS.contains(model)) {
-                    if (CommandsList.isCmd(commandBus.get(1), cmd)) {
+                if (model.isEnabled()) {
+                    if (CommandList.isCmd(commandBus.get(1), cmd)) {
                         CommandExecutor<Contact> executor = commandBus.get(2);
                         try {
                             executor.execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);

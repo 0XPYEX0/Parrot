@@ -29,9 +29,7 @@ public class ReflectUtil {
                     if (classPath.endsWith(".class")) {
                         String className = classPath.substring(0, classPath.length() - 6);
                         if (className.contains(packagePath)) {
-                            classList.add(
-                                    Class.forName(className)
-                            );
+                            classList.add(Class.forName(className));
                         }
                     }
                 }

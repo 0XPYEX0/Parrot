@@ -10,6 +10,10 @@ import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.event.events.GroupEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.NudgeEvent;
 
 public class BotManager extends CoreModel {
     public static final ArrayList<String> IGNORED_LIST = new ArrayList<>();
@@ -119,8 +123,7 @@ public class BotManager extends CoreModel {
                 }
                 Friend friend;
                 try {
-                    long id = Long.parseLong(args[2]);
-                    friend = Util.getBot().getFriendOrFail(id);
+                    friend = Util.getBot().getFriendOrFail(Long.parseLong(args[2]));
                 } catch (NumberFormatException ignored) {
                     source.sendMessage("填入的群号非整数");
                     return;
@@ -175,5 +178,18 @@ public class BotManager extends CoreModel {
 
             source.sendMessage("未知子命令，请执行 #" + label + " 查看帮助");
         }), "BotManager", "Bot");
+    }
+
+    @Override
+    public boolean interceptEvent(Event event) {
+        if (event instanceof GroupEvent && BotManager.IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
+            return true;
+
+        if (event instanceof MessageEvent && BotManager.IGNORED_LIST.contains("User-" + ((MessageEvent) event).getSender().getId()))
+            return true;
+
+        if (event instanceof NudgeEvent && BotManager.IGNORED_LIST.contains("User-" + ((NudgeEvent) event).getFrom()))
+            return true;
+        return false;
     }
 }

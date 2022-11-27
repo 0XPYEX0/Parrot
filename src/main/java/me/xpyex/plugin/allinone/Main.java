@@ -5,11 +5,11 @@ import cn.hutool.cron.CronUtil;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.TreeSet;
+import me.xpyex.plugin.allinone.api.DoNotContinueException;
 import me.xpyex.plugin.allinone.core.CommandBus;
-import me.xpyex.plugin.allinone.core.CommandsList;
+import me.xpyex.plugin.allinone.core.CommandList;
 import me.xpyex.plugin.allinone.core.EventBus;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.model.core.BotManager;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
@@ -18,9 +18,7 @@ import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.SimpleListenerHost;
-import net.mamoe.mirai.event.events.GroupEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 
@@ -69,17 +67,14 @@ public class Main extends JavaPlugin {
             @EventHandler
             @SuppressWarnings("unused")
             public void onEvent(Event event) {
-                if (event instanceof GroupEvent && BotManager.IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
-                    return;
-
-                if (event instanceof MessageEvent && BotManager.IGNORED_LIST.contains("User-" + ((MessageEvent) event).getSender().getId()))
-                    return;
-
-                if (event instanceof NudgeEvent && BotManager.IGNORED_LIST.contains("User-" + ((NudgeEvent) event).getFrom()))
-                    return;
+                try {
+                    EventBus.callToCoreModel(event);
+                } catch (DoNotContinueException ignored) {
+                    return;  //该事件已被CoreModel拦截不允许下发处理
+                }
 
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    if (CommandsList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
+                    if (CommandList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
                         CommandBus.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
                         return;
                     }

@@ -11,7 +11,8 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.event.Event;
-import net.mamoe.mirai.event.events.FriendMessageEvent;
+import net.mamoe.mirai.event.events.FriendEvent;
+import net.mamoe.mirai.event.events.GroupEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
@@ -46,7 +47,7 @@ public class Util {
     }
 
     public static boolean isGroupEvent(MessageEvent event) {
-        return (event instanceof GroupMessageEvent);
+        return (event instanceof GroupEvent);
         //
     }
 
@@ -61,7 +62,7 @@ public class Util {
     }
 
     public static boolean isFriendEvent(MessageEvent event) {
-        return (event instanceof FriendMessageEvent);
+        return (event instanceof FriendEvent);
         //
     }
 
@@ -137,11 +138,7 @@ public class Util {
             String eventCause;
             if (event != null) {
                 if (event instanceof MessageEvent) {
-                    if (event instanceof GroupMessageEvent) {
-                        eventCause = "群聊-" + ((GroupMessageEvent) event).getGroup().getId() + "";
-                    } else {
-                        eventCause = "私聊-" + ((MessageEvent) event).getSender().getId();
-                    }
+                    eventCause = (isGroupEvent((MessageEvent) event) ? "群聊-" : "私聊-") + getRealSender((MessageEvent) event).getId();
                 } else {
                     eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
                 }

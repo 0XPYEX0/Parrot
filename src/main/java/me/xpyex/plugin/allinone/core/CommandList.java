@@ -2,7 +2,7 @@ package me.xpyex.plugin.allinone.core;
 
 import java.util.HashMap;
 
-public class CommandsList {
+public class CommandList {
     private static final HashMap<String, Model> COMMAND_LIST = new HashMap<>();
 
     public static void register(Model model, String... commands) {
