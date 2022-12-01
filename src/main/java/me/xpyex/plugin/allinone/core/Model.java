@@ -22,6 +22,8 @@ import net.mamoe.mirai.utils.MiraiLogger;
  * 覆写 getName()         方法 - 自定义模块名
  * 覆写 register()        方法 - 注册
  *
+ *
+ *
  * 调用 listenEvent()     方法 - 监听Mirai事件
  * 调用 registerCommand() 方法 - 注册AllInOne命令
  * 调用 runTaskLater()    方法 - 延时执行任务
@@ -30,9 +32,14 @@ import net.mamoe.mirai.utils.MiraiLogger;
  * 调用 enable()          方法 - 启用本模块
  * 调用 info()            方法 - 向控制台发送信息
  *
+ *
+ *
+ * 获取 disable()         方法 - 禁用模块是否成功
+ * 获取 enable()          方法 - 启用模块是否成功
  * 获取 getLogger()       方法 - 获取AllInOne的MiraiLogger
- * 获取 isDisabled()      方法 - 获取该插件是否已被禁用
- * 获取 isEnabled()       方法 - 获取该插件是否已被启用
+ * 获取 isCore()          方法 - 获取该模块是否为核心模块
+ * 获取 isDisabled()      方法 - 获取该模块是否已被禁用
+ * 获取 isEnabled()       方法 - 获取该模块是否已被启用
  */
 
 public abstract class Model {
@@ -43,21 +50,23 @@ public abstract class Model {
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
+        if (LOADED_MODELS.containsKey(getName())) throw new IllegalStateException("已存在使用该名称的模块，不允许重复注册");
+
         TASKS.put(this, new HashSet<>());
         try {
             register();
             LOADED_MODELS.put(getName(), this);
         } catch (Throwable e) {
             e.printStackTrace();
-            Main.LOGGER.error("加载模块 " + getName() + " 时出错: " + e);
+            getLogger().error("加载模块 " + getName() + " 时出错: " + e);
             return;
         }
         if (this.DEFAULT_DISABLED) {
             this.disable();
-            Main.LOGGER.info("模块 " + getName() + " 注册时选用默认关闭，已关闭它");
+            getLogger().info("模块 " + getName() + " 注册时选用默认关闭，已关闭它");
         }
-        Main.LOGGER.info("成功加载 " + getName() + " 模块");
-        Main.LOGGER.info(" ");
+        getLogger().info("成功加载 " + getName() + " 模块");
+        getLogger().info(" ");
     }
 
     public abstract void register();
@@ -74,12 +83,12 @@ public abstract class Model {
         }
         CommandList.register(this, aliases);
         CommandBus.takeInBus(contactType, this, exec);
-        Main.LOGGER.info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
+        getLogger().info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
     public final <E extends Event> void listenEvent(Class<E> eventType, Consumer<E> listener) {
         EventBus.takeInBus(eventType, this, listener);
-        Main.LOGGER.info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
+        getLogger().info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }
 
     public String getName() {
@@ -146,8 +155,7 @@ public abstract class Model {
             if (seconds != 0L) {
                 try {
                     Thread.sleep(seconds * 1000L);
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) { }
             }
 
             try {
@@ -252,6 +260,11 @@ public abstract class Model {
 
     public final boolean isEnabled() {
         return !DISABLED_MODELS.contains(this);
+        //
+    }
+
+    public final boolean isCore() {
+        return this instanceof CoreModel;
         //
     }
 }

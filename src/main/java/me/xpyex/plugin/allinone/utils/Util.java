@@ -17,7 +17,6 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageContent;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.Nullable;
@@ -34,11 +33,9 @@ public class Util {
     }
 
     public static String getPlainText(MessageChain msg) {
-        MessageContent pt = msg.get(PlainText.Key);
+        if (msg == null) return "";
 
-        if (pt == null) return "";
-
-        return pt.contentToString().trim();
+        return msg.contentToString();
     }
 
     public static void setNameCard(GroupMessageEvent event, String Namecard) {

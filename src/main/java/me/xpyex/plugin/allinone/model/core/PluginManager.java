@@ -28,7 +28,7 @@ public class PluginManager extends CoreModel {
                         source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表");
                         return;
                     }
-                    if (target instanceof CoreModel) {
+                    if (target.isCore()) {
                         source.sendMessage("不允许操作核心模块");
                         return;
                     }
@@ -47,7 +47,7 @@ public class PluginManager extends CoreModel {
                         source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表");
                         return;
                     }
-                    if (target instanceof CoreModel) {
+                    if (target.isCore()) {
                         source.sendMessage("不允许操作核心模块");
                         return;
                     }

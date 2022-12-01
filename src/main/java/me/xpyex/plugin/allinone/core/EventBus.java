@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import me.xpyex.plugin.allinone.api.DoNotContinueException;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.Event;
 
@@ -16,19 +15,27 @@ public class EventBus {
         //
     }
 
-    public static void callToCoreModel(Event event) throws DoNotContinueException {  //先将事件发送到CoreModel审核，看是否需要取消
+    public static boolean callToCoreModel(Event event) {  //先将事件发送到CoreModel审核，看是否需要取消
+        callEvents(event,CoreModel.class);
         for (Model model : Model.LOADED_MODELS.values()) {
-            if (model instanceof CoreModel) {
-                if (((CoreModel) model).interceptEvent(event)) throw new DoNotContinueException();
+            if (model.isCore()) {
+                if (!((CoreModel) model).interceptEvent(event)) return false;  //如果返回 false， 说明事件被拦截，则此处返回false
             }
         }
+        return true;
     }
 
-    public static void callEvents(Event event) {
+    /**
+     * 对模块广播事件
+     * @param event 事件
+     * @param modelType 可接收到该事件的模块类型
+     * @param <M> 模块
+     */
+    public static <M extends Model> void callEvents(Event event, Class<M> modelType) {
         for (Tuple eventBus : EVENT_BUSES) {
             if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
                 Model model = eventBus.get(1);
-                if (model.isEnabled()) {
+                if (modelType.isInstance(model) && model.isEnabled()) {
                     Consumer<Event> listener = eventBus.get(2);
                     try {
                         listener.accept(event);

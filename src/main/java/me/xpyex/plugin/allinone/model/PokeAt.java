@@ -2,7 +2,6 @@ package me.xpyex.plugin.allinone.model;
 
 import java.io.File;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.message.data.Image;
@@ -17,7 +16,7 @@ public class PokeAt extends Model {
     @Override
     public void register() {
         runTaskLater(() ->
-                         IMAGE = Contact.uploadImage(Util.getOwner(), IMAGE_FILE),
+                         IMAGE = Contact.uploadImage(getBot().getAsFriend(), IMAGE_FILE),
             5);
         listenEvent(NudgeEvent.class, (event) -> {
             if (event.getTarget().getId() != event.getBot().getId()) {
@@ -25,7 +24,7 @@ public class PokeAt extends Model {
             }
             MessageChain msg = new PlainText("检测到未知的外部撞击").plus("");
             msg.plus(IMAGE);
-            event.component3().sendMessage(msg);
+            event.getSubject().sendMessage(msg);
         });
     }
 }

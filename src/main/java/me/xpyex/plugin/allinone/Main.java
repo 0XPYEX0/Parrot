@@ -5,7 +5,6 @@ import cn.hutool.cron.CronUtil;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.TreeSet;
-import me.xpyex.plugin.allinone.api.DoNotContinueException;
 import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.CommandList;
 import me.xpyex.plugin.allinone.core.EventBus;
@@ -67,9 +66,7 @@ public class Main extends JavaPlugin {
             @EventHandler
             @SuppressWarnings("unused")
             public void onEvent(Event event) {
-                try {
-                    EventBus.callToCoreModel(event);
-                } catch (DoNotContinueException ignored) {
+                if (!EventBus.callToCoreModel(event)) {  //该方法返回false则表示有
                     return;  //该事件已被CoreModel拦截不允许下发处理
                 }
 
@@ -79,7 +76,7 @@ public class Main extends JavaPlugin {
                         return;
                     }
                 }
-                EventBus.callEvents(event);
+                EventBus.callEvents(event, Model.class);
             }
         });  //广播事件
 

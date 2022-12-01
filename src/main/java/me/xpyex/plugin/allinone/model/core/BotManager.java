@@ -15,8 +15,9 @@ import net.mamoe.mirai.event.events.GroupEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 
+@SuppressWarnings("unused")
 public class BotManager extends CoreModel {
-    public static final ArrayList<String> IGNORED_LIST = new ArrayList<>();
+    private static final ArrayList<String> IGNORED_LIST = new ArrayList<>();
 
     @Override
     public void register() {
@@ -181,15 +182,16 @@ public class BotManager extends CoreModel {
     }
 
     @Override
+    @SuppressWarnings("all")
     public boolean interceptEvent(Event event) {
-        if (event instanceof GroupEvent && BotManager.IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
-            return true;
+        if (event instanceof GroupEvent && IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
+            return false;
 
-        if (event instanceof MessageEvent && BotManager.IGNORED_LIST.contains("User-" + ((MessageEvent) event).getSender().getId()))
-            return true;
+        if (event instanceof MessageEvent && IGNORED_LIST.contains("User-" + ((MessageEvent) event).getSender().getId()))
+            return false;
 
-        if (event instanceof NudgeEvent && BotManager.IGNORED_LIST.contains("User-" + ((NudgeEvent) event).getFrom()))
-            return true;
-        return false;
+        if (event instanceof NudgeEvent && (IGNORED_LIST.contains("User-" + ((NudgeEvent) event).getFrom().getId()) || IGNORED_LIST.contains("Group-" + ((NudgeEvent) event).getSubject().getId())))
+            return false;
+        return true;
     }
 }
