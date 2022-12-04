@@ -34,8 +34,7 @@ import me.xpyex.plugin.allinone.modelcode.music.cardprovider.MiraiCardProvider;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.KugouMusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.NetEaseMusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.QQMusicSource;
-import me.xpyex.plugin.allinone.utils.Util;
-import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.contact.Contact;
 
 public class Music extends Model {
 
@@ -43,7 +42,7 @@ public class Music extends Model {
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
 
     /** 命令列表. */
-    public static final Map<String, BiConsumer<MessageEvent, String[]>> COMMANDS = new ConcurrentHashMap<>();
+    public static final Map<String, BiConsumer<Contact, String[]>> COMMANDS = new ConcurrentHashMap<>();
 
     /** 音乐来源. */
     public static final Map<String, MusicSource> SOURCES = Collections.synchronizedMap(new LinkedHashMap<>());
@@ -69,7 +68,7 @@ public class Music extends Model {
      * @param card   音乐外观名称
      * @return return 返回一个指令执行器，可以注册到命令列表里面
      */
-    public BiConsumer<MessageEvent, String[]> makeTemplate(String source, String card) {
+    public BiConsumer<Contact, String[]> makeTemplate(String source, String card) {
         if (source.equals("all"))
             return makeSearchesTemplate(card);
         MusicCardProvider cb = CARDS.get(card);
@@ -78,23 +77,22 @@ public class Music extends Model {
         MusicSource mc = SOURCES.get(source);
         if (mc == null)
             throw new IllegalArgumentException("music source not exists");
-        return (event, args) -> {
-            String sn = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        return (contact, args) -> {
+            String sn = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
             EXEC.execute(() -> {
                 MusicInfo mi;
                 try {
                     mi = mc.get(sn);
                 } catch (Throwable t) {
                     this.getLogger().debug(t);
-                    autoSendMsg(event, "无法找到歌曲");
+                    contact.sendMessage("无法找到歌曲");
                     return;
                 }
                 try {
-                    autoSendMsg(event, cb.process(mi, Util.getRealSender(event)));
+                    contact.sendMessage(cb.process(mi, contact));
                 } catch (Throwable t) {
                     this.getLogger().debug(t);
-                    // this.getLogger().
-                    autoSendMsg(event, "无效的分享");
+                    contact.sendMessage("无效的分享");
                 }
             });
         };
@@ -106,12 +104,12 @@ public class Music extends Model {
      * @param card 音乐外观名称
      * @return return 返回一个指令执行器，可以注册到命令列表里面
      */
-    public BiConsumer<MessageEvent, String[]> makeSearchesTemplate(String card) {
+    public BiConsumer<Contact, String[]> makeSearchesTemplate(String card) {
         MusicCardProvider cb = CARDS.get(card);
         if (cb == null)
             throw new IllegalArgumentException("card template not exists");
-        return (event, args) -> {
-            String sn = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        return (contact, args) -> {
+            String sn = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
 
             EXEC.execute(() -> {
                 for (MusicSource mc : SOURCES.values()) {
@@ -123,14 +121,14 @@ public class Music extends Model {
                         continue;
                     }
                     try {
-                        autoSendMsg(event, cb.process(mi, Util.getRealSender(event)));
+                        contact.sendMessage(cb.process(mi, contact));
                     } catch (Throwable t) {
                         this.getLogger().debug(t);
-                        autoSendMsg(event, "无效的分享");
+                        contact.sendMessage("无效的分享");
                     }
                     return;
                 }
-                autoSendMsg(event, "无法找到歌曲");
+                contact.sendMessage("无法找到歌曲");
             });
 
         };
@@ -138,16 +136,15 @@ public class Music extends Model {
 
     @Override
     public void register() {
-        COMMANDS.put("#点歌", makeTemplate("QQ音乐", "Mirai")); // 标准样板
-        COMMANDS.put("#网易", makeTemplate("网易", "Mirai"));
-        COMMANDS.put("#酷狗", makeTemplate("酷狗", "Mirai"));
+        COMMANDS.put("点歌", makeTemplate("QQ音乐", "Mirai")); // 标准样板
+        COMMANDS.put("网易", makeTemplate("网易", "Mirai"));
+        COMMANDS.put("酷狗", makeTemplate("酷狗", "Mirai"));
 
-        listenEvent(MessageEvent.class, (event) -> {
-            String[] args = Util.getPlainText(event.getMessage()).split(" ");
-            BiConsumer<MessageEvent, String[]> exec = COMMANDS.get(args[0]);
+        registerCommand(Contact.class, ((source, sender, label, args) -> {
+            BiConsumer<Contact, String[]> exec = COMMANDS.get(label);
             if (exec != null) {
-                exec.accept(event, args);
+                exec.accept(source, args);
             }
-        });
+        }), "点歌", "网易", "酷狗");
     }
 }
