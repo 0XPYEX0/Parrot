@@ -54,9 +54,6 @@ public class EventBus {
                                 break;
                             }
                         }
-                        if (eventName.toString().trim().isEmpty()) {
-                            eventName = new StringBuilder();
-                        }
                         Util.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
                     }
                 }
