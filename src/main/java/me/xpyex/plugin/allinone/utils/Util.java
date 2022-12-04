@@ -43,7 +43,7 @@ public class Util {
         //
     }
 
-    public static boolean isGroupEvent(MessageEvent event) {
+    public static boolean isGroupEvent(Event event) {
         return (event instanceof GroupEvent);
         //
     }
@@ -58,7 +58,7 @@ public class Util {
         getRealSender(event).sendMessage(msg);
     }
 
-    public static boolean isFriendEvent(MessageEvent event) {
+    public static boolean isFriendEvent(Event event) {
         return (event instanceof FriendEvent);
         //
     }
@@ -135,7 +135,7 @@ public class Util {
             String eventCause;
             if (event != null) {
                 if (event instanceof MessageEvent) {
-                    eventCause = (isGroupEvent((MessageEvent) event) ? "群聊-" : "私聊-") + getRealSender((MessageEvent) event).getId();
+                    eventCause = (isGroupEvent(event) ? "群聊-" : "私聊-") + getRealSender((MessageEvent) event).getId();
                 } else {
                     eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
                 }

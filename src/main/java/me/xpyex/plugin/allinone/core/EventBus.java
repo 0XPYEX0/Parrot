@@ -5,6 +5,7 @@ import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.event.AbstractEvent;
 import net.mamoe.mirai.event.Event;
 
 public class EventBus {
@@ -46,7 +47,7 @@ public class EventBus {
                         while (!coreClass.isInterface()) {
                             eventName.insert(0, "." + coreClass.getSimpleName());
                             coreClass = coreClass.getSuperclass();
-                            if (coreClass == null) {
+                            if (coreClass == null || !ClassUtil.isAssignable(AbstractEvent.class, coreClass)) {
                                 if (eventName.toString().length() != 0) {
                                     eventName.delete(0, 1);
                                 }
