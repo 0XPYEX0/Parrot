@@ -16,7 +16,7 @@ public class JoinMessage extends Model {
     @Override
     public void register() {
         listenEvent(MemberJoinEvent.class, (event) -> {
-            if (event.getGroup().getBotAsMember().isMuted()) return;
+            if (event.getGroup().getBotAsMember().isMuted() || (event.getGroup().getSettings().isMuteAll() && event.getGroup().getBotPermission().getLevel() == 0)) return;
 
             Image newMember = event.getGroup().uploadImage(ExternalResource.create(IMAGE_NEW_MEMBER_FILE).toAutoCloseable());
             event.getGroup().sendMessage(newMember);
