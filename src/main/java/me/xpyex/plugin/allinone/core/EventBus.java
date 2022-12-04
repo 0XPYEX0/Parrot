@@ -47,7 +47,7 @@ public class EventBus {
                         while (!coreClass.isInterface()) {
                             eventName.insert(0, "." + coreClass.getSimpleName());
                             coreClass = coreClass.getSuperclass();
-                            if (coreClass == null || !ClassUtil.isAssignable(AbstractEvent.class, coreClass)) {
+                            if (coreClass == null || (!ClassUtil.isAssignable(AbstractEvent.class, coreClass)) || AbstractEvent.class.equals(coreClass)) {
                                 if (eventName.toString().length() != 0) {
                                     eventName.delete(0, 1);
                                 }
