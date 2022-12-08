@@ -81,8 +81,7 @@ public abstract class Model {
                 throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
             }
         }
-        CommandBus.register(this, aliases);
-        CommandBus.takeInBus(contactType, this, exec);
+        CommandBus.takeInBus(contactType, this, exec, aliases);
         getLogger().info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 

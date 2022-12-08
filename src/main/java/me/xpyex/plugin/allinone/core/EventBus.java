@@ -61,13 +61,13 @@ public class EventBus {
         }
     }
 
-    public static Class<?>[] getEvents(Model model) {
-        ArrayList<Class<?>> list = new ArrayList<>();
+    public static String[] getEvents(Model model) {
+        ArrayList<String> list = new ArrayList<>();
         for (Tuple bus : EVENT_BUSES) {
             if (bus.get(1) == model) {
-                list.add(bus.get(0));
+                list.add(((Class<?>) bus.get(0)).getSimpleName());
             }
         }
-        return list.toArray(new Class[0]);
+        return list.toArray(new String[0]);
     }
 }

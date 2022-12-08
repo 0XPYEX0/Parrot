@@ -70,7 +70,7 @@ public class Main extends JavaPlugin {
                 }
 
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    if (CommandBus.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
+                    if (CommandBus.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0].substring(1))) {
                         CommandBus.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
                         return;
                     }
