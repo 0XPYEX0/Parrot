@@ -1,8 +1,12 @@
 package me.xpyex.plugin.allinone.model.core;
 
+import java.util.Arrays;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.api.CommandMenu;
+import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.CoreModel;
+import me.xpyex.plugin.allinone.core.EventBus;
 import me.xpyex.plugin.allinone.core.Model;
 import net.mamoe.mirai.contact.Contact;
 
@@ -62,6 +66,20 @@ public class PluginManager extends CoreModel {
                         list.add(loadedModel.getName() + (loadedModel.isDisabled() ? "(未启用)" : ""));
                     }
                     source.sendMessage("所有模块列表: " + list);
+                } else if (args[0].equalsIgnoreCase("info")) {
+                    if (args.length == 1) {
+                        source.sendMessage("参数不足");
+                        return;
+                    }
+                    Model target = Model.getModel(args[1]);
+                    if (target == null) {
+                        source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表");
+                        return;
+                    }
+                    new CommandMessager("模块 " + target.getName())
+                        .plus("已注册的命令: " + Arrays.toString(CommandBus.getCommands(target)))
+                        .plus("监听的事件: " + Arrays.toString(EventBus.getEvents(target)))
+                        .send(source);
                 } else {
                     source.sendMessage("未知子命令");
                 }

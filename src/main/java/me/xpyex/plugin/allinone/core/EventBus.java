@@ -60,4 +60,14 @@ public class EventBus {
             }
         }
     }
+
+    public static Class<?>[] getEvents(Model model) {
+        ArrayList<Class<?>> list = new ArrayList<>();
+        for (Tuple bus : EVENT_BUSES) {
+            if (bus.get(1) == model) {
+                list.add(bus.get(0));
+            }
+        }
+        return list.toArray(new Class[0]);
+    }
 }

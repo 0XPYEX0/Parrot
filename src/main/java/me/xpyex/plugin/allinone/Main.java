@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandBus;
-import me.xpyex.plugin.allinone.core.CommandList;
 import me.xpyex.plugin.allinone.core.EventBus;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
@@ -71,7 +70,7 @@ public class Main extends JavaPlugin {
                 }
 
                 if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    if (CommandList.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
+                    if (CommandBus.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0])) {
                         CommandBus.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
                         return;
                     }
