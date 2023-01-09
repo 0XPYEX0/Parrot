@@ -12,7 +12,7 @@ public class RestartBroadcast extends CoreModel {
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.getId() != 1723275529L) {
-                source.sendMessage("你没有权限");
+                Util.sendMsg(source, "你没有权限");
                 return;
             }
             if (args.length == 0) {
@@ -24,31 +24,31 @@ public class RestartBroadcast extends CoreModel {
                         .send(source);
             } else if (args[0].equalsIgnoreCase("start")) {
                 restartMode = true;
-                source.sendMessage("Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");
+                Util.sendMsg(source, "Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");
                 try {
                     for (int i = 10; i >= 0; i--) {
                         if (!restartMode) {
                             return;
                         }
                         if (i <= 3) {
-                            source.sendMessage("倒计时: " + i);
+                            Util.sendMsg(source, "倒计时: " + i);
                         }
                         Thread.sleep(1000);
                     }
-                    source.sendMessage("开始重启");
+                    Util.sendMsg(source, "开始重启");
                     Util.runCmd("cmd /c start /b RestartMirai.bat");
                 } catch (Throwable ignored) {}
             } else if (args[0].equalsIgnoreCase("stop")) {
                 restartMode = false;
-                source.sendMessage("已取消重启计划");
+                Util.sendMsg(source, "已取消重启计划");
             } else if (args[0].equalsIgnoreCase("now")) {
-                source.sendMessage("开始重启");
+                Util.sendMsg(source, "开始重启");
                 Util.runCmd("cmd /c start /b RestartMirai.bat");
             } else if (args[0].equalsIgnoreCase("exit")) {
-                source.sendMessage("关闭Bot");
+                Util.sendMsg(source, "关闭Bot");
                 Util.runCmd("cmd /c start /b StopMirai.bat");
             } else {
-                source.sendMessage("未知子命令");
+                Util.sendMsg(source, "未知子命令");
             }
         }), "rbc", "restart");
     }

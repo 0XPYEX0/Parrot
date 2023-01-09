@@ -18,7 +18,7 @@ public class MCPinger extends Model {
                 return;
             }
             if (args.length != 1) {
-                source.sendMessage("您这服务器是不是有点多了");
+                Util.sendMsg(source, "您这服务器是不是有点多了");
                 return;
             }
             try {
@@ -42,12 +42,12 @@ public class MCPinger extends Model {
                             .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
                             .send(source);
                 } else {
-                    source.sendMessage("解析失败");
+                    Util.sendMsg(source, "解析失败");
                 }
             } catch (NumberFormatException ignored) {
-                source.sendMessage("您这端口还带非整数的啊？");
+                Util.sendMsg(source, "您这端口还带非整数的啊？");
             } catch (Exception e) {
-                source.sendMessage("解析失败，出现异常: " + e);
+                Util.sendMsg(source, "解析失败，出现异常: " + e);
                 handleException(e, false);
             }
         }), "mc", "mcPing", "ping");

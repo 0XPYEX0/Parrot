@@ -47,7 +47,7 @@ public class CommandMessager {
      * @param target 接收信息的目标
      */
     public void send(Contact target) {
-        target.sendMessage(this.toString());
+        Util.sendMsg(target, this.toString());
         //
     }
 

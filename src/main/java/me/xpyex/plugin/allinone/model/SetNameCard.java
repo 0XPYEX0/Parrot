@@ -9,15 +9,15 @@ public class SetNameCard extends Model {
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
             if (sender.getId() != 1723275529L) {
-                source.sendMessage("你没有权限");
+                Util.sendMsg(source, "你没有权限");
                 return;
             }
             if (args.length == 0) {
-                source.sendMessage("参数不足");
+                Util.sendMsg(source, "参数不足");
                 return;
             }
             source.getBotAsMember().setNameCard(String.join(" ", args));
-            source.sendMessage("已修改");
+            Util.sendMsg(source, "已修改");
         }), "setNameCard", "nameCard");
         DEFAULT_DISABLED = true;
     }

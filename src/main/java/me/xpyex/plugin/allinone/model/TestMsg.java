@@ -44,10 +44,10 @@ public class TestMsg extends Model {
                 .send(source);
         })), "test2");
         registerCommand(Group.class, ((source, sender, label, args) ->
-                source.sendMessage("这是群反馈器")
+                Util.sendMsg(source, "这是群反馈器")
         ), "testCmd");
         registerCommand(User.class, ((source, sender, label, args) ->
-                source.sendMessage("这是私聊反馈器")
+                Util.sendMsg(source, "这是私聊反馈器")
         ), "testCmd");
         runTaskLater(() ->
                         sendMsgToOwner("已启动"),

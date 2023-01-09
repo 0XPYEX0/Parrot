@@ -23,7 +23,7 @@ public class BotManager extends CoreModel {
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.getId() != Util.OWNER_ID) {
-                source.sendMessage("你没有权限");
+                Util.sendMsg(source, "你没有权限");
                 return;
             }
 
@@ -51,7 +51,7 @@ public class BotManager extends CoreModel {
                 }
                 if (args.length == 2) {
                     if (StringUtil.equalsIgnoreCaseOr(args[1], "quit", "ignore")) {
-                        source.sendMessage("参数不足，请填写ID");
+                        Util.sendMsg(source, "参数不足，请填写ID");
                         return;
                     }
                     if (args[1].equalsIgnoreCase("list")) {
@@ -71,7 +71,7 @@ public class BotManager extends CoreModel {
                         if (source instanceof Group) {
                             id = source.getId();
                         } else {
-                            source.sendMessage("该命令不在群内执行，不可使用this替代符");
+                            Util.sendMsg(source, "该命令不在群内执行，不可使用this替代符");
                             return;
                         }
                     } else {
@@ -79,19 +79,19 @@ public class BotManager extends CoreModel {
                     }
                     group = Util.getBot().getGroupOrFail(id);
                 } catch (NumberFormatException ignored) {
-                    source.sendMessage("填入的群号非整数");
+                    Util.sendMsg(source, "填入的群号非整数");
                     return;
                 } catch (NoSuchElementException ignored) {
-                    source.sendMessage("机器人并未进入指定群，无法操作");
+                    Util.sendMsg(source, "机器人并未进入指定群，无法操作");
                     return;
                 }
                 if (args[1].equalsIgnoreCase("quit")) {
-                    source.sendMessage("执行操作: 退出群 " + group.getId());
+                    Util.sendMsg(source, "执行操作: 退出群 " + group.getId());
                     group.quit();
                     return;
                 }
                 if (args[1].equalsIgnoreCase("ignore")) {
-                    source.sendMessage("执行操作: 忽略群 " + group.getId());
+                    Util.sendMsg(source, "执行操作: 忽略群 " + group.getId());
                     IGNORED_LIST.add("Group-" + group.getId());
                     return;
                 }
@@ -109,7 +109,7 @@ public class BotManager extends CoreModel {
                 }
                 if (args.length == 2) {
                     if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
-                        source.sendMessage("参数不足，请填写ID");
+                        Util.sendMsg(source, "参数不足，请填写ID");
                         return;
                     }
                     if (args[1].equalsIgnoreCase("list")) {
@@ -126,18 +126,18 @@ public class BotManager extends CoreModel {
                 try {
                     friend = Util.getBot().getFriendOrFail(Long.parseLong(args[2]));
                 } catch (NumberFormatException ignored) {
-                    source.sendMessage("填入的群号非整数");
+                    Util.sendMsg(source, "填入的群号非整数");
                     return;
                 } catch (NoSuchElementException ignored) {
-                    source.sendMessage("机器人并非指定QQ的好友，无法操作");
+                    Util.sendMsg(source, "机器人并非指定QQ的好友，无法操作");
                     return;
                 }
                 if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
                     if (friend.getId() == Util.OWNER_ID) {
-                        source.sendMessage("不允许删除该好友");
+                        Util.sendMsg(source, "不允许删除该好友");
                         return;
                     }
-                    source.sendMessage("执行操作: 删除好友 " + friend.getId());
+                    Util.sendMsg(source, "执行操作: 删除好友 " + friend.getId());
                     friend.delete();
                     return;
                 }
@@ -154,7 +154,7 @@ public class BotManager extends CoreModel {
                 }
                 if (args.length == 2) {
                     if (args[1].equalsIgnoreCase("ignore")) {
-                        source.sendMessage("参数不足，请填写ID");
+                        Util.sendMsg(source, "参数不足，请填写ID");
                         return;
                     }
                 }
@@ -162,22 +162,22 @@ public class BotManager extends CoreModel {
                     long id = Long.parseLong(args[2]);
                     if (args[1].equalsIgnoreCase("ignore")) {
                         if (id == Util.OWNER_ID) {
-                            source.sendMessage("不允许屏蔽该用户");
+                            Util.sendMsg(source, "不允许屏蔽该用户");
                             return;
                         }
-                        source.sendMessage("执行操作: 忽略用户 " + id);
+                        Util.sendMsg(source, "执行操作: 忽略用户 " + id);
                         IGNORED_LIST.add("User-" + id);
                         return;
                     }
                 } catch (NumberFormatException ignored) {
-                    source.sendMessage("填入的QQ号非整数");
+                    Util.sendMsg(source, "填入的QQ号非整数");
                     return;
                 }
             }
 
 
 
-            source.sendMessage("未知子命令，请执行 #" + label + " 查看帮助");
+            Util.sendMsg(source, "未知子命令，请执行 #" + label + " 查看帮助");
         }), "BotManager", "Bot");
     }
 

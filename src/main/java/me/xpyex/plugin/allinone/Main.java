@@ -45,7 +45,7 @@ public class Main extends JavaPlugin {
         for (Class<?> modelClass : ReflectUtil.getClasses("model")) {
             if (ClassUtil.isAssignable(Model.class, modelClass)) {
                 try {
-                    modelClass.newInstance();
+                    modelClass.getDeclaredConstructor().newInstance();
                 } catch (Throwable e) {
                     e.printStackTrace();
                     LOGGER.error("加载模块 " + modelClass.getSimpleName() + " 时出错: " + e);

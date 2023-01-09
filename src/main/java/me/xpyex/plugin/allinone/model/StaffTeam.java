@@ -11,7 +11,7 @@ public class StaffTeam extends Model {
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
             if (source.getBotPermission().getLevel() != 2) {
-                source.sendMessage("Bot非群主，无法执行此操作");
+                Util.sendMsg(source, "Bot非群主，无法执行此操作");
                 return;
             }
             if (sender.getId() == 1723275529L) {
@@ -21,14 +21,14 @@ public class StaffTeam extends Model {
                             .add("remove <QQID>", "令管理员成为普通群员")
                             .send(source);
                 } else if (args.length == 1) {
-                    source.sendMessage("参数不足");
+                    Util.sendMsg(source, "参数不足");
                 }
                 else {
                     try {
                         long targetID = Long.parseLong(args[1]);
                         NormalMember target = source.get(targetID);
                         if (target == null) {
-                            source.sendMessage("群内无该成员");
+                            Util.sendMsg(source, "群内无该成员");
                             return;
                         }
                         if (args[0].equalsIgnoreCase("add")) {
@@ -36,16 +36,16 @@ public class StaffTeam extends Model {
                         } else if (args[1].equalsIgnoreCase("remove")) {
                             target.modifyAdmin(false);
                         } else {
-                            source.sendMessage("未知子命令");
+                            Util.sendMsg(source, "未知子命令");
                             return;
                         }
-                        source.sendMessage("已完成");
+                        Util.sendMsg(source, "已完成");
                     } catch (NumberFormatException ignored) {
-                        source.sendMessage("请输入正确的QQ号");
+                        Util.sendMsg(source, "请输入正确的QQ号");
                     }
                 }
             } else {
-                source.sendMessage("你没有权限");
+                Util.sendMsg(source, "你没有权限");
             }
         }), "staff", "StaffTeam");
     }

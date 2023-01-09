@@ -10,6 +10,8 @@ import java.util.Date;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.FriendEvent;
 import net.mamoe.mirai.event.events.GroupEvent;
@@ -49,13 +51,37 @@ public class Util {
     }
 
     public static void autoSendMsg(MessageEvent event, String msg) {
-        autoSendMsg(event, new PlainText(msg).plus(""));
+        if (msg == null) {
+            return;
+        }
+        autoSendMsg(event, new PlainText(msg));
         //
     }
 
     public static void autoSendMsg(MessageEvent event, Message msg) {
-        if (msg == null) return;
-        getRealSender(event).sendMessage(msg);
+        if (event == null) {
+            return;
+        }
+        sendMsg(getRealSender(event), msg);
+    }
+
+    public static void sendMsg(Contact contact, String msg) {
+        sendMsg(contact, new PlainText(msg));
+    }
+
+    public static void sendMsg(Contact contact, Message msg) {
+        if (contact == null || msg == null) {
+            return;
+        }
+        if (contact instanceof Group) {
+            if (((Group) contact).getSettings().isMuteAll() && ((Group) contact).getBotPermission() == MemberPermission.MEMBER) {
+                return;
+            }
+            if (((Group) contact).getBotAsMember().isMuted()) {
+                return;
+            }
+        }
+        contact.sendMessage(msg);
     }
 
     public static boolean isFriendEvent(Event event) {
@@ -163,8 +189,8 @@ public class Util {
     }
 
     public static byte[] readAll(InputStream i) throws IOException {
-        ByteArrayOutputStream ba = new ByteArrayOutputStream(16384);
-        byte[] data = new byte[4096];
+        ByteArrayOutputStream ba = new ByteArrayOutputStream(32768);
+        byte[] data = new byte[8192];
         int nRead;
         while ((nRead = i.read(data, 0, data.length)) != -1) {
             ba.write(data, 0, nRead);
