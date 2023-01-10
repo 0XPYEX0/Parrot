@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.bilibili.BilibiliUtil;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
-import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 @SuppressWarnings("all")
@@ -30,7 +30,7 @@ public class Bilibili extends Model {
     public void register() {
         listenEvent(MessageEvent.class, (event) -> {
             SERVICE.submit(() -> {
-                String msg = Util.getPlainText(event.getMessage()).replace("\\/", "/");
+                String msg = MsgUtil.getPlainText(event.getMessage()).replace("\\/", "/");
                 if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV", "#BV")) {
                     try {
                         HashMap<String, Object> map = new HashMap<>();

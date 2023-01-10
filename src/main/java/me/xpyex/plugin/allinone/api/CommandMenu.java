@@ -2,7 +2,7 @@ package me.xpyex.plugin.allinone.api;
 
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 
 /**
@@ -50,7 +50,7 @@ public class CommandMenu {
     }
 
     public void send(Contact target) {
-        Util.sendMsg(target, this.toString());
+        MsgUtil.sendMsg(target, this.toString());
         //
     }
 }

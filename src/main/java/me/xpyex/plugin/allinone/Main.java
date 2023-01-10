@@ -8,8 +8,8 @@ import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.EventBus;
 import me.xpyex.plugin.allinone.core.Model;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
-import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.Event;
@@ -69,9 +69,9 @@ public class Main extends JavaPlugin {
                     return;  //该事件已被CoreModel拦截不允许下发处理
                 }
 
-                if (event instanceof MessageEvent && Util.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    if (CommandBus.isCmd(Util.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0].substring(1))) {
-                        CommandBus.callCommands((MessageEvent) event, Util.getPlainText(((MessageEvent) event).getMessage()));
+                if (event instanceof MessageEvent && MsgUtil.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
+                    if (CommandBus.isCmd(MsgUtil.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0].substring(1))) {
+                        CommandBus.callCommands((MessageEvent) event, MsgUtil.getPlainText(((MessageEvent) event).getMessage()));
                         return;
                     }
                 }

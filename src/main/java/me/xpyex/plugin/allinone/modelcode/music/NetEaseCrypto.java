@@ -7,7 +7,7 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 
 public class NetEaseCrypto {
     static final String[] userAgentList;
@@ -51,7 +51,7 @@ public class NetEaseCrypto {
             bytes = cipher.doFinal(content.getBytes("utf-8"));
             result = Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
-            Util.handleException(e);
+            ExceptionUtil.handleException(e);
         }
         return result;
     }

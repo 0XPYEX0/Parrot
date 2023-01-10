@@ -4,7 +4,8 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ExceptionUtil;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.event.AbstractEvent;
 import net.mamoe.mirai.event.Event;
 
@@ -41,7 +42,7 @@ public class EventBus {
                     try {
                         listener.accept(event);
                     } catch (Throwable e) {
-                        Util.handleException(e, false);
+                        ExceptionUtil.handleException(e, false);
                         StringBuilder eventName = new StringBuilder();
                         Class<?> coreClass = event.getClass();
                         while (!coreClass.isInterface()) {
@@ -54,7 +55,7 @@ public class EventBus {
                                 break;
                             }
                         }
-                        Util.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
+                        MsgUtil.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
                     }
                 }
             }

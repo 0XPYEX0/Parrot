@@ -4,6 +4,7 @@ import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.mcpinger.Pinger;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 
@@ -18,7 +19,7 @@ public class MCPinger extends Model {
                 return;
             }
             if (args.length != 1) {
-                Util.sendMsg(source, "您这服务器是不是有点多了");
+                MsgUtil.sendMsg(source, "您这服务器是不是有点多了");
                 return;
             }
             try {
@@ -42,12 +43,12 @@ public class MCPinger extends Model {
                             .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
                             .send(source);
                 } else {
-                    Util.sendMsg(source, "解析失败");
+                    MsgUtil.sendMsg(source, "解析失败");
                 }
             } catch (NumberFormatException ignored) {
-                Util.sendMsg(source, "您这端口还带非整数的啊？");
+                MsgUtil.sendMsg(source, "您这端口还带非整数的啊？");
             } catch (Exception e) {
-                Util.sendMsg(source, "解析失败，出现异常: " + e);
+                MsgUtil.sendMsg(source, "解析失败，出现异常: " + e);
                 handleException(e, false);
             }
         }), "mc", "mcPing", "ping");

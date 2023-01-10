@@ -4,7 +4,8 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ExceptionUtil;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
 
@@ -46,7 +47,7 @@ public class CommandBus {
             args = new String[0];
         }
         for (Tuple commandBus : COMMAND_BUSES) {
-            if (ClassUtil.isAssignable(commandBus.get(0), Util.getRealSender(event).getClass())) {
+            if (ClassUtil.isAssignable(commandBus.get(0), MsgUtil.getRealSender(event).getClass())) {
                 Model model = commandBus.get(1);
                 if (model.isEnabled()) {
                     if (isCmd(model, cmd.substring(1))) {
@@ -54,10 +55,10 @@ public class CommandBus {
                         for (String alias : command.getAliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {
-                                    command.getExecutor().execute(Util.getRealSender(event), event.getSender(), cmd.substring(1), args);
+                                    command.getExecutor().execute(MsgUtil.getRealSender(event), event.getSender(), cmd.substring(1), args);
                                 } catch (Throwable e) {
-                                    Util.handleException(e, false);
-                                    Util.sendMsgToOwner("模块 " + model.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
+                                    ExceptionUtil.handleException(e, false);
+                                    MsgUtil.sendMsgToOwner("模块 " + model.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
                                 }
                             }
                         }

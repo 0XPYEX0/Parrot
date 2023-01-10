@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 
 public class Pinger {
     private String address;
@@ -121,7 +121,7 @@ public class Pinger {
                     socket.close();
                 }
                 catch (IOException ex) {
-                    Util.handleException(ex);
+                    ExceptionUtil.handleException(ex);
                 }
                 socket = null;
                 return false;
@@ -131,7 +131,7 @@ public class Pinger {
                     socket.close();
                 }
                 catch (IOException ex2) {
-                    Util.handleException(ex2);
+                    ExceptionUtil.handleException(ex2);
                 }
                 socket = null;
                 return false;
@@ -142,7 +142,7 @@ public class Pinger {
                     socket.close();
                 }
                 catch (IOException ex3) {
-                    Util.handleException(ex3);
+                    ExceptionUtil.handleException(ex3);
                 }
                 socket = null;
                 return false;
@@ -152,7 +152,7 @@ public class Pinger {
                     socket.close();
                 }
                 catch (IOException ex4) {
-                    Util.handleException(ex4);
+                    ExceptionUtil.handleException(ex4);
                 }
                 socket = null;
                 return false;
@@ -163,7 +163,7 @@ public class Pinger {
                     socket.close();
                 }
                 catch (IOException ex5) {
-                    Util.handleException(ex5);
+                    ExceptionUtil.handleException(ex5);
                 }
                 return false;
             }
@@ -188,7 +188,7 @@ public class Pinger {
             inputStream.close();
             socket.close();
         } catch (IOException exception) {
-            Util.handleException(exception);
+            ExceptionUtil.handleException(exception);
             return false;
         }
         return true;

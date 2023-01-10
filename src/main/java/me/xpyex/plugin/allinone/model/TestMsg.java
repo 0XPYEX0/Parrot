@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -44,10 +45,10 @@ public class TestMsg extends Model {
                 .send(source);
         })), "test2");
         registerCommand(Group.class, ((source, sender, label, args) ->
-                Util.sendMsg(source, "这是群反馈器")
+                MsgUtil.sendMsg(source, "这是群反馈器")
         ), "testCmd");
         registerCommand(User.class, ((source, sender, label, args) ->
-                Util.sendMsg(source, "这是私聊反馈器")
+                MsgUtil.sendMsg(source, "这是私聊反馈器")
         ), "testCmd");
         runTaskLater(() ->
                         sendMsgToOwner("已启动"),

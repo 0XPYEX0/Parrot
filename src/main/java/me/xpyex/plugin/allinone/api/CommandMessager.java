@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.api;
 
 import java.util.ArrayList;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
 
@@ -47,7 +47,7 @@ public class CommandMessager {
      * @param target 接收信息的目标
      */
     public void send(Contact target) {
-        Util.sendMsg(target, this.toString());
+        MsgUtil.sendMsg(target, this.toString());
         //
     }
 
@@ -56,7 +56,7 @@ public class CommandMessager {
      * @param event 目标事件
      */
     public void send(MessageEvent event) {
-        send(Util.getRealSender(event));
+        send(MsgUtil.getRealSender(event));
         //
     }
 }

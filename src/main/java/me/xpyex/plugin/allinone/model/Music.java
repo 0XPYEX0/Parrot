@@ -34,7 +34,7 @@ import me.xpyex.plugin.allinone.modelcode.music.cardprovider.MiraiCardProvider;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.KugouMusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.NetEaseMusicSource;
 import me.xpyex.plugin.allinone.modelcode.music.musicsource.QQMusicSource;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 
 public class Music extends Model {
@@ -86,14 +86,14 @@ public class Music extends Model {
                     mi = mc.get(sn);
                 } catch (Throwable t) {
                     this.getLogger().debug(t);
-                    Util.sendMsg(contact, "无法找到歌曲");
+                    MsgUtil.sendMsg(contact, "无法找到歌曲");
                     return;
                 }
                 try {
-                    Util.sendMsg(contact, cb.process(mi, contact));
+                    MsgUtil.sendMsg(contact, cb.process(mi, contact));
                 } catch (Throwable t) {
                     this.getLogger().debug(t);
-                    Util.sendMsg(contact, "无效的分享");
+                    MsgUtil.sendMsg(contact, "无效的分享");
                 }
             });
         };
@@ -122,14 +122,14 @@ public class Music extends Model {
                         continue;
                     }
                     try {
-                        Util.sendMsg(contact, cb.process(mi, contact));
+                        MsgUtil.sendMsg(contact, cb.process(mi, contact));
                     } catch (Throwable t) {
                         this.getLogger().debug(t);
-                        Util.sendMsg(contact, "无效的分享");
+                        MsgUtil.sendMsg(contact, "无效的分享");
                     }
                     return;
                 }
-                Util.sendMsg(contact, "无法找到歌曲");
+                MsgUtil.sendMsg(contact, "无法找到歌曲");
             });
 
         };

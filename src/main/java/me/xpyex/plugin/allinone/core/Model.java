@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.utils.ExceptionUtil;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
@@ -133,7 +135,7 @@ public abstract class Model {
 
     @SuppressWarnings("unchecked")
     public final <C extends Contact> C getRealSender(MessageEvent event) {
-        return (C) Util.getRealSender(event);
+        return (C) MsgUtil.getRealSender(event);
         //
     }
 
@@ -211,27 +213,27 @@ public abstract class Model {
     }
 
     public final void handleException(Throwable e) {
-        Util.handleException(e);
+        ExceptionUtil.handleException(e);
         //
     }
 
     public final void handleException(Throwable e, Event event) {
-        Util.handleException(e, event);
+        ExceptionUtil.handleException(e, event);
         //
     }
 
     public final void handleException(Throwable e, boolean noticeOwner, Event event) {
-        Util.handleException(e, noticeOwner, event);
+        ExceptionUtil.handleException(e, noticeOwner, event);
         //
     }
 
     public final void handleException(Throwable e, boolean noticeOwner) {
-        Util.handleException(e, noticeOwner);
+        ExceptionUtil.handleException(e, noticeOwner);
         //
     }
 
     public final String getPlainText(MessageChain message) {
-        return Util.getPlainText(message);
+        return MsgUtil.getPlainText(message);
         //
     }
 

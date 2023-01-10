@@ -19,7 +19,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
@@ -135,7 +135,7 @@ public class EpicPush extends Model {
 
                 String result = "游戏名:" + game_title + "\n描述:" + game_description + "\n发售商:" + game_seller + "\n\n原价:" + game_originalprice + "\n现价:" + game_discountPrice + "\n\n白嫖开始日期:" + game_startdate + "\n白嫖结束日期:" + game_enddate + "\n\n快去 Epic Game 领取吧~";
                 try {
-                    ExternalResource er = Util.getImage(game_keyimages);
+                    ExternalResource er = MsgUtil.getImage(game_keyimages);
                     if (friend != null) {
                         Image image = Contact.uploadImage(friend, er);
                         MessageChain mc = new MessageChainBuilder()
@@ -213,7 +213,7 @@ public class EpicPush extends Model {
     }
 
     private void userPush(FriendMessageEvent event) {
-        if (Util.getPlainText(event.getMessage()).equals("#开启白嫖推送")) {
+        if (MsgUtil.getPlainText(event.getMessage()).equals("#开启白嫖推送")) {
             String id = String.valueOf(event.getSender().getId());
             if (userList.contains(id)) {
                 event.getSender().sendMessage("当前已开启白嫖推送，无需重复开启");
@@ -227,7 +227,7 @@ public class EpicPush extends Model {
                 e.printStackTrace();
                 info("fail to writeUser");
             }
-        } else if (Util.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
+        } else if (MsgUtil.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
             String id = String.valueOf(event.getSender().getId());
             if (userList.contains(id)) {
                 userList.remove(id);
@@ -242,7 +242,7 @@ public class EpicPush extends Model {
     }
 
     private void groupPush(GroupMessageEvent event) {
-        if (Util.getPlainText(event.getMessage()).equals("#开启白嫖推送")) {
+        if (MsgUtil.getPlainText(event.getMessage()).equals("#开启白嫖推送")) {
             String id = String.valueOf(event.getGroup().getId());
             if (groupList.contains(id)) {
                 event.getGroup().sendMessage("当前已开启白嫖推送，无需重复开启");
@@ -256,7 +256,7 @@ public class EpicPush extends Model {
                 e.printStackTrace();
                 info("fail to writeGroup");
             }
-        } else if (Util.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
+        } else if (MsgUtil.getPlainText(event.getMessage()).equals("#关闭白嫖推送")) {
             String id = String.valueOf(event.getGroup().getId());
             if (groupList.contains(id)) {
                 groupList.remove(id);
@@ -271,7 +271,7 @@ public class EpicPush extends Model {
     }
 
     private void pushToGroup(GroupMessageEvent event) {
-        if (Util.getPlainText(event.getMessage()).equals("#白嫖")) {
+        if (MsgUtil.getPlainText(event.getMessage()).equals("#白嫖")) {
             try {
                 sendPushData(getJson(), event.getGroup(), null);
             } catch (Exception e) {
@@ -281,7 +281,7 @@ public class EpicPush extends Model {
     }
 
     private void pushToFriend(FriendMessageEvent event) {
-        if (Util.getPlainText(event.getMessage()).equals("#白嫖")) {
+        if (MsgUtil.getPlainText(event.getMessage()).equals("#白嫖")) {
             try {
                 sendPushData(getJson(), null, event.getFriend());
             } catch (Exception e) {
