@@ -8,6 +8,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
@@ -19,6 +20,12 @@ public class MsgUtil {
         if (Util.isGroupEvent(event)) return ((GroupMessageEvent) event).getGroup();
 
         return event.getSender();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <C extends Contact> C getRealSender(MessageEvent event, Class<C> returnType) {
+        return (C) getRealSender(event);
+        //
     }
 
     public static String getPlainText(MessageChain msg) {
@@ -98,6 +105,16 @@ public class MsgUtil {
 
     public static Message getEmptyMessage() {
         return EMPTY_MSG;
+        //
+    }
+
+    public static ForwardMessageBuilder getForwardMsgBuilder(Contact contact) {
+        return new ForwardMessageBuilder(contact);
+        //
+    }
+
+    public static ForwardMessageBuilder getForwardMsgBuilder(MessageEvent event) {
+        return getForwardMsgBuilder(getRealSender(event));
         //
     }
 }

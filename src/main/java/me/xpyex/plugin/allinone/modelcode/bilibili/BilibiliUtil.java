@@ -45,11 +45,15 @@ public class BilibiliUtil {
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
         if (param.containsKey("aid")) {
             if (VIDEO_CACHES.containsKey("AV" + param.get("aid"))) {
-                return VIDEO_CACHES.get("AV" + param.get("aid"));
+                return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                           .add(Util.getBot(), VIDEO_CACHES.get("AV" + param.get("aid")))
+                           .build();
             }
         } else if (param.containsKey("bvid")) {
             if (VIDEO_CACHES.containsKey("BV" + param.get("bvid"))) {
-                return VIDEO_CACHES.get("BV" + param.get("bvid"));
+                return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                           .add(Util.getBot(), VIDEO_CACHES.get("BV" + param.get("bvid")))
+                           .build();
             }
         }
         String result = HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
@@ -117,7 +121,9 @@ public class BilibiliUtil {
                 .plus(messager.toString());
         VIDEO_CACHES.put("AV" + AvID, out);
         VIDEO_CACHES.put(BvID, out);
-        return out;
+        return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+            .add(Util.getBot(), out)
+            .build();
     }
 
     public static Message getUserInfo(BigInteger userID) throws Exception {
@@ -193,14 +199,15 @@ public class BilibiliUtil {
             default:
                 vipInfo = "非大会员";
         }
-        return new PlainText("用户: " + userID + "\n" +
+        return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                   .add(Util.getBot(), new PlainText("用户: " + userID + "\n" +
                 "昵称: " + name + "\n")
                 .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
                 .plus("性别: " + gender + "\n" +
                         "等级: LV" + level + "\n" +
                         "会员: " + vipInfo + "\n" +
                         "认证信息: " + officialInfo + "\n" +
-                        "空间地址: https://space.bilibili.com/" + userID);
+                        "空间地址: https://space.bilibili.com/" + userID)).build();
     }
 
     public static Message getDynamicInfo(long ID) throws Exception {
@@ -241,7 +248,9 @@ public class BilibiliUtil {
         CommandMessager messager = new CommandMessager()
                 .plus("动态: " + ID)
                 .plus("内容: " + card.getStr("desc"));
-        return new PlainText(messager.toString());
+        return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                   .add(Util.getBot(), new PlainText(messager.toString()))
+                   .build();
     }
 
     public static Message getLiveInfo(BigInteger userID) throws Exception {
@@ -296,11 +305,13 @@ public class BilibiliUtil {
         if (data.containsKey("cover")) {
             image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(data.getStr("cover")));
         }
-        return new PlainText(messager1.toString())
+        return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                   .add(Util.getBot(), new PlainText(messager1.toString())
                    .plus(null != image ? image : MsgUtil.getEmptyMessage())
                    .plus(messager2.toString())
                    .plus("\n")
-                   .plus(getUserInfo(uID));
+                   .plus(getUserInfo(uID)))
+                   .build();
     }
 
     public static String getFixedID(String s) {

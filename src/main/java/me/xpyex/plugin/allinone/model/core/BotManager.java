@@ -12,8 +12,10 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent;
 import net.mamoe.mirai.event.events.GroupEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.NewFriendRequestEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 
 @SuppressWarnings("unused")
@@ -180,6 +182,17 @@ public class BotManager extends CoreModel {
 
             MsgUtil.sendMsg(source, "未知子命令，请执行 #" + label + " 查看帮助");
         }), "BotManager", "Bot");
+        listenEvent(BotInvitedJoinGroupRequestEvent.class, event -> {
+            if (event.getInvitorId() == Util.OWNER_ID) {
+                event.accept();
+            }
+        });
+        listenEvent(NewFriendRequestEvent.class, event -> MsgUtil.sendMsgToOwner(
+            event.getFromNick() + " (" + event.getFromId() + ")\n"
+            + "请求添加好友" +
+                "\n" +
+                "申请理由: " + event.getMessage()
+        ));
     }
 
     @Override
