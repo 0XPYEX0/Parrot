@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
@@ -22,7 +23,7 @@ public class BilibiliUtil {
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
     private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/get_info";
-    public static HashMap<String, Message> VIDEO_CACHES = new HashMap<>();
+    private static WeakHashMap<String, Message> VIDEO_CACHES = new WeakHashMap<>();
 
     public static Message getVideoInfo(String url) throws Exception {
         Main.LOGGER.info(url);
@@ -45,15 +46,11 @@ public class BilibiliUtil {
     public static Message getVideoInfo(Map<String, Object> param) throws Exception {
         if (param.containsKey("aid")) {
             if (VIDEO_CACHES.containsKey("AV" + param.get("aid"))) {
-                return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                           .add(Util.getBot(), VIDEO_CACHES.get("AV" + param.get("aid")))
-                           .build();
+                return VIDEO_CACHES.get("BV" + param.get("bvid"));
             }
         } else if (param.containsKey("bvid")) {
             if (VIDEO_CACHES.containsKey("BV" + param.get("bvid"))) {
-                return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                           .add(Util.getBot(), VIDEO_CACHES.get("BV" + param.get("bvid")))
-                           .build();
+                return VIDEO_CACHES.get("BV" + param.get("bvid"));
             }
         }
         String result = HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
@@ -89,8 +86,8 @@ public class BilibiliUtil {
                     break;
             }
             return new PlainText("解析失败: " + reason
-                    + "\n错误码: " + failed
-                    + "\n错误信息: " + infos.getStr("message"));
+                                     + "\n错误码: " + failed
+                                     + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
         int AvID = data.getInt("aid");
@@ -105,25 +102,26 @@ public class BilibiliUtil {
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
         CommandMessager messager = new CommandMessager("")
-                .plus("AV号: AV" + AvID)
-                .plus("BV号: " + BvID)
-                .plus("标题: " + title)
-                .plus("简介: " + description)
-                .plus("分P数: " + videoCount)
-                .plus("播放地址:")
-                .plus("https://bilibili.com/video/av" + AvID)
-                .plus("https://bilibili.com/video/" + BvID)
-                .plus("")
-                .plus("作者: " + authorName)
-                .plus("作者主页: https://space.bilibili.com/" + authorId);
-        Message out = new PlainText("视频: " + videoID)
-                .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
-                .plus(messager.toString());
+                                       .plus("AV号: AV" + AvID)
+                                       .plus("BV号: " + BvID)
+                                       .plus("标题: " + title)
+                                       .plus("简介: " + description)
+                                       .plus("分P数: " + videoCount)
+                                       .plus("播放地址:")
+                                       .plus("https://bilibili.com/video/av" + AvID)
+                                       .plus("https://bilibili.com/video/" + BvID)
+                                       .plus("")
+                                       .plus("作者: " + authorName)
+                                       .plus("作者主页: https://space.bilibili.com/" + authorId);
+        Message out = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                          .add(Util.getBot(), new PlainText("视频: " + videoID)
+                                                  .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
+                                                  .plus(messager.toString())
+                          )
+                          .build();
         VIDEO_CACHES.put("AV" + AvID, out);
         VIDEO_CACHES.put(BvID, out);
-        return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-            .add(Util.getBot(), out)
-            .build();
+        return out;
     }
 
     public static Message getUserInfo(BigInteger userID) throws Exception {

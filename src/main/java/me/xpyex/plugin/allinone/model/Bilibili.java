@@ -230,9 +230,5 @@ public class Bilibili extends Model {
                 }
             });
         });
-        runTaskTimer(() -> {
-            BilibiliUtil.VIDEO_CACHES = new HashMap<>();
-            info("清除VideoCaches缓存");
-        }, 12 * 60 * 60);
     }
 }
