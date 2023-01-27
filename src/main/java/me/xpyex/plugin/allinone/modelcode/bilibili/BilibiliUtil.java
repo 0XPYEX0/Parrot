@@ -53,15 +53,11 @@ public class BilibiliUtil {
                 return VIDEO_CACHES.get("BV" + param.get("bvid"));
             }
         }
-        String result = HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
-        int failCount = 0;
-        while (result == null || result.isEmpty()) {
-            if (failCount > 5) {
-                return new PlainText("解析超时");
-            }
-            result = HttpUtil.post(API_URL_BILIBILI_VIDEO, param);
-            failCount++;
-            Thread.sleep(5000L);
+        String result = Util.repeatIfError(() -> {
+            return HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
+        }, 5, 5000);
+        if (result == null || result.isEmpty()) {
+            return new PlainText("解析超时");
         }
         Main.LOGGER.info(result);
         JSONObject infos = new JSONObject(result);
