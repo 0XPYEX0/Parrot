@@ -10,11 +10,11 @@ import me.xpyex.plugin.allinone.Main;
 
 public class ReflectUtil {
     private static final File PLUGIN_JAR_FILE = new File(Main.INSTANCE
-            .getLoader().getClassLoaders().get(0)
-            .getResource("me/xpyex/plugin/allinone/Main.class")
-            .getPath()
-            .replace("file:/", "")
-            .split("!")[0]
+                                                             .getLoader().getClassLoaders().get(0)
+                                                             .getResource("me/xpyex/plugin/allinone/Main.class")
+                                                             .getPath()
+                                                             .replace("file:/", "")
+                                                             .split("!")[0]
     );
 
     public static List<Class<?>> getClasses(String packagePath) {

@@ -31,24 +31,22 @@ public class BotManager extends CoreModel {
             }
 
 
-
             if (args.length == 0) {  //根帮助
                 CommandMenu menu = new CommandMenu(label)
-                    .add("group", "群相关操作")
-                    .add("friend", "好友相关操作")
-                    .add("user", "用户相关操作");
+                                       .add("group", "群相关操作")
+                                       .add("friend", "好友相关操作")
+                                       .add("user", "用户相关操作");
                 menu.send(source);
                 return;
             }
 
 
-
             if (args[0].equalsIgnoreCase("group")) {  //群相关
                 if (args.length == 1) {
                     CommandMenu menu = new CommandMenu(label + " group")
-                        .add("quit <ID>", "令机器人退出该群")
-                        .add("ignore <ID>", "忽略该群触发的事件")
-                        .add("list", "列出该机器人加入的所有群");
+                                           .add("quit <ID>", "令机器人退出该群")
+                                           .add("ignore <ID>", "忽略该群触发的事件")
+                                           .add("list", "列出该机器人加入的所有群");
                     menu.send(source);
                     return;
                 }
@@ -71,8 +69,8 @@ public class BotManager extends CoreModel {
                 try {
                     long id;
                     if (args[2].equalsIgnoreCase("this")) {
-                        if (source instanceof Group) {
-                            id = source.getId();
+                        if (source.isGroup()) {
+                            id = source.getContact().getId();
                         } else {
                             MsgUtil.sendMsg(source, "该命令不在群内执行，不可使用this替代符");
                             return;
@@ -99,7 +97,6 @@ public class BotManager extends CoreModel {
                     return;
                 }
             }
-
 
 
             if (args[0].equalsIgnoreCase("friend")) {  //好友相关
@@ -147,11 +144,10 @@ public class BotManager extends CoreModel {
             }
 
 
-
             if (args[0].equalsIgnoreCase("user")) {  //用户相关
                 if (args.length == 1) {
                     CommandMenu menu = new CommandMenu(label + " user")
-                        .add("ignore <ID>", "忽略该用户触发的事件");
+                                           .add("ignore <ID>", "忽略该用户触发的事件");
                     menu.send(source);
                     return;
                 }
@@ -179,7 +175,6 @@ public class BotManager extends CoreModel {
             }
 
 
-
             MsgUtil.sendMsg(source, "未知子命令，请执行 #" + label + " 查看帮助");
         }), "BotManager", "Bot");
         listenEvent(BotInvitedJoinGroupRequestEvent.class, event -> {
@@ -189,7 +184,7 @@ public class BotManager extends CoreModel {
         });
         listenEvent(NewFriendRequestEvent.class, event -> MsgUtil.sendMsgToOwner(
             event.getFromNick() + " (" + event.getFromId() + ")\n"
-            + "请求添加好友" +
+                + "请求添加好友" +
                 "\n" +
                 "申请理由: " + event.getMessage()
         ));
@@ -197,7 +192,7 @@ public class BotManager extends CoreModel {
 
     @Override
     @SuppressWarnings("all")
-    public boolean interceptEvent(Event event) {
+    public boolean acceptEvent(Event event) {
         if (event instanceof GroupEvent && IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
             return false;
 

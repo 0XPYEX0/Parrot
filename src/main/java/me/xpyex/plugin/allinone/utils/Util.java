@@ -72,6 +72,7 @@ public class Util {
      */
     public static <T> T repeatIfError(TryCallable<T> callable, long repeatTimes) {
         return repeatIfError(callable, repeatTimes, 0);
+        //
     }
 
     /**
@@ -88,7 +89,7 @@ public class Util {
                 try {
                     return callable.call();
                 } catch (Throwable ignored) {
-                    if (waitMillis > 0)  {
+                    if (waitMillis > 0) {
                         try {
                             Thread.sleep(waitMillis);
                         } catch (Throwable ignored1) {
@@ -101,7 +102,7 @@ public class Util {
                 try {
                     return callable.call();
                 } catch (Throwable ignored) {
-                    if (waitMillis > 0)  {
+                    if (waitMillis > 0) {
                         try {
                             Thread.sleep(waitMillis);
                         } catch (Throwable ignored1) {

@@ -20,6 +20,7 @@ import java.util.TimerTask;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
+import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
@@ -31,38 +32,24 @@ import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.utils.ExternalResource;
 
-@SuppressWarnings("unused")
 public class EpicPush extends Model {
-    private static File adminUser;
     private static File userData;
     private static File groupData;
-    private static long admin;
     private static ArrayList<String> userList;
     private static ArrayList<String> groupList;
 
     public void init() {
-        adminUser = Main.INSTANCE.resolveDataFile("admin.txt");
         userData = Main.INSTANCE.resolveDataFile("userData.txt");
         groupData = Main.INSTANCE.resolveDataFile("groupData.txt");
         userList = new ArrayList<>();
         groupList = new ArrayList<>();
         try {
-            readAdminUser();
             readDataToList(userData, userList);
             readDataToList(groupData, groupList);
         } catch (IOException e) {
             e.printStackTrace();
             info("读取数据失败！");
         }
-    }
-
-    public void readAdminUser() throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(adminUser);
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String text;
-        text = bufferedReader.readLine();
-        admin = Long.parseLong(text);
     }
 
     private void readDataToList(File data, ArrayList<String> list) throws IOException {
@@ -139,18 +126,18 @@ public class EpicPush extends Model {
                     if (friend != null) {
                         Image image = Contact.uploadImage(friend, er);
                         MessageChain mc = new MessageChainBuilder()
-                                .append(image)
-                                .append(result)
-                                .build();
+                                              .append(image)
+                                              .append(result)
+                                              .build();
                         Bot bot = Bot.getInstances().get(0);
                         Objects.requireNonNull(bot.getFriend(friend.getId())).sendMessage(mc);
                     }
                     if (group != null) {
                         Image image = Contact.uploadImage(group, er);
                         MessageChain mc = new MessageChainBuilder()
-                                .append(image)
-                                .append(result)
-                                .build();
+                                              .append(image)
+                                              .append(result)
+                                              .build();
                         Bot bot = Bot.getInstances().get(0);
                         Objects.requireNonNull(bot.getGroup(group.getId())).sendMessage(mc);
                     }
@@ -165,6 +152,7 @@ public class EpicPush extends Model {
 
     @Override
     public void register() {
+        DEFAULT_DISABLED = true;
         init();
         try {
             Timer timer = new Timer();
@@ -179,7 +167,7 @@ public class EpicPush extends Model {
                 public void run() {
                     try {
                         String json = getJson();
-                        Bot bot = Bot.getInstances().get(0);
+                        Bot bot = Util.getBot();
                         for (String s : userList) {
                             sendPushData(json, null, bot.getFriend(Long.parseLong(s)));
                         }

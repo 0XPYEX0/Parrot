@@ -35,7 +35,7 @@ public final class MusicUtils {
      * @param i the input stream<br>
      *          数据流
      * @return return all read data <br>
-     *         返回读入的所有数据
+     * 返回读入的所有数据
      * @throws IOException Signals that an I/O exception has occurred.<br>
      *                     发生IO错误
      */
@@ -63,7 +63,7 @@ public final class MusicUtils {
      * @param i the file<br>
      *          文件
      * @return return all read data <br>
-     *         返回读入的所有数据
+     * 返回读入的所有数据
      */
     public static byte[] readAll(File i) {
         try (FileInputStream fis = new FileInputStream(i)) {
@@ -91,7 +91,7 @@ public final class MusicUtils {
      * @param hash the byte array<br>
      *             字节串。
      * @return return hex string<br>
-     *         返回十六进制字符串。
+     * 返回十六进制字符串。
      */
     public static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();

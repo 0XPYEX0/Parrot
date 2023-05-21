@@ -1,17 +1,17 @@
 /**
  * Mirai Song Plugin
  * Copyright (C) 2021  khjxiaogu
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,17 +39,15 @@ import net.mamoe.mirai.contact.Contact;
 
 public class Music extends Model {
 
+    /** 命令列表. */
+    public static final Map<String, BiConsumer<Contact, String[]>> COMMANDS = new ConcurrentHashMap<>();
+    /** 音乐来源. */
+    public static final Map<String, MusicSource> SOURCES = Collections.synchronizedMap(new LinkedHashMap<>());
+    /** 外观来源 */
+    public static final Map<String, MusicCardProvider> CARDS = new ConcurrentHashMap<>();
     // 请求音乐的线程池。
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
 
-    /** 命令列表. */
-    public static final Map<String, BiConsumer<Contact, String[]>> COMMANDS = new ConcurrentHashMap<>();
-
-    /** 音乐来源. */
-    public static final Map<String, MusicSource> SOURCES = Collections.synchronizedMap(new LinkedHashMap<>());
-
-    /** 外观来源 */
-    public static final Map<String, MusicCardProvider> CARDS = new ConcurrentHashMap<>();
     static {
         // 注册音乐来源
         SOURCES.put("QQ音乐", new QQMusicSource());
@@ -58,6 +56,7 @@ public class Music extends Model {
         // 注册外观
         CARDS.put("Mirai", new MiraiCardProvider());
     }
+
     static {
         HttpURLConnection.setFollowRedirects(true);
     }
@@ -144,7 +143,7 @@ public class Music extends Model {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             BiConsumer<Contact, String[]> exec = COMMANDS.get(label);
             if (exec != null) {
-                exec.accept(source, args);
+                exec.accept(source.getContact(), args);
             }
         }), "点歌", "网易", "酷狗");
     }

@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
+import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
 import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -55,7 +56,7 @@ public class CommandBus {
                         for (String alias : command.getAliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {
-                                    command.getExecutor().execute(MsgUtil.getRealSender(event), event.getSender(), cmd.substring(1), args);
+                                    command.getExecutor().execute(new ContactTarget<>(MsgUtil.getRealSender(event)), event.getSender(), cmd.substring(1), args);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false);
                                     MsgUtil.sendMsgToOwner("模块 " + model.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);

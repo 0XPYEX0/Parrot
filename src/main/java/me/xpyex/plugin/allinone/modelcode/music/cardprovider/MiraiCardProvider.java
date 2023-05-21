@@ -10,8 +10,8 @@ import net.mamoe.mirai.message.data.MusicKind;
 import net.mamoe.mirai.message.data.MusicShare;
 
 public class MiraiCardProvider implements MusicCardProvider {
-    private static Map<Long, MusicKind> appidMappings = new HashMap<>();
-    private static MusicCardProvider def = new XMLCardProvider();
+    private static final Map<Long, MusicKind> appidMappings = new HashMap<>();
+    private static final MusicCardProvider def = new XMLCardProvider();
 
     static {
         for (MusicKind mk : MusicKind.values()) {

@@ -3,6 +3,7 @@ package me.xpyex.plugin.allinone.utils;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -16,6 +17,7 @@ import net.mamoe.mirai.utils.ExternalResource;
 
 public class MsgUtil {
     private static final Message EMPTY_MSG = new PlainText("");
+
     public static Contact getRealSender(MessageEvent event) {
         if (Util.isGroupEvent(event)) return ((GroupMessageEvent) event).getGroup();
 
@@ -47,6 +49,16 @@ public class MsgUtil {
             return;
         }
         sendMsg(getRealSender(event), msg);
+    }
+
+    public static void sendMsg(ContactTarget<? extends Contact> target, String msg) {
+        sendMsg(target.getContact(), msg);
+        //
+    }
+
+    public static void sendMsg(ContactTarget<? extends Contact> target, Message msg) {
+        sendMsg(target.getContact(), msg);
+        //
     }
 
     public static void sendMsg(Contact contact, String msg) {

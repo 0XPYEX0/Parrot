@@ -18,11 +18,11 @@ public class RestartBroadcast extends CoreModel {
             }
             if (args.length == 0) {
                 new CommandMenu(label)
-                        .add("start", "添加一个重启任务，在10秒后重启")
-                        .add("stop", "停止现有的重启任务")
-                        .add("now", "立刻重启")
-                        .add("exit", "退出机器人，不重启")
-                        .send(source);
+                    .add("start", "添加一个重启任务，在10秒后重启")
+                    .add("stop", "停止现有的重启任务")
+                    .add("now", "立刻重启")
+                    .add("exit", "退出机器人，不重启")
+                    .send(source);
             } else if (args[0].equalsIgnoreCase("start")) {
                 restartMode = true;
                 MsgUtil.sendMsg(source, "Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");
@@ -38,7 +38,8 @@ public class RestartBroadcast extends CoreModel {
                     }
                     MsgUtil.sendMsg(source, "开始重启");
                     Util.runCmd("cmd /c start /b RestartMirai.bat");
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             } else if (args[0].equalsIgnoreCase("stop")) {
                 restartMode = false;
                 MsgUtil.sendMsg(source, "已取消重启计划");

@@ -19,10 +19,10 @@ public class PluginManager extends CoreModel {
             if (sender.getId() == 1723275529) {
                 if (args.length == 0) {
                     new CommandMenu(label)
-                            .add("enable <模块>", "启用该模块")
-                            .add("disable <模块>", "禁用该模块")
-                            .add("list", "查询所有模块")
-                            .send(source);
+                        .add("enable <模块>", "启用该模块")
+                        .add("disable <模块>", "禁用该模块")
+                        .add("list", "查询所有模块")
+                        .send(source);
                 } else if (args[0].equalsIgnoreCase("disable")) {
                     if (args.length == 1) {
                         MsgUtil.sendMsg(source, "参数不足");

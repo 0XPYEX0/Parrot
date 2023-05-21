@@ -3,6 +3,7 @@ package me.xpyex.plugin.allinone.modelcode.music;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -47,8 +48,8 @@ public class NetEaseCrypto {
         try {
             final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             byte[] bytes = new byte[0];
-            cipher.init(1, new SecretKeySpec(key.getBytes("utf-8"), "AES"), new IvParameterSpec(iv.getBytes("utf-8")));
-            bytes = cipher.doFinal(content.getBytes("utf-8"));
+            cipher.init(1, new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES"), new IvParameterSpec(iv.getBytes(StandardCharsets.UTF_8)));
+            bytes = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
             result = Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
             ExceptionUtil.handleException(e);

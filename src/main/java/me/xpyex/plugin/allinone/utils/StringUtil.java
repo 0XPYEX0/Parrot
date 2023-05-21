@@ -27,7 +27,7 @@ public class StringUtil {
 
         for (String s : contents) {
             if (s.equalsIgnoreCase(target))
-                   return true;
+                return true;
         }
         return false;
     }

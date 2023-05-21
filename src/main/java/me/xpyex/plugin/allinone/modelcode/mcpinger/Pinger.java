@@ -33,76 +33,76 @@ public class Pinger {
         this.setPort(port);
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getAddress() {
         return this.address;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getPort() {
         return this.port;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public int getTimeout() {
         return this.timeout;
     }
 
-    private void setPingVersion(int pingVersion) {
-        this.pingVersion = pingVersion;
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public int getPingVersion() {
         return this.pingVersion;
     }
 
-    private void setProtocolVersion(int protocolVersion) {
-        this.protocolVersion = protocolVersion;
+    private void setPingVersion(int pingVersion) {
+        this.pingVersion = pingVersion;
     }
 
     public int getProtocolVersion() {
         return this.protocolVersion;
     }
 
-    private void setGameVersion(String gameVersion) {
-        this.gameVersion = gameVersion;
+    private void setProtocolVersion(int protocolVersion) {
+        this.protocolVersion = protocolVersion;
     }
 
     public String getGameVersion() {
         return this.gameVersion;
     }
 
-    private void setMotd(String motd) {
-        this.motd = motd;
+    private void setGameVersion(String gameVersion) {
+        this.gameVersion = gameVersion;
     }
 
     public String getMotd() {
         return this.motd;
     }
 
-    private void setPlayersOnline(int playersOnline) {
-        this.playersOnline = playersOnline;
+    private void setMotd(String motd) {
+        this.motd = motd;
     }
 
     public int getPlayersOnline() {
         return this.playersOnline;
     }
 
-    private void setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
+    private void setPlayersOnline(int playersOnline) {
+        this.playersOnline = playersOnline;
     }
 
     public int getMaxPlayers() {
         return this.maxPlayers;
+    }
+
+    private void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
     }
 
     public boolean fetchData() {
@@ -114,13 +114,12 @@ public class Pinger {
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             InputStream inputStream = socket.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_16BE);
-            dataOutputStream.write(new byte[] { -2, 1 });
+            dataOutputStream.write(new byte[]{-2, 1});
             int packetId = inputStream.read();
             if (packetId == -1) {
                 try {
                     socket.close();
-                }
-                catch (IOException ex) {
+                } catch (IOException ex) {
                     ExceptionUtil.handleException(ex);
                 }
                 socket = null;
@@ -129,8 +128,7 @@ public class Pinger {
             if (packetId != 255) {
                 try {
                     socket.close();
-                }
-                catch (IOException ex2) {
+                } catch (IOException ex2) {
                     ExceptionUtil.handleException(ex2);
                 }
                 socket = null;
@@ -140,8 +138,7 @@ public class Pinger {
             if (length == -1) {
                 try {
                     socket.close();
-                }
-                catch (IOException ex3) {
+                } catch (IOException ex3) {
                     ExceptionUtil.handleException(ex3);
                 }
                 socket = null;
@@ -150,8 +147,7 @@ public class Pinger {
             if (length == 0) {
                 try {
                     socket.close();
-                }
-                catch (IOException ex4) {
+                } catch (IOException ex4) {
                     ExceptionUtil.handleException(ex4);
                 }
                 socket = null;
@@ -161,8 +157,7 @@ public class Pinger {
             if (inputStreamReader.read(chars, 0, length) != length) {
                 try {
                     socket.close();
-                }
-                catch (IOException ex5) {
+                } catch (IOException ex5) {
                     ExceptionUtil.handleException(ex5);
                 }
                 return false;

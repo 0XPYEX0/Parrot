@@ -11,23 +11,22 @@ public class StaffTeam extends Model {
     @Override
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
-            if (source.getBotPermission().getLevel() != 2) {
+            if (source.getContact().getBotPermission().getLevel() != 2) {
                 MsgUtil.sendMsg(source, "Bot非群主，无法执行此操作");
                 return;
             }
             if (sender.getId() == 1723275529L) {
                 if (args.length == 0) {
                     new CommandMenu(label)
-                            .add("add <QQID>", "令群员成为管理员")
-                            .add("remove <QQID>", "令管理员成为普通群员")
-                            .send(source);
+                        .add("add <QQID>", "令群员成为管理员")
+                        .add("remove <QQID>", "令管理员成为普通群员")
+                        .send(source);
                 } else if (args.length == 1) {
                     MsgUtil.sendMsg(source, "参数不足");
-                }
-                else {
+                } else {
                     try {
                         long targetID = Long.parseLong(args[1]);
-                        NormalMember target = source.get(targetID);
+                        NormalMember target = source.getContact().get(targetID);
                         if (target == null) {
                             MsgUtil.sendMsg(source, "群内无该成员");
                             return;

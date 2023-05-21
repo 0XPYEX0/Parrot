@@ -34,10 +34,10 @@ public class ExceptionUtil {
                 eventCause = "未知事件";
             }
             MsgUtil.sendMsgToOwner("在执行 " + e.getStackTrace()[0].getClassName() + " 类的方法 " +
-                               e.getStackTrace()[0].getMethodName() + " 时出错: " +
-                               e + "\n" +
-                               "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行" +
-                               "\n" + "该错误由 " + eventCause + " 触发");
+                                       e.getStackTrace()[0].getMethodName() + " 时出错: " +
+                                       e + "\n" +
+                                       "该代码位于该类的第 " + e.getStackTrace()[0].getLineNumber() + " 行" +
+                                       "\n" + "该错误由 " + eventCause + " 触发");
         }
     }
 }

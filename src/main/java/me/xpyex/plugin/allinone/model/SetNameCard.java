@@ -17,7 +17,7 @@ public class SetNameCard extends Model {
                 MsgUtil.sendMsg(source, "参数不足");
                 return;
             }
-            source.getBotAsMember().setNameCard(String.join(" ", args));
+            source.getContact().getBotAsMember().setNameCard(String.join(" ", args));
             MsgUtil.sendMsg(source, "已修改");
         }), "setNameCard", "nameCard");
         DEFAULT_DISABLED = true;

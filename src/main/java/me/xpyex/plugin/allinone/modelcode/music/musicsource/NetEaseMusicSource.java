@@ -50,7 +50,7 @@ public class NetEaseMusicSource implements MusicSource {
         String data = new String(Util.readAll(huc.getInputStream()), StandardCharsets.UTF_8);
         if (huc.getResponseCode() == 200) {
             ja = JSONUtil.parseObj(data)
-                    .getJSONObject("result").getJSONArray("songs");
+                     .getJSONObject("result").getJSONArray("songs");
         } else
             throw new FileNotFoundException();
         JSONObject jo = ja.getJSONObject(0);
@@ -61,9 +61,9 @@ public class NetEaseMusicSource implements MusicSource {
             murl = queryRealUrl(jo.getStr("id"));
         }
         return new MusicInfo(jo.getStr("name"),
-                jo.getJSONArray("ar").getJSONObject(0).getStr("name"),
-                jo.getJSONObject("al").getStr("picUrl"), murl,
-                "https://y.music.163.com/m/song?id=" + jo.getStr("id"), "网易云音乐", "", 100495085);
+            jo.getJSONArray("ar").getJSONObject(0).getStr("name"),
+            jo.getJSONObject("al").getStr("picUrl"), murl,
+            "https://y.music.163.com/m/song?id=" + jo.getStr("id"), "网易云音乐", "", 100495085);
     }
 
 }

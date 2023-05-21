@@ -109,12 +109,15 @@ public class BilibiliUtil {
                                        .plus("")
                                        .plus("作者: " + authorName)
                                        .plus("作者主页: https://space.bilibili.com/" + authorId);
-        Message out = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+        Message out = Util.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
                           .add(Util.getBot(), new PlainText("视频: " + videoID)
                                                   .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
                                                   .plus(messager.toString())
                           )
-                          .build();
+                          .build(), 2, 3000);
+        if (out == null) {
+            return new PlainText("解析失败");
+        }
         VIDEO_CACHES.put("AV" + AvID, out);
         VIDEO_CACHES.put(BvID, out);
         return out;
@@ -145,8 +148,8 @@ public class BilibiliUtil {
                 reason = "未知原因";
             }
             return new PlainText("查找用户失败: " + reason
-                    + "\n错误码: " + failed
-                    + "\n错误信息: " + infos.getStr("message"));
+                                     + "\n错误码: " + failed
+                                     + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
         String gender = data.getStr("sex");  //性别
@@ -195,20 +198,20 @@ public class BilibiliUtil {
         }
         return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
                    .add(Util.getBot(), new PlainText("用户: " + userID + "\n" +
-                "昵称: " + name + "\n")
-                .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
-                .plus("性别: " + gender + "\n" +
-                        "等级: LV" + level + "\n" +
-                        "会员: " + vipInfo + "\n" +
-                        "认证信息: " + officialInfo + "\n" +
-                        "空间地址: https://space.bilibili.com/" + userID)).build();
+                                                         "昵称: " + name + "\n")
+                                           .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
+                                           .plus("性别: " + gender + "\n" +
+                                                     "等级: LV" + level + "\n" +
+                                                     "会员: " + vipInfo + "\n" +
+                                                     "认证信息: " + officialInfo + "\n" +
+                                                     "空间地址: https://space.bilibili.com/" + userID)).build();
     }
 
     public static Message getDynamicInfo(long ID) throws Exception {
         Main.LOGGER.info("getDynamicInfo时的ID: " + ID);
         if (true) {
             return new PlainText("动态: " + ID + "\n" +
-                    "暂不可用");
+                                     "暂不可用");
         }
 
         HashMap<String, Object> param = new HashMap<>();
@@ -233,15 +236,15 @@ public class BilibiliUtil {
                     break;
             }
             return new PlainText("解析失败: " + reason + "\n" +
-                    "错误代码: " + obj.getInt("code") + "\n" +
-                    "错误信息: " + obj.getStr("message"));
+                                     "错误代码: " + obj.getInt("code") + "\n" +
+                                     "错误信息: " + obj.getStr("message"));
         }
 
         JSONObject card = obj.getJSONObject("data").getJSONObject("card");
 
         CommandMessager messager = new CommandMessager()
-                .plus("动态: " + ID)
-                .plus("内容: " + card.getStr("desc"));
+                                       .plus("动态: " + ID)
+                                       .plus("内容: " + card.getStr("desc"));
         return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
                    .add(Util.getBot(), new PlainText(messager.toString()))
                    .build();
@@ -289,22 +292,22 @@ public class BilibiliUtil {
                 break;
         }
         CommandMessager messager1 = new CommandMessager()
-                .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
-                .plus("标题: " + data.getStr("title"))
-                .plus("描述: " + data.getStr("description").replace("<p>", "").replace("</p>", ""));
+                                        .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
+                                        .plus("标题: " + data.getStr("title"))
+                                        .plus("描述: " + data.getStr("description").replace("<p>", "").replace("</p>", ""));
         CommandMessager messager2 = new CommandMessager("")
-                .plus("开播状态: " + isOnline)
-                .plus("直播间地址: https://" + URL_LIVE + data.getBigInteger("room_id"));
+                                        .plus("开播状态: " + isOnline)
+                                        .plus("直播间地址: https://" + URL_LIVE + data.getBigInteger("room_id"));
         Message image = null;
         if (data.containsKey("cover")) {
             image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(data.getStr("cover")));
         }
         return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
                    .add(Util.getBot(), new PlainText(messager1.toString())
-                   .plus(null != image ? image : MsgUtil.getEmptyMessage())
-                   .plus(messager2.toString())
-                   .plus("\n")
-                   .plus(getUserInfo(uID)))
+                                           .plus(null != image ? image : MsgUtil.getEmptyMessage())
+                                           .plus(messager2.toString())
+                                           .plus("\n")
+                                           .plus(getUserInfo(uID)))
                    .build();
     }
 

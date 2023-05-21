@@ -25,12 +25,35 @@ public class Main extends JavaPlugin {
     public static Main INSTANCE;
 
     public Main() {
-        super(new JvmPluginDescriptionBuilder("AllInOne","3.0.1")
-                .id("me.xpyex.plugin.allinone.Main")
-                .author("XPYEX")
-                .info("Everything in this")
-                .build()
+        super(new JvmPluginDescriptionBuilder("AllInOne", "3.0.1")
+                  .id("me.xpyex.plugin.allinone.Main")
+                  .author("XPYEX")
+                  .info("Everything in this")
+                  .build()
         );
+    }
+
+    public static void outBatFiles() {
+        File restartFile = new File("RestartJava.bat");
+        File stopFile = new File("StopJava.bat");
+        try {
+            if (!restartFile.exists()) {
+                restartFile.createNewFile();
+                PrintWriter out = new PrintWriter(restartFile);
+                out.println("taskkill /f /im java.exe");
+                out.print("start jre/bin/java -jar mcl.jar %* ");
+                out.flush();
+                out.close();
+            }
+            if (!stopFile.exists()) {
+                stopFile.createNewFile();
+                PrintWriter out = new PrintWriter(stopFile, "UTF-8");
+                out.print("taskkill /f /im java.exe");
+                out.flush();
+                out.close();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -81,26 +104,4 @@ public class Main extends JavaPlugin {
 
         outBatFiles();
     }
-
-    public static void outBatFiles() {
-        File restartFile = new File("RestartJava.bat");
-        File stopFile = new File("StopJava.bat");
-        try {
-            if (!restartFile.exists()) {
-                restartFile.createNewFile();
-                PrintWriter out = new PrintWriter(restartFile);
-                out.println("taskkill /f /im java.exe");
-                out.print("start jre/bin/java -jar mcl.jar %* ");
-                out.flush();
-                out.close();
-            }
-            if (!stopFile.exists()) {
-                stopFile.createNewFile();
-                PrintWriter out = new PrintWriter(stopFile, "UTF-8");
-                out.print("taskkill /f /im java.exe");
-                out.flush();
-                out.close();
-            }
-        } catch (Exception ignored) {}
-    }
-}        
+}

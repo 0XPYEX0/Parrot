@@ -1,11 +1,13 @@
 package me.xpyex.plugin.allinone.core;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.Main;
+import me.xpyex.plugin.allinone.api.TryConsumer;
+import me.xpyex.plugin.allinone.api.TryRunnable;
 import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -19,44 +21,48 @@ import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 /**
- * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理
- *
- * 覆写 getName()         方法 - 自定义模块名
- * 覆写 register()        方法 - 注册
- *
- *
- *
- * 调用 listenEvent()     方法 - 监听Mirai事件
- * 调用 registerCommand() 方法 - 注册AllInOne命令
- * 调用 runTaskLater()    方法 - 延时执行任务
- * 调用 runTaskTimer()    方法 - 创建循环任务
- * 调用 disable()         方法 - 禁用本模块
- * 调用 enable()          方法 - 启用本模块
- * 调用 info()            方法 - 向控制台发送信息
- *
- *
- *
- * 获取 disable()         方法 - 禁用模块是否成功
- * 获取 enable()          方法 - 启用模块是否成功
- * 获取 getLogger()       方法 - 获取AllInOne的MiraiLogger
- * 获取 isCore()          方法 - 获取该模块是否为核心模块
- * 获取 isDisabled()      方法 - 获取该模块是否已被禁用
- * 获取 isEnabled()       方法 - 获取该模块是否已被启用
+ * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理 <br>
+ * <p>
+ * 覆写 getName()         方法 - 自定义模块名 <br>
+ * 覆写 register()        方法 - 注册 <br>
+ * <p>
+ * <p>
+ * <p>
+ * 调用 listenEvent()     方法 - 监听Mirai事件 <br>
+ * 调用 registerCommand() 方法 - 注册AllInOne命令 <br>
+ * 调用 runTaskLater()    方法 - 延时执行任务 <br>
+ * 调用 runTaskTimer()    方法 - 创建循环任务 <br>
+ * 调用 disable()         方法 - 禁用本模块 <br>
+ * 调用 enable()          方法 - 启用本模块 <br>
+ * 调用 info()            方法 - 向控制台发送信息 <br>
+ * <p>
+ * <p>
+ * <p>
+ * 获取 disable()         方法 - 禁用模块，并获取结果是否成功 <br>
+ * 获取 enable()          方法 - 启用模块，并获取结果是否成功 <br>
+ * 获取 getLogger()       方法 - 获取AllInOne的MiraiLogger <br>
+ * 获取 isCore()          方法 - 获取该模块是否为核心模块 <br>
+ * 获取 isDisabled()      方法 - 获取该模块是否已被禁用 <br>
+ * 获取 isEnabled()       方法 - 获取该模块是否已被启用 <br>
  */
 
 public abstract class Model {
-    public boolean DEFAULT_DISABLED = false;
     public static final HashMap<String, Model> LOADED_MODELS = new HashMap<>();
     private static final HashSet<Model> DISABLED_MODELS = new HashSet<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
     private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
+    protected boolean DEFAULT_DISABLED = false;
+    private final File dataFolder = new File(Main.INSTANCE.getDataFolder(), getName());
 
     public Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
+
         if (LOADED_MODELS.containsKey(getName())) throw new IllegalStateException("已存在使用该名称的模块，不允许重复注册");
+        if (dataFolder.exists() && !dataFolder.isDirectory()) throw new IllegalStateException("插件目录下存在 " + dataFolder + " 且非文件夹！");
 
         TASKS.put(this, new HashSet<>());
         try {
             register();
+            dataFolder.mkdirs();
             LOADED_MODELS.put(getName(), this);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -71,11 +77,19 @@ public abstract class Model {
         getLogger().info(" ");
     }
 
-    public abstract void register();
+    @SuppressWarnings("unchecked")
+    public static <M extends Model> M getModel(String name) {
+        if (name == null || name.trim().isEmpty()) return null;
 
-    /*
-    从此往下为模块方法
-     */
+        if (LOADED_MODELS.containsKey(name)) return (M) LOADED_MODELS.get(name);
+
+        for (String s : LOADED_MODELS.keySet()) {
+            if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
+        }
+        return null;
+    }
+
+    public abstract void register() throws Throwable;
 
     public final <C extends Contact> void registerCommand(Class<C> contactType, CommandExecutor<C> exec, String... aliases) {
         for (String s : aliases) {
@@ -87,7 +101,7 @@ public abstract class Model {
         getLogger().info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
     }
 
-    public final <E extends Event> void listenEvent(Class<E> eventType, Consumer<E> listener) {
+    public final <E extends Event> void listenEvent(Class<E> eventType, TryConsumer<E> listener) {
         EventBus.takeInBus(eventType, this, listener);
         getLogger().info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }
@@ -117,22 +131,6 @@ public abstract class Model {
         //
     }
 
-    /*
-    从此往下为工具方法
-     */
-
-    @SuppressWarnings("unchecked")
-    public static <M extends Model> M getModel(String name) {
-        if (name == null || name.trim().isEmpty()) return null;
-
-        if (LOADED_MODELS.containsKey(name)) return (M) LOADED_MODELS.get(name);
-
-        for (String s : LOADED_MODELS.keySet()) {
-            if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
-        }
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
     public final <C extends Contact> C getRealSender(MessageEvent event) {
         return (C) MsgUtil.getRealSender(event);
@@ -151,12 +149,13 @@ public abstract class Model {
         autoSendMsg(event, new PlainText(msg));
     }
 
-    public final void runTaskLater(Runnable r, long seconds) {
+    public final void runTaskLater(TryRunnable r, long seconds) {
         new Thread(() -> {
-            if (seconds != 0L) {
+            if (seconds > 0L) {
                 try {
                     Thread.sleep(seconds * 1000L);
-                } catch (Exception ignored) { }
+                } catch (Exception ignored) {
+                }
             }
 
             try {
@@ -167,14 +166,14 @@ public abstract class Model {
         }, "AllInOne-Task-" + this.getName()).start();
     }
 
-    public final UUID runTaskTimer(Runnable r, long repeatPeriodSeconds) {
+    public final UUID runTaskTimer(TryRunnable r, long repeatPeriodSeconds) {
         return runTaskTimer(r, repeatPeriodSeconds, 0);
         //
     }
 
-    public final UUID runTaskTimer(Runnable r, long repeatPeriodSeconds, long waitSeconds) {
+    public final UUID runTaskTimer(TryRunnable r, long repeatPeriodSeconds, long waitSeconds) {
         if (r == null) {
-            return null;
+            throw new IllegalArgumentException("执行的任务为空");
         }
         if (repeatPeriodSeconds <= 0) {
             throw new IllegalArgumentException("周期为0将堵塞任务线程");
@@ -184,9 +183,10 @@ public abstract class Model {
         }
         UUID uuid = UUID.randomUUID();
         TASKS.get(this).add(uuid);
+        getLogger().info("模块 " + getName() + " 注册了定时任务. 间隔: " + repeatPeriodSeconds + " ，等待: " + waitSeconds + " ，UUID: " + uuid);
 
         runTaskLater(() -> {
-            while (TASKS.get(this).contains(uuid)) {
+            while (TASKS.get(this).contains(uuid) && this.isEnabled()) {
                 try {
                     r.run();
                 } catch (Throwable e) {
@@ -195,7 +195,8 @@ public abstract class Model {
 
                 try {
                     Thread.sleep(repeatPeriodSeconds * 1000L);
-                } catch (Exception ignored) { }
+                } catch (Exception ignored) {
+                }
             }
         }, waitSeconds);
         return uuid;
@@ -267,5 +268,15 @@ public abstract class Model {
     public final boolean isCore() {
         return this instanceof CoreModel;
         //
+    }
+
+    public File getDataFolder() {
+        return dataFolder;
+        //
+    }
+
+    public <E extends Event> void executeOnce(Class<E> eventType, TryConsumer<E> executor) {
+        EventBus.executeOnce(eventType, executor);
+        getLogger().info(getName() + " 模块 注册了一次性任务: 监听 " + eventType.getSimpleName() + " 事件");
     }
 }

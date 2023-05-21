@@ -2,6 +2,7 @@ package me.xpyex.plugin.allinone.api;
 
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;
+import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 
@@ -15,6 +16,7 @@ public class CommandMenu {
 
     /**
      * 构造函数
+     *
      * @param command 帮助的主命令
      */
     public CommandMenu(String command) {
@@ -24,8 +26,9 @@ public class CommandMenu {
 
     /**
      * 添加一行帮助
+     *
      * @param argument 参数
-     * @param help 对应参数的帮助
+     * @param help     对应参数的帮助
      * @return 返回自身，制造链式调用
      */
     public CommandMenu add(String argument, String help) {
@@ -38,6 +41,7 @@ public class CommandMenu {
 
     /**
      * 拼接整个帮助菜单
+     *
      * @return 返回帮助菜单
      */
     @Override
@@ -50,6 +54,11 @@ public class CommandMenu {
     }
 
     public void send(Contact target) {
+        MsgUtil.sendMsg(target, this.toString());
+        //
+    }
+
+    public void send(ContactTarget<? extends Contact> target) {
         MsgUtil.sendMsg(target, this.toString());
         //
     }

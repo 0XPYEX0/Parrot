@@ -69,7 +69,7 @@ public class Bilibili extends Model {
                         JSONObject infos = new JSONObject(result);
                         if (infos.getInt("code") != 0) {
                             autoSendMsg(event, "无法找到番剧: " + infos.getStr("message")
-                                    + "\n错误码: " + infos.getInt("code"));
+                                                   + "\n错误码: " + infos.getInt("code"));
                             return;
                         }
                         JSONObject publish = infos.getJSONObject("result").getJSONObject("publish");
@@ -79,14 +79,14 @@ public class Bilibili extends Model {
                         String title = infos.getJSONObject("result").getStr("title");
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
                         new CommandMessager()
-                                .plus("番剧: " + msg.substring(1))
-                                .plus("番剧名: " + title)
-                                .plus("已完结: " + finished)
-                                .plus("上映时间: " + publishTime)
-                                .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
-                                .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
-                                .plus("最新集: " + newestEP.getStr("title"))
-                                .send(event);
+                            .plus("番剧: " + msg.substring(1))
+                            .plus("番剧名: " + title)
+                            .plus("已完结: " + finished)
+                            .plus("上映时间: " + publishTime)
+                            .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
+                            .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
+                            .plus("最新集: " + newestEP.getStr("title"))
+                            .send(event);
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e, event);
@@ -111,9 +111,9 @@ public class Bilibili extends Model {
                         int code = json.getInt("code");
                         if (code != 0) {
                             autoSendMsg(event, "搜索错误: 请求错误" +
-                                    "\n" +
-                                    "错误码: " + code +
-                                    "错误信息: " + json.getStr("message")
+                                                   "\n" +
+                                                   "错误码: " + code +
+                                                   "错误信息: " + json.getStr("message")
                             );
                             return;
                         }
@@ -121,7 +121,7 @@ public class Bilibili extends Model {
                         JSONArray results = data.getJSONArray("result").getJSONObject(10).getJSONArray("data");
                         int limit = 5;  //限制展示几条信息
                         CommandMessager messager = new CommandMessager("关键词: " + keyword)
-                                .plus("仅展示前 " + limit + " 条结果！");
+                                                       .plus("仅展示前 " + limit + " 条结果！");
                         for (int i = 0; i < limit; i++) {
                             messager.plus("").plus("");
                             JSONObject videoInfo = results.getJSONObject(i);
@@ -134,13 +134,13 @@ public class Bilibili extends Model {
                             String author = videoInfo.getStr("author");
                             String description = videoInfo.getStr("description");
                             messager.plus("视频 " + bvid)
-                                    .plus("标题: " + title)
-                                    .plus("作者: " + author)
-                                    .plus("简介: " + description)
-                                    .plus("播放地址: " + url);
+                                .plus("标题: " + title)
+                                .plus("作者: " + author)
+                                .plus("简介: " + description)
+                                .plus("播放地址: " + url);
                         }
                         messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果")
-                                .send(event);
+                            .send(event);
                     } catch (Exception e) {
                         autoSendMsg(event, "搜索错误: " + e);
                         handleException(e, event);

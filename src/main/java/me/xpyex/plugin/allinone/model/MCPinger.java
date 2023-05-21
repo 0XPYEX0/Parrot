@@ -14,8 +14,8 @@ public class MCPinger extends Model {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (args.length == 0) {
                 new CommandMenu(label)
-                        .add("<IP>", "获取服务器信息")
-                        .send(source);
+                    .add("<IP>", "获取服务器信息")
+                    .send(source);
                 return;
             }
             if (args.length != 1) {
@@ -36,12 +36,12 @@ public class MCPinger extends Model {
                 pinger.setTimeout(10000);
                 if (pinger.fetchData()) {
                     new CommandMessager()
-                            .plus("IP: " + pinger.getAddress() + ":" + pinger.getPort())
-                            .plus("在线人数: " + Util.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + Util.getOrDefault(pinger.getMaxPlayers(), 0))
-                            .plus("MOTD: " + Util.getOrDefault(pinger.getMotd(), ""))
-                            .plus("游戏版本: " + Util.getOrDefault(pinger.getGameVersion(), ""))
-                            .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
-                            .send(source);
+                        .plus("IP: " + pinger.getAddress() + ":" + pinger.getPort())
+                        .plus("在线人数: " + Util.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + Util.getOrDefault(pinger.getMaxPlayers(), 0))
+                        .plus("MOTD: " + Util.getOrDefault(pinger.getMotd(), ""))
+                        .plus("游戏版本: " + Util.getOrDefault(pinger.getGameVersion(), ""))
+                        .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
+                        .send(source);
                 } else {
                     MsgUtil.sendMsg(source, "解析失败");
                 }
