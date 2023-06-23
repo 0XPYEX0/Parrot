@@ -52,7 +52,6 @@ public class EventBus {
                     iterator.remove();
                 }
             }
-            return;
         }
         for (Tuple eventBus : EVENT_BUSES) {
             if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
