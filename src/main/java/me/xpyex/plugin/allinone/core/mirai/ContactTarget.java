@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.core.mirai;
 
 import java.util.WeakHashMap;
-import me.xpyex.plugin.allinone.core.Permissions;
+import me.xpyex.plugin.allinone.model.core.PermManager;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -31,12 +31,13 @@ public class ContactTarget<C extends Contact> {
         //
     }
 
-    public boolean hasPerm(String perm) {
+    public boolean hasPerm(String perm, boolean adminPass) {
+        perm = perm.toLowerCase();
         if (!(getContact() instanceof User)) {
             throw new IllegalStateException("群对象并不会记录权限");
         }
         if (!PERM_CACHE.containsKey(perm)) {
-            PERM_CACHE.put(perm, Permissions.userHasPermission((User) getContact(), perm));
+            PERM_CACHE.put(perm, PermManager.hasPerm((User) getContact(), perm, adminPass));
         }
         return PERM_CACHE.get(perm);
     }

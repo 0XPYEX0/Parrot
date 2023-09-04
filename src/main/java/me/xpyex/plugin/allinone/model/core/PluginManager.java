@@ -16,7 +16,7 @@ public class PluginManager extends CoreModel {
     @Override
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
-            if (sender.getId() == 1723275529) {
+            if (sender.hasPerm(getName() + ".use", false)) {
                 if (args.length == 0) {
                     new CommandMenu(label)
                         .add("enable <模块>", "启用该模块")

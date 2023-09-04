@@ -5,7 +5,7 @@ import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.mcpinger.Pinger;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
-import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 
 public class MCPinger extends Model {
@@ -37,10 +37,10 @@ public class MCPinger extends Model {
                 if (pinger.fetchData()) {
                     new CommandMessager()
                         .plus("IP: " + pinger.getAddress() + ":" + pinger.getPort())
-                        .plus("在线人数: " + Util.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + Util.getOrDefault(pinger.getMaxPlayers(), 0))
-                        .plus("MOTD: " + Util.getOrDefault(pinger.getMotd(), ""))
-                        .plus("游戏版本: " + Util.getOrDefault(pinger.getGameVersion(), ""))
-                        .plus("协议版本: " + Util.getOrDefault(pinger.getProtocolVersion(), ""))
+                        .plus("在线人数: " + ValueUtil.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + ValueUtil.getOrDefault(pinger.getMaxPlayers(), 0))
+                        .plus("MOTD: " + ValueUtil.getOrDefault(pinger.getMotd(), ""))
+                        .plus("游戏版本: " + ValueUtil.getOrDefault(pinger.getGameVersion(), ""))
+                        .plus("协议版本: " + ValueUtil.getOrDefault(pinger.getProtocolVersion(), ""))
                         .send(source);
                 } else {
                     MsgUtil.sendMsg(source, "解析失败");

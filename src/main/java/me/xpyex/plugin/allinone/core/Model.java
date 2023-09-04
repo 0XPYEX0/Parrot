@@ -11,6 +11,7 @@ import me.xpyex.plugin.allinone.api.TryRunnable;
 import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
@@ -19,6 +20,8 @@ import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.MiraiLogger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 这是所有模块的根类，所有模块应继承Model类以实现自动注册及所有管理 <br>
@@ -50,14 +53,16 @@ public abstract class Model {
     public static final HashMap<String, Model> LOADED_MODELS = new HashMap<>();
     private static final HashSet<Model> DISABLED_MODELS = new HashSet<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
     private static final HashMap<Model, HashSet<UUID>> TASKS = new HashMap<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
-    protected boolean DEFAULT_DISABLED = false;
     private final File dataFolder = new File(Main.INSTANCE.getDataFolder(), getName());
+    protected boolean DEFAULT_DISABLED = false;
 
-    public Model() {
+    protected Model() {
         Main.LOGGER.info("正在加载 " + getName() + " 模块");
 
-        if (LOADED_MODELS.containsKey(getName())) throw new IllegalStateException("已存在使用该名称的模块，不允许重复注册");
-        if (dataFolder.exists() && !dataFolder.isDirectory()) throw new IllegalStateException("插件目录下存在 " + dataFolder + " 且非文件夹！");
+        ValueUtil.mustTrue("模块名不应为空", !getName().trim().isEmpty());
+        ValueUtil.mustTrue("已存在使用该名称的模块，不允许重复注册", !LOADED_MODELS.containsKey(getName()));
+        if (dataFolder.exists() && !dataFolder.isDirectory())
+            throw new IllegalStateException("插件目录下存在 " + dataFolder + " 且非文件夹！");
 
         TASKS.put(this, new HashSet<>());
         try {
@@ -70,13 +75,18 @@ public abstract class Model {
             return;
         }
         if (this.DEFAULT_DISABLED) {
-            this.disable();
-            getLogger().info("模块 " + getName() + " 注册时选用默认关闭，已关闭它");
+            if (!isCore()) {
+                this.disable();
+                getLogger().info("模块 " + getName() + " 注册时选用默认禁用，已禁用它");
+            } else {
+                getLogger().info("模块 " + getName() + " 注册时选用默认禁用，但核心模块不允许被禁用");
+            }
         }
-        getLogger().info("成功加载 " + getName() + " 模块");
+        getLogger().info("成功加载" + (isCore() ? "核心" : "") + "模块: " + getName());
         getLogger().info(" ");
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     public static <M extends Model> M getModel(String name) {
         if (name == null || name.trim().isEmpty()) return null;
@@ -106,6 +116,7 @@ public abstract class Model {
         getLogger().info(getName() + " 模块注册监听事件: " + eventType.getSimpleName());
     }
 
+    @NotNull
     public String getName() {
         return this.getClass().getSimpleName();
         //
@@ -121,13 +132,13 @@ public abstract class Model {
         //
     }
 
-    public final void info(String s) {
-        Main.LOGGER.info("[" + getName() + "] " + s);
-        //
+    public final <T> T info(T obj) {
+        getLogger().info("[" + getName() + "] " + obj);
+        return obj;
     }
 
     public final void info(Throwable e) {
-        Main.LOGGER.info(e);
+        getLogger().info("[" + getName() + "]", e);
         //
     }
 
@@ -278,5 +289,10 @@ public abstract class Model {
     public <E extends Event> void executeOnce(Class<E> eventType, TryConsumer<E> executor) {
         EventBus.executeOnce(eventType, executor);
         getLogger().info(getName() + " 模块 注册了一次性任务: 监听 " + eventType.getSimpleName() + " 事件");
+    }
+
+    public static boolean isModelEnabled(String name) {
+        Model model = getModel(name);
+        return model != null && model.isEnabled();
     }
 }

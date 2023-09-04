@@ -3,7 +3,7 @@ package me.xpyex.plugin.allinone.model.core;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
-import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.console.MiraiConsoleImplementation;
 import net.mamoe.mirai.contact.Contact;
 
 public class RestartBroadcast extends CoreModel {
@@ -12,7 +12,7 @@ public class RestartBroadcast extends CoreModel {
     @Override
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
-            if (sender.getId() != 1723275529L) {
+            if (!sender.hasPerm(getName() + ".use", false)) {
                 MsgUtil.sendMsg(source, "你没有权限");
                 return;
             }
@@ -37,7 +37,7 @@ public class RestartBroadcast extends CoreModel {
                         Thread.sleep(1000);
                     }
                     MsgUtil.sendMsg(source, "开始重启");
-                    Util.runCmd("cmd /c start /b RestartMirai.bat");
+                    MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
                 } catch (Throwable ignored) {
                 }
             } else if (args[0].equalsIgnoreCase("stop")) {
@@ -45,10 +45,10 @@ public class RestartBroadcast extends CoreModel {
                 MsgUtil.sendMsg(source, "已取消重启计划");
             } else if (args[0].equalsIgnoreCase("now")) {
                 MsgUtil.sendMsg(source, "开始重启");
-                Util.runCmd("cmd /c start /b RestartMirai.bat");
+                MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
             } else if (args[0].equalsIgnoreCase("exit")) {
                 MsgUtil.sendMsg(source, "关闭Bot");
-                Util.runCmd("cmd /c start /b StopMirai.bat");
+                MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
             } else {
                 MsgUtil.sendMsg(source, "未知子命令");
             }

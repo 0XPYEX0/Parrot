@@ -15,7 +15,7 @@ public class StaffTeam extends Model {
                 MsgUtil.sendMsg(source, "Bot非群主，无法执行此操作");
                 return;
             }
-            if (sender.getId() == 1723275529L) {
+            if (!sender.hasPerm(getName().toLowerCase() + ".use", false)) {
                 if (args.length == 0) {
                     new CommandMenu(label)
                         .add("add <QQID>", "令群员成为管理员")
@@ -33,7 +33,7 @@ public class StaffTeam extends Model {
                         }
                         if (args[0].equalsIgnoreCase("add")) {
                             target.modifyAdmin(true);
-                        } else if (args[1].equalsIgnoreCase("remove")) {
+                        } else if (args[0].equalsIgnoreCase("remove")) {
                             target.modifyAdmin(false);
                         } else {
                             MsgUtil.sendMsg(source, "未知子命令");

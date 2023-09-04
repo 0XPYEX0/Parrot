@@ -25,7 +25,7 @@ public class BotManager extends CoreModel {
     @Override
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
-            if (sender.getId() != Util.OWNER_ID) {
+            if (!sender.hasPerm(getName() + ".use", false)) {
                 MsgUtil.sendMsg(source, "你没有权限");
                 return;
             }

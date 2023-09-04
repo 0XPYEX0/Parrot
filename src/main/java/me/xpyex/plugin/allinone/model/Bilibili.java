@@ -5,7 +5,6 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +13,8 @@ import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.bilibili.BilibiliUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
+import me.xpyex.plugin.allinone.utils.ValueUtil;
+import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 @SuppressWarnings("all")
@@ -55,21 +56,18 @@ public class Bilibili extends Model {
                         } else if (msg.toLowerCase().startsWith("#ep")) {
                             map.put("ep_id", msg.substring(3));
                         }
-                        String result = HttpUtil.get("https://api.bilibili.com/pgc/view/web/season", map);
-                        int failCount = 0;
-                        while (result == null || result.isEmpty()) {
-                            if (failCount > 5) {
-                                autoSendMsg(event, "解析超时");
-                                return;
-                            }
-                            result = HttpUtil.post("https://api.bilibili.cn/view/" + msg, map);
-                            failCount++;
-                            Thread.sleep(5000L);
-                        }
+                        String result = ValueUtil.repeatIfError(() -> {
+                            HttpUtil.get("https://bilibili.com");
+                            return HttpUtil.createGet("https://api.bilibili.com/pgc/view/web/season")
+                                       .form(map)
+                                       .execute().body();
+                        }, 5, 5000);
                         JSONObject infos = new JSONObject(result);
                         if (infos.getInt("code") != 0) {
-                            autoSendMsg(event, "无法找到番剧: " + infos.getStr("message")
-                                                   + "\n错误码: " + infos.getInt("code"));
+                            new CommandMessager()
+                                .plus("无法找到番剧: " + infos.getStr("message"))
+                                .plus("错误码: " + infos.getInt("code"))
+                                .send(event);
                             return;
                         }
                         JSONObject publish = infos.getJSONObject("result").getJSONObject("publish");
@@ -78,15 +76,20 @@ public class Bilibili extends Model {
                         JSONObject newestEP = infos.getJSONObject("result").getJSONObject("new_ep");
                         String title = infos.getJSONObject("result").getStr("title");
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
-                        new CommandMessager()
-                            .plus("番剧: " + msg.substring(1))
-                            .plus("番剧名: " + title)
-                            .plus("已完结: " + finished)
-                            .plus("上映时间: " + publishTime)
-                            .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
-                            .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
-                            .plus("最新集: " + newestEP.getStr("title"))
-                            .send(event);
+                        autoSendMsg(event,
+                            MsgUtil.getForwardMsgBuilder(event)
+                                .add(MsgUtil.getRealSender(event, User.class),
+                                    new CommandMessager()
+                                        .plus("番剧: " + msg.substring(1))
+                                        .plus("番剧名: " + title)
+                                        .plus("已完结: " + finished)
+                                        .plus("上映时间: " + publishTime)
+                                        .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
+                                        .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))
+                                        .plus("最新集: " + newestEP.getStr("title"))
+                                        .toMessage()
+                                ).build()
+                        );
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e, event);
@@ -96,25 +99,24 @@ public class Bilibili extends Model {
                         String keyword = msg.substring(17);
                         HashMap<String, Object> map = new HashMap<>();
                         map.put("keyword", keyword);
-                        String result = HttpUtil.get("https://api.bilibili.com/x/web-interface/search/all/v2", map);
-                        int count = 0;
-                        while (result == null || result.isEmpty()) {
-                            if (count >= 5) {
-                                autoSendMsg(event, "搜索超时");
-                                return;
-                            }
-                            result = HttpUtil.get("https://api.bilibili.com/x/web-interface/search/all/v2", map);
-                            count++;
-                            Thread.sleep(5000L);
+                        String result = ValueUtil.repeatIfError(() -> {
+                            info(HttpRequest.of("https://bilibili.com").header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188").headers());
+                            return HttpUtil.createGet("https://api.bilibili.com/x/web-interface/search/all/v2")
+                                       .form(map)
+                                       .execute().body();
+                        }, 5, 5000);
+                        if (result == null || result.isEmpty()) {
+                            autoSendMsg(event, "搜索超时");
+                            return;
                         }
                         JSONObject json = new JSONObject(result);
                         int code = json.getInt("code");
                         if (code != 0) {
-                            autoSendMsg(event, "搜索错误: 请求错误" +
-                                                   "\n" +
-                                                   "错误码: " + code +
-                                                   "错误信息: " + json.getStr("message")
-                            );
+                            new CommandMessager()
+                                .plus("搜索错误: 请求错误")
+                                .plus("错误码: " + code)
+                                .plus("错误信息: " + json.getStr("message"))
+                                .send(event);
                             return;
                         }
                         JSONObject data = json.getJSONObject("data");
@@ -139,8 +141,11 @@ public class Bilibili extends Model {
                                 .plus("简介: " + description)
                                 .plus("播放地址: " + url);
                         }
-                        messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果")
-                            .send(event);
+                        messager.plus("").plus("篇幅受限，仅展示前 " + limit + " 条结果");
+                        autoSendMsg(event, MsgUtil.getForwardMsgBuilder(event)
+                                               .add(MsgUtil.getRealSender(event, User.class),
+                                                   messager.toMessage()
+                                               ).build());
                     } catch (Exception e) {
                         autoSendMsg(event, "搜索错误: " + e);
                         handleException(e, event);
@@ -170,11 +175,7 @@ public class Bilibili extends Model {
                         String b23ID = BilibiliUtil.getFixedID(StringUtil.getStrBetweenKeywords(URL_B23 + StringUtil.getStrBetweenKeywords(msg, URL_B23, "?"), URL_B23, "\"").split("\n")[0].split("/")[0]);
                         String path = "https://" + URL_B23 + b23ID;
                         info("解析b23.tv链接时截取到的ID为: " + b23ID);
-                        HttpRequest r = HttpUtil.createGet(path, false);
-                        r.execute();
-                        HttpURLConnection conn = r.getConnection().getHttpURLConnection();
-                        System.out.println(conn.getHeaderFields());
-                        String reconnectLink = conn.getHeaderField("Location");
+                        String reconnectLink = HttpUtil.createGet(path, false).execute().header("Location");
 
                         if (StringUtil.containsIgnoreCase(reconnectLink, URL_BILIBILI)) {
                             autoSendMsg(event, BilibiliUtil.getVideoInfo(reconnectLink));

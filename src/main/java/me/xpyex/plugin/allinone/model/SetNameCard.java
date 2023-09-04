@@ -9,7 +9,7 @@ public class SetNameCard extends Model {
     @Override
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
-            if (sender.getId() != 1723275529L) {
+            if (!sender.hasPerm(getName() + ".use", true)) {
                 MsgUtil.sendMsg(source, "你没有权限");
                 return;
             }

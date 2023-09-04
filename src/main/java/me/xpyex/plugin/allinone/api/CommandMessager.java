@@ -5,6 +5,7 @@ import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.PlainText;
 
 /**
  * 消息列表
@@ -46,6 +47,11 @@ public class CommandMessager {
         return result.substring(0, result.length() - 1);
     }
 
+    public PlainText toMessage() {
+        return new PlainText(toString());
+        //
+    }
+
     /**
      * 直接发送给目标
      *
@@ -56,7 +62,7 @@ public class CommandMessager {
         //
     }
 
-    public void send(ContactTarget<? extends Contact> target) {
+    public void send(ContactTarget<?> target) {
         MsgUtil.sendMsg(target, this.toString());
         //
     }

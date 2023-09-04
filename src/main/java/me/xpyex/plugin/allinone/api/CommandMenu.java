@@ -24,6 +24,10 @@ public class CommandMenu {
         //
     }
 
+    public CommandMenu add(String arg) {
+        return add(arg, "");
+    }
+
     /**
      * 添加一行帮助
      *
@@ -58,7 +62,7 @@ public class CommandMenu {
         //
     }
 
-    public void send(ContactTarget<? extends Contact> target) {
+    public void send(ContactTarget<?> target) {
         MsgUtil.sendMsg(target, this.toString());
         //
     }

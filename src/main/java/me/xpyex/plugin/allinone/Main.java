@@ -2,8 +2,6 @@ package me.xpyex.plugin.allinone;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
-import java.io.File;
-import java.io.PrintWriter;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.EventBus;
@@ -31,29 +29,6 @@ public class Main extends JavaPlugin {
                   .info("Everything in this")
                   .build()
         );
-    }
-
-    public static void outBatFiles() {
-        File restartFile = new File("RestartJava.bat");
-        File stopFile = new File("StopJava.bat");
-        try {
-            if (!restartFile.exists()) {
-                restartFile.createNewFile();
-                PrintWriter out = new PrintWriter(restartFile);
-                out.println("taskkill /f /im java.exe");
-                out.print("start jre/bin/java -jar mcl.jar %* ");
-                out.flush();
-                out.close();
-            }
-            if (!stopFile.exists()) {
-                stopFile.createNewFile();
-                PrintWriter out = new PrintWriter(stopFile, "UTF-8");
-                out.print("taskkill /f /im java.exe");
-                out.flush();
-                out.close();
-            }
-        } catch (Exception ignored) {
-        }
     }
 
     @Override
@@ -101,7 +76,5 @@ public class Main extends JavaPlugin {
                 EventBus.callEvents(event, Model.class);
             }
         });  //广播事件
-
-        outBatFiles();
     }
 }

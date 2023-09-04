@@ -39,11 +39,17 @@ import net.mamoe.mirai.contact.Contact;
 
 public class Music extends Model {
 
-    /** 命令列表. */
+    /**
+     * 命令列表.
+     */
     public static final Map<String, BiConsumer<Contact, String[]>> COMMANDS = new ConcurrentHashMap<>();
-    /** 音乐来源. */
+    /**
+     * 音乐来源.
+     */
     public static final Map<String, MusicSource> SOURCES = Collections.synchronizedMap(new LinkedHashMap<>());
-    /** 外观来源 */
+    /**
+     * 外观来源
+     */
     public static final Map<String, MusicCardProvider> CARDS = new ConcurrentHashMap<>();
     // 请求音乐的线程池。
     private static final Executor EXEC = Executors.newFixedThreadPool(8);
@@ -141,9 +147,13 @@ public class Music extends Model {
         COMMANDS.put("酷狗", makeTemplate("酷狗", "Mirai"));
 
         registerCommand(Contact.class, ((source, sender, label, args) -> {
-            BiConsumer<Contact, String[]> exec = COMMANDS.get(label);
-            if (exec != null) {
-                exec.accept(source.getContact(), args);
+            if (sender.hasPerm(getName() + ".use", true)) {
+                BiConsumer<Contact, String[]> exec = COMMANDS.get(label);
+                if (exec != null) {
+                    exec.accept(source.getContact(), args);
+                }
+            } else {
+                source.sendMessage("你没有权限");
             }
         }), "点歌", "网易", "酷狗");
     }

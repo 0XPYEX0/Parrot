@@ -6,5 +6,5 @@ import net.mamoe.mirai.contact.User;
 
 @FunctionalInterface
 public interface CommandExecutor<C extends Contact> {
-    void execute(ContactTarget<C> source, User sender, String label, String[] args) throws Throwable;
+    void execute(ContactTarget<C> source, ContactTarget<User> sender, String label, String[] args) throws Throwable;
 }

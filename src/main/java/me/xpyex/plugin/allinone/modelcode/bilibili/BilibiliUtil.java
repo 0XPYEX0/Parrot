@@ -11,6 +11,7 @@ import me.xpyex.plugin.allinone.api.CommandMessager;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
 import me.xpyex.plugin.allinone.utils.Util;
+import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 
@@ -53,7 +54,7 @@ public class BilibiliUtil {
                 return VIDEO_CACHES.get("BV" + param.get("bvid"));
             }
         }
-        String result = Util.repeatIfError(() -> {
+        String result = ValueUtil.repeatIfError(() -> {
             return HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
         }, 5, 5000);
         if (result == null || result.isEmpty()) {
@@ -109,12 +110,12 @@ public class BilibiliUtil {
                                        .plus("")
                                        .plus("作者: " + authorName)
                                        .plus("作者主页: https://space.bilibili.com/" + authorId);
-        Message out = Util.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                          .add(Util.getBot(), new PlainText("视频: " + videoID)
-                                                  .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
-                                                  .plus(messager.toString())
-                          )
-                          .build(), 2, 3000);
+        Message out = ValueUtil.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
+                                                        .add(Util.getBot(), new PlainText("视频: " + videoID)
+                                                                                .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
+                                                                                .plus(messager.toString())
+                                                        )
+                                                        .build(), 2, 3000);
         if (out == null) {
             return new PlainText("解析失败");
         }
