@@ -62,8 +62,10 @@ public class MsgUtil {
     }
 
     public static void sendMsg(Contact contact, String msg) {
+        if (msg == null) {
+            return;
+        }
         sendMsg(contact, new PlainText(msg));
-        //
     }
 
     public static void sendMsg(Contact contact, Message msg) {

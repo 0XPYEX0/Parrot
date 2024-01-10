@@ -11,13 +11,13 @@ import net.mamoe.mirai.message.data.PlainText;
  * 消息列表
  * 帮助开发者快速地发送换行消息
  */
-public class CommandMessager {
+public class MessageBuilder {
     private final ArrayList<String> messages = new ArrayList<>();
 
-    public CommandMessager() {
+    public MessageBuilder() {
     }
 
-    public CommandMessager(String message) {
+    public MessageBuilder(String message) {
         messages.add(message);
         //
     }
@@ -28,7 +28,7 @@ public class CommandMessager {
      * @param message 参数
      * @return 返回自身，制造链式
      */
-    public CommandMessager plus(String message) {
+    public MessageBuilder plus(String message) {
         messages.add(message);
         return this;
     }

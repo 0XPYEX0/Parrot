@@ -5,11 +5,13 @@ import java.io.File;
 import java.util.ArrayList;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.model.core.PermManager;
 import me.xpyex.plugin.allinone.utils.FileUtil;
 
 @Data
+@Accessors(chain = true)
 public class UserPerm implements Perms {
     private long id;
     private ArrayList<String> extendsGroups = new ArrayList<>();
@@ -34,17 +36,13 @@ public class UserPerm implements Perms {
     private boolean getHasAllPerms() {
         return hasAllPerms();
         // For JavaBean
-    }
-
-    public UserPerm setHasAllPerms(boolean hasAllPerms) {
-        this.hasAllPerms = hasAllPerms;
-        return this;
+        // private for hasAllPerms()
     }
 
     @Override
     @SneakyThrows
     public void save() {
-        File f = new File(Model.getModel("PermManager").getDataFolder(), "Users/" + getId() + ".json");
+        File f = new File(Model.getModel(PermManager.class).getDataFolder(), "Users/" + getId() + ".json");
         FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(this));
     }
 }

@@ -5,10 +5,10 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MapBuilder;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.bilibili.BilibiliUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
@@ -17,8 +17,7 @@ import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
 
-@SuppressWarnings("all")
-public class Bilibili extends Model {
+public final class Bilibili extends Model {
     private static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
     private static final String URL_B23 = "b23.tv/";
     private static final String URL_BILIBILI = "bilibili.com/video/";
@@ -34,37 +33,31 @@ public class Bilibili extends Model {
                 String msg = MsgUtil.getPlainText(event.getMessage()).replace("\\/", "/");
                 if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV", "#BV")) {
                     try {
-                        HashMap<String, Object> map = new HashMap<>();
-                        if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV")) {
-                            map.put("aid", msg.substring(3));
-                        } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#BV")) {
-                            if (msg.length() != 13) {
-                                return;
-                            }
-                            map.put("bvid", msg.substring(3, 13));
-                        }
-                        autoSendMsg(event, BilibiliUtil.getVideoInfo(map));
+                        autoSendMsg(event,
+                            BilibiliUtil.getVideoInfo(
+                                MapBuilder.builder(String.class, Object.class)
+                                    .putIfTrue(StringUtil.startsWithIgnoreCaseOr(msg, "#AV"), () -> "aid", () -> msg.substring(3))
+                                    .putIfTrue((StringUtil.startsWithIgnoreCaseOr(msg, "#BV") && msg.length() == 13), () -> "bvid", () -> msg.substring(3, 13))
+                                    .build()
+                            ));
                     } catch (Exception e) {
                         autoSendMsg(event, "解析错误: " + e);
                         handleException(e, event);
                     }
                 } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#ss", "#ep")) {
                     try {
-                        HashMap<String, Object> map = new HashMap<>();
-                        if (msg.toLowerCase().startsWith("#ss")) {
-                            map.put("season_id", msg.substring(3));
-                        } else if (msg.toLowerCase().startsWith("#ep")) {
-                            map.put("ep_id", msg.substring(3));
-                        }
                         String result = ValueUtil.repeatIfError(() -> {
                             HttpUtil.get("https://bilibili.com");
                             return HttpUtil.createGet("https://api.bilibili.com/pgc/view/web/season")
-                                       .form(map)
+                                       .form(MapBuilder.builder(String.class, Object.class)
+                                                 .putIfTrue(msg.toLowerCase().startsWith("#ss"), () -> "season_id", () -> msg.substring(3))
+                                                 .putIfTrue(msg.toLowerCase().startsWith("#ep"), () -> "ep_id", () -> msg.substring(3))
+                                                 .build())
                                        .execute().body();
                         }, 5, 5000);
                         JSONObject infos = new JSONObject(result);
                         if (infos.getInt("code") != 0) {
-                            new CommandMessager()
+                            new MessageBuilder()
                                 .plus("无法找到番剧: " + infos.getStr("message"))
                                 .plus("错误码: " + infos.getInt("code"))
                                 .send(event);
@@ -79,7 +72,7 @@ public class Bilibili extends Model {
                         autoSendMsg(event,
                             MsgUtil.getForwardMsgBuilder(event)
                                 .add(MsgUtil.getRealSender(event, User.class),
-                                    new CommandMessager()
+                                    new MessageBuilder()
                                         .plus("番剧: " + msg.substring(1))
                                         .plus("番剧名: " + title)
                                         .plus("已完结: " + finished)
@@ -97,12 +90,12 @@ public class Bilibili extends Model {
                 } else if (StringUtil.startsWithIgnoreCaseOr(msg, "#search bilibili ")) {
                     try {
                         String keyword = msg.substring(17);
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("keyword", keyword);
                         String result = ValueUtil.repeatIfError(() -> {
                             info(HttpRequest.of("https://bilibili.com").header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188").headers());
                             return HttpUtil.createGet("https://api.bilibili.com/x/web-interface/search/all/v2")
-                                       .form(map)
+                                       .form(MapBuilder.builder(String.class, Object.class)
+                                                 .put("keyword", keyword)
+                                                 .build())
                                        .execute().body();
                         }, 5, 5000);
                         if (result == null || result.isEmpty()) {
@@ -112,7 +105,7 @@ public class Bilibili extends Model {
                         JSONObject json = new JSONObject(result);
                         int code = json.getInt("code");
                         if (code != 0) {
-                            new CommandMessager()
+                            new MessageBuilder()
                                 .plus("搜索错误: 请求错误")
                                 .plus("错误码: " + code)
                                 .plus("错误信息: " + json.getStr("message"))
@@ -122,7 +115,7 @@ public class Bilibili extends Model {
                         JSONObject data = json.getJSONObject("data");
                         JSONArray results = data.getJSONArray("result").getJSONObject(10).getJSONArray("data");
                         int limit = 5;  //限制展示几条信息
-                        CommandMessager messager = new CommandMessager("关键词: " + keyword)
+                        MessageBuilder messager = new MessageBuilder("关键词: " + keyword)
                                                        .plus("仅展示前 " + limit + " 条结果！");
                         for (int i = 0; i < limit; i++) {
                             messager.plus("").plus("");

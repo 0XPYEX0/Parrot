@@ -61,13 +61,10 @@ public abstract class Model {
 
         ValueUtil.mustTrue("模块名不应为空", !getName().trim().isEmpty());
         ValueUtil.mustTrue("已存在使用该名称的模块，不允许重复注册", !LOADED_MODELS.containsKey(getName()));
-        if (dataFolder.exists() && !dataFolder.isDirectory())
-            throw new IllegalStateException("插件目录下存在 " + dataFolder + " 且非文件夹！");
 
         TASKS.put(this, new HashSet<>());
         try {
             register();
-            dataFolder.mkdirs();
             LOADED_MODELS.put(getName(), this);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -97,6 +94,12 @@ public abstract class Model {
             if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
         }
         return null;
+    }
+
+    @NotNull
+    public static <M extends Model> M getModel(Class<M> clazz) {
+        return getModel(clazz.getSimpleName());
+        //
     }
 
     public abstract void register() throws Throwable;
@@ -272,7 +275,7 @@ public abstract class Model {
     }
 
     public final boolean isEnabled() {
-        return !DISABLED_MODELS.contains(this);
+        return LOADED_MODELS.containsKey(getName()) && !DISABLED_MODELS.contains(this);
         //
     }
 
@@ -282,17 +285,15 @@ public abstract class Model {
     }
 
     public File getDataFolder() {
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
+        ValueUtil.mustTrue("该位置已有同名文件，且非文件夹！", dataFolder.isDirectory());
         return dataFolder;
-        //
     }
 
     public <E extends Event> void executeOnce(Class<E> eventType, TryConsumer<E> executor) {
         EventBus.executeOnce(eventType, executor);
         getLogger().info(getName() + " 模块 注册了一次性任务: 监听 " + eventType.getSimpleName() + " 事件");
-    }
-
-    public static boolean isModelEnabled(String name) {
-        Model model = getModel(name);
-        return model != null && model.isEnabled();
     }
 }

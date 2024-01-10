@@ -3,7 +3,7 @@ package me.xpyex.plugin.allinone.model.core;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
@@ -21,6 +21,7 @@ import net.mamoe.mirai.event.events.NudgeEvent;
 @SuppressWarnings("unused")
 public class BotManager extends CoreModel {
     private static final ArrayList<String> IGNORED_LIST = new ArrayList<>();
+    private static final ArrayList<NewFriendRequestEvent> REQUESTS = new ArrayList<>();
 
     @Override
     public void register() {
@@ -56,7 +57,7 @@ public class BotManager extends CoreModel {
                         return;
                     }
                     if (args[1].equalsIgnoreCase("list")) {
-                        CommandMessager messager = new CommandMessager();
+                        MessageBuilder messager = new MessageBuilder();
                         messager.plus("机器人加入的群列表: ");
                         for (Group g : Util.getBot().getGroups()) {
                             messager.plus(g.getName() + " (" + g.getId() + ")");
@@ -108,12 +109,12 @@ public class BotManager extends CoreModel {
                     return;
                 }
                 if (args.length == 2) {
-                    if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
+                    if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete", "accept", "deny")) {
                         MsgUtil.sendMsg(source, "参数不足，请填写ID");
                         return;
                     }
                     if (args[1].equalsIgnoreCase("list")) {
-                        CommandMessager messager = new CommandMessager();
+                        MessageBuilder messager = new MessageBuilder();
                         messager.plus("机器人的好友列表: ");
                         for (Friend f : Util.getBot().getFriends()) {
                             messager.plus(f.getNick() + " (" + f.getId() + ")");
@@ -122,18 +123,38 @@ public class BotManager extends CoreModel {
                         return;
                     }
                 }
+                if (StringUtil.equalsIgnoreCaseOr(args[1], "accept", "deny")) {
+                    try {
+                        NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(args[2]));
+                        if (StringUtil.equalsIgnoreCaseOr(args[1], "accept")) {
+                            event.accept();
+                        } else {
+                            event.reject(false);
+                        }
+                        new MessageBuilder()
+                            .plus("已处理编号为 " + args[2] + " 的好友申请")
+                            .plus("ID: " + event.getFromId())
+                            .plus("Nick: " + event.getFromNick())
+                            .plus("Group: " + event.getFromGroupId())
+                            .send(source);
+                        REQUESTS.remove(Integer.parseInt(args[2]));
+                    } catch (NoSuchElementException | NumberFormatException ignored) {
+                        source.sendMessage("没有这条申请");
+                    }
+                    return;
+                }
                 Friend friend;
                 try {
                     friend = Util.getBot().getFriendOrFail(Long.parseLong(args[2]));
                 } catch (NumberFormatException ignored) {
-                    MsgUtil.sendMsg(source, "填入的群号非整数");
+                    MsgUtil.sendMsg(source, "填入的QQ号非整数");
                     return;
                 } catch (NoSuchElementException ignored) {
                     MsgUtil.sendMsg(source, "机器人并非指定QQ的好友，无法操作");
                     return;
                 }
                 if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
-                    if (friend.getId() == Util.OWNER_ID) {
+                    if (PermManager.hasPerm(friend, "BotManager.admin", false)) {
                         MsgUtil.sendMsg(source, "不允许删除该好友");
                         return;
                     }
@@ -146,9 +167,9 @@ public class BotManager extends CoreModel {
 
             if (args[0].equalsIgnoreCase("user")) {  //用户相关
                 if (args.length == 1) {
-                    CommandMenu menu = new CommandMenu(label + " user")
-                                           .add("ignore <ID>", "忽略该用户触发的事件");
-                    menu.send(source);
+                    new CommandMenu(label + " user")
+                        .add("ignore <ID>", "忽略该用户触发的事件")
+                        .send(source);
                     return;
                 }
                 if (args.length == 2) {
@@ -182,12 +203,18 @@ public class BotManager extends CoreModel {
                 event.accept();
             }
         });
-        listenEvent(NewFriendRequestEvent.class, event -> MsgUtil.sendMsgToOwner(
-            event.getFromNick() + " (" + event.getFromId() + ")\n"
-                + "请求添加好友" +
-                "\n" +
-                "申请理由: " + event.getMessage()
-        ));
+        listenEvent(NewFriendRequestEvent.class, event -> {
+            REQUESTS.add(event);
+            new MessageBuilder()
+                .plus(event.getFromNick() + " (" + event.getFromId() + ")")
+                .plus("请求添加好友")
+                .plus("申请理由: " + event.getMessage())
+                .plus("执行")
+                .plus("#bot friend accept " + (REQUESTS.size() - 1) + "  同意申请")
+                .plus("或")
+                .plus("#bot friend deny " + (REQUESTS.size() - 1) + "  拒绝申请")
+                .send(Util.getOwner());
+        });
     }
 
     @Override

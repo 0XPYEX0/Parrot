@@ -50,7 +50,7 @@ public class CommandMenu {
      */
     @Override
     public String toString() {
-        CommandMessager messager = new CommandMessager();
+        MessageBuilder messager = new MessageBuilder();
         for (Pair<String, String> pair : helpList) {
             messager.plus("#" + command + " " + pair.getKey() + " - " + pair.getValue());
         }

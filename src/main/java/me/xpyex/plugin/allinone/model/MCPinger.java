@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.model;
 
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.modelcode.mcpinger.Pinger;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
@@ -35,7 +35,7 @@ public class MCPinger extends Model {
                 Pinger pinger = new Pinger(address, port);
                 pinger.setTimeout(10000);
                 if (pinger.fetchData()) {
-                    new CommandMessager()
+                    new MessageBuilder()
                         .plus("IP: " + pinger.getAddress() + ":" + pinger.getPort())
                         .plus("在线人数: " + ValueUtil.getOrDefault(pinger.getPlayersOnline(), 0) + "/" + ValueUtil.getOrDefault(pinger.getMaxPlayers(), 0))
                         .plus("MOTD: " + ValueUtil.getOrDefault(pinger.getMotd(), ""))

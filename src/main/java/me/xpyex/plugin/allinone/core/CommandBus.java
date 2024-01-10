@@ -56,7 +56,9 @@ public class CommandBus {
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {
-                                    command.executor().execute(new ContactTarget<>(MsgUtil.getRealSender(event)), new ContactTarget<>(event.getSender()), cmd.substring(1), args);
+                                    ContactTarget<Contact> contact = new ContactTarget<>(MsgUtil.getRealSender(event));
+                                    CommandExecutor.EVENT_POOL.put(contact.getCreatedTime(), event);
+                                    command.executor().execute(contact, new ContactTarget<>(event.getSender()), cmd.substring(1), args);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false);
                                     MsgUtil.sendMsgToOwner("模块 " + model.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);

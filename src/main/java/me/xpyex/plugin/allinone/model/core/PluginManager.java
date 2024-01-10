@@ -3,7 +3,7 @@ package me.xpyex.plugin.allinone.model.core;
 import java.util.Arrays;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.CoreModel;
 import me.xpyex.plugin.allinone.core.EventBus;
@@ -77,7 +77,7 @@ public class PluginManager extends CoreModel {
                         MsgUtil.sendMsg(source, "模块不存在\n执行 #" + label + " list 查看所有列表");
                         return;
                     }
-                    new CommandMessager("模块 " + target.getName())
+                    new MessageBuilder("模块 " + target.getName())
                         .plus("已注册的命令: " + Arrays.toString(CommandBus.getCommands(target)))
                         .plus("监听的事件: " + Arrays.toString(EventBus.getEvents(target)))
                         .send(source);

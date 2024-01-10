@@ -2,7 +2,7 @@ package me.xpyex.plugin.allinone.model;
 
 import java.util.Arrays;
 import java.util.UUID;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.core.Model;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -31,7 +31,7 @@ public class TestMsg extends Model {
             }
         });
         registerCommand(Contact.class, (source, sender, label, args) -> {
-            new CommandMessager()
+            new MessageBuilder()
                 .plus("这是全局反馈器")
                 .plus("这是一个测试命令捏")
                 .plus("你执行的命令是: " + label)
@@ -39,7 +39,7 @@ public class TestMsg extends Model {
                 .send(source);
         }, "testCmd");
         registerCommand(Contact.class, (source, sender, label, args) -> {
-            new CommandMessager()
+            new MessageBuilder()
                 .plus("这是全局反馈器")
                 .plus("这是一个测试命令捏")
                 .plus("你执行的命令是: " + label)

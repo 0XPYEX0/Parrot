@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.api.CommandMessager;
+import me.xpyex.plugin.allinone.api.MapBuilder;
+import me.xpyex.plugin.allinone.api.MessageBuilder;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -98,7 +99,7 @@ public class BilibiliUtil {
         String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
-        CommandMessager messager = new CommandMessager("")
+        MessageBuilder messager = new MessageBuilder("")
                                        .plus("AV号: AV" + AvID)
                                        .plus("BV号: " + BvID)
                                        .plus("标题: " + title)
@@ -125,8 +126,7 @@ public class BilibiliUtil {
     }
 
     public static Message getUserInfo(BigInteger userID) throws Exception {
-        Map<String, Object> param = new HashMap<>();
-        param.put("mid", userID);
+        Map<String, Object> param = MapBuilder.builder(String.class, Object.class).put("mid", (Object) userID).build();
         String result = HttpUtil.get(API_URL_BILIBILI_USER, param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
@@ -215,8 +215,7 @@ public class BilibiliUtil {
                                      "暂不可用");
         }
 
-        HashMap<String, Object> param = new HashMap<>();
-        param.put("dynamic_id", ID);
+        Map<String, Object> param = MapBuilder.builder(String.class, Object.class).put("dynamic_id", ID).build();
         String result = HttpUtil.get(API_URL_BILIBILI_DYNAMIC, param);
         int failCount = 0;
         while (result == null || result.isEmpty()) {
@@ -243,7 +242,7 @@ public class BilibiliUtil {
 
         JSONObject card = obj.getJSONObject("data").getJSONObject("card");
 
-        CommandMessager messager = new CommandMessager()
+        MessageBuilder messager = new MessageBuilder()
                                        .plus("动态: " + ID)
                                        .plus("内容: " + card.getStr("desc"));
         return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
@@ -253,10 +252,7 @@ public class BilibiliUtil {
 
     public static Message getLiveInfo(BigInteger userID) throws Exception {
         Main.LOGGER.info("getLiveInfo时的ID: " + userID);
-
-        HashMap<String, Object> param = new HashMap<>();
-        param.put("room_id", userID);
-        String result = HttpUtil.get(API_URL_BILIBILI_LIVE_ROOM, param);
+        String result = HttpUtil.get(API_URL_BILIBILI_LIVE_ROOM, MapBuilder.builder(String.class, Object.class).put("room_id", userID).build());
 
         Main.LOGGER.info("请求结果: " + result);
 
@@ -292,11 +288,11 @@ public class BilibiliUtil {
                 isOnline = "未开播";
                 break;
         }
-        CommandMessager messager1 = new CommandMessager()
+        MessageBuilder messager1 = new MessageBuilder()
                                         .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
                                         .plus("标题: " + data.getStr("title"))
                                         .plus("描述: " + data.getStr("description").replace("<p>", "").replace("</p>", ""));
-        CommandMessager messager2 = new CommandMessager("")
+        MessageBuilder messager2 = new MessageBuilder("")
                                         .plus("开播状态: " + isOnline)
                                         .plus("直播间地址: https://" + URL_LIVE + data.getBigInteger("room_id"));
         Message image = null;

@@ -2,6 +2,7 @@ package me.xpyex.plugin.allinone.core.mirai;
 
 import java.util.WeakHashMap;
 import me.xpyex.plugin.allinone.model.core.PermManager;
+import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -10,6 +11,7 @@ import net.mamoe.mirai.message.data.Message;
 public class ContactTarget<C extends Contact> {
     private final C contact;
     private final WeakHashMap<String, Boolean> PERM_CACHE = new WeakHashMap<>();
+    private final long createdTime = System.currentTimeMillis();
 
     public ContactTarget(C contact) {
         this.contact = contact;
@@ -22,13 +24,13 @@ public class ContactTarget<C extends Contact> {
     }
 
     public void sendMessage(String message) {
-        getContact().sendMessage(message);
-        //
+        MsgUtil.sendMsg(getContact(), message);
+        //安全发送
     }
 
     public void sendMessage(Message message) {
-        getContact().sendMessage(message);
-        //
+        MsgUtil.sendMsg(getContact(), message);
+        //安全发送
     }
 
     public boolean hasPerm(String perm, boolean adminPass) {
@@ -49,6 +51,11 @@ public class ContactTarget<C extends Contact> {
 
     public boolean isGroup() {
         return getContact() instanceof Group;
+        //
+    }
+
+    public long getCreatedTime() {
+        return createdTime;
         //
     }
 }
