@@ -9,6 +9,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 @FunctionalInterface
 public interface CommandExecutor<C extends Contact> {
     WeakHashMap<Long, MessageEvent> EVENT_POOL = new WeakHashMap<>();
+
     void execute(ContactTarget<C> source, ContactTarget<User> sender, String label, String[] args) throws Throwable;
 
     default MessageEvent getEvent(ContactTarget<C> contact) {

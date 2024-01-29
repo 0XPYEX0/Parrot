@@ -5,7 +5,7 @@ import cn.hutool.cron.CronUtil;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.CommandBus;
 import me.xpyex.plugin.allinone.core.EventBus;
-import me.xpyex.plugin.allinone.core.Model;
+import me.xpyex.plugin.allinone.core.Module;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.ReflectUtil;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
@@ -40,21 +40,21 @@ public class Main extends JavaPlugin {
         LOGGER = getLogger();
         LOGGER.info("插件主模块已加载");
 
-        for (Class<?> modelClass : ReflectUtil.getClasses("model")) {
-            if (ClassUtil.isAssignable(Model.class, modelClass)) {
+        for (Class<?> moduleClass : ReflectUtil.getClasses("module")) {
+            if (ClassUtil.isAssignable(Module.class, moduleClass)) {
                 try {
-                    modelClass.getDeclaredConstructor().newInstance();
+                    moduleClass.getDeclaredConstructor().newInstance();
                 } catch (Throwable e) {
                     e.printStackTrace();
-                    LOGGER.error("加载模块 " + modelClass.getSimpleName() + " 时出错: " + e);
+                    LOGGER.error("加载模块 " + moduleClass.getSimpleName() + " 时出错: " + e);
                 }
             }
         }
 
         {
             TreeSet<String> list = new TreeSet<>();
-            for (Model loadedModel : Model.LOADED_MODELS.values()) {
-                list.add(loadedModel.getName());
+            for (Module loadedModule : Module.LOADED_MODELS.values()) {
+                list.add(loadedModule.getName());
             }
             LOGGER.info("已注册的所有模块: " + list);
         }
@@ -63,8 +63,8 @@ public class Main extends JavaPlugin {
             @EventHandler
             @SuppressWarnings("unused")
             public void onEvent(Event event) {
-                if (!EventBus.callToCoreModel(event)) {  //该方法返回false则表示有
-                    return;  //该事件已被CoreModel拦截不允许下发处理
+                if (!EventBus.callToCoreModule(event)) {  //该方法返回false则表示有
+                    return;  //该事件已被CoreModule拦截不允许下发处理
                 }
 
                 if (event instanceof MessageEvent && MsgUtil.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
@@ -73,7 +73,7 @@ public class Main extends JavaPlugin {
                         return;
                     }
                 }
-                EventBus.callEvents(event, Model.class);
+                EventBus.callEvents(event, Module.class);
             }
         });  //广播事件
     }

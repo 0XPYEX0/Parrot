@@ -15,16 +15,16 @@ public class EventBus {
     private static final ArrayList<Tuple> EVENT_BUSES = new ArrayList<>();
     private static final ArrayList<Pair<Class<Event>, TryConsumer<Event>>> ONCE_EVENT_LIST = new ArrayList<>();
 
-    public static <E extends Event> void takeInBus(Class<E> eventType, Model model, TryConsumer<E> eventExecutor) {
-        EVENT_BUSES.add(new Tuple(eventType, model, eventExecutor));
+    public static <E extends Event> void takeInBus(Class<E> eventType, Module module, TryConsumer<E> eventExecutor) {
+        EVENT_BUSES.add(new Tuple(eventType, module, eventExecutor));
         //
     }
 
-    public static boolean callToCoreModel(Event event) {  //先将事件发送到CoreModel审核，看是否需要取消
-        callEvents(event, CoreModel.class);
-        for (Model model : Model.LOADED_MODELS.values()) {
-            if (model.isCore()) {
-                if (!((CoreModel) model).acceptEvent(event)) return false;  //如果返回 false， 说明事件被拦截，则此处返回false
+    public static boolean callToCoreModule(Event event) {  //先将事件发送到CoreModule审核，看是否需要取消
+        callEvents(event, CoreModule.class);
+        for (Module module : Module.LOADED_MODELS.values()) {
+            if (module.isCore()) {
+                if (!((CoreModule) module).acceptEvent(event)) return false;  //如果返回 false， 说明事件被拦截，则此处返回false
             }
         }
         return true;
@@ -34,10 +34,10 @@ public class EventBus {
      * 对模块广播事件
      *
      * @param event     事件
-     * @param modelType 可接收到该事件的模块类型
+     * @param moduleType 可接收到该事件的模块类型
      * @param <M>       模块
      */
-    public static <M extends Model> void callEvents(Event event, Class<M> modelType) {
+    public static <M extends Module> void callEvents(Event event, Class<M> moduleType) {
         if (ONCE_EVENT_LIST.size() != 0) {
             Iterator<Pair<Class<Event>, TryConsumer<Event>>> iterator = ONCE_EVENT_LIST.iterator();
             while (iterator.hasNext()) {
@@ -55,8 +55,8 @@ public class EventBus {
         }
         for (Tuple eventBus : EVENT_BUSES) {
             if (ClassUtil.isAssignable(eventBus.get(0), event.getClass())) {
-                Model model = eventBus.get(1);
-                if (modelType.isInstance(model) && model.isEnabled()) {
+                Module module = eventBus.get(1);
+                if (moduleType.isInstance(module) && module.isEnabled()) {
                     TryConsumer<Event> listener = eventBus.get(2);
                     try {
                         listener.accept(event);
@@ -74,17 +74,17 @@ public class EventBus {
                                 break;
                             }
                         }
-                        MsgUtil.sendMsgToOwner("模块 " + model.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
+                        MsgUtil.sendMsgToOwner("模块 " + module.getName() + " 在处理事件 " + eventName + " 时出现异常，已被捕获: " + e);
                     }
                 }
             }
         }
     }
 
-    public static String[] getEvents(Model model) {
+    public static String[] getEvents(Module module) {
         ArrayList<String> list = new ArrayList<>();
         for (Tuple bus : EVENT_BUSES) {
-            if (bus.get(1) == model) {
+            if (bus.get(1) == module) {
                 list.add(((Class<?>) bus.get(0)).getSimpleName());
             }
         }

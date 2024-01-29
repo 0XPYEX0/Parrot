@@ -3,9 +3,10 @@ package me.xpyex.plugin.allinone.utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class FileUtil  {
+public class FileUtil {
     public static void createNewFile(File target, boolean replaced) throws IOException {
         if (replaced) {
             target.delete();
@@ -39,7 +40,7 @@ public class FileUtil  {
      * @throws IOException 文件异常
      */
     public static String readFile(File target) throws IOException {
-        Scanner in = new Scanner(target, "UTF-8");
+        Scanner in = new Scanner(target, StandardCharsets.UTF_8);
         StringBuilder builder = new StringBuilder();
         while (in.hasNextLine()) {
             builder.append(in.nextLine()).append("\n");
@@ -59,7 +60,7 @@ public class FileUtil  {
         if (!target.exists()) {
             createNewFile(target, false);
         }
-        PrintWriter out = new PrintWriter(target, "UTF-8");
+        PrintWriter out = new PrintWriter(target, StandardCharsets.UTF_8);
         if (attend) {
             out.println(content);
         } else {

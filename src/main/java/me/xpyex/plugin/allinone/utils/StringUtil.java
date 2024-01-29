@@ -23,8 +23,6 @@ public class StringUtil {
     public static boolean equalsIgnoreCaseOr(String target, String... contents) {
         if (target == null || contents == null) return false;
 
-        if (contents.length == 0) return false;
-
         for (String s : contents) {
             if (s.equalsIgnoreCase(target))
                 return true;

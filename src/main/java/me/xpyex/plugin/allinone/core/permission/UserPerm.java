@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.allinone.core.Model;
-import me.xpyex.plugin.allinone.model.core.PermManager;
+import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.module.core.PermManager;
 import me.xpyex.plugin.allinone.utils.FileUtil;
 
 @Data
@@ -42,7 +42,7 @@ public class UserPerm implements Perms {
     @Override
     @SneakyThrows
     public void save() {
-        File f = new File(Model.getModel(PermManager.class).getDataFolder(), "Users/" + getId() + ".json");
+        File f = new File(Module.getModule(PermManager.class).getDataFolder(), "Users/" + getId() + ".json");
         FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(this));
     }
 }

@@ -10,23 +10,27 @@ import me.xpyex.plugin.allinone.core.Module;
 import me.xpyex.plugin.allinone.module.core.PermManager;
 import me.xpyex.plugin.allinone.utils.FileUtil;
 
-@Accessors(chain = true)
 @Data
-public class GroupPerm implements Perms {
-    private String name;
+@Accessors(chain = true)
+public class QGroupPerm implements Perms {
+    private long groupID;
     private ArrayList<String> permissions = new ArrayList<>();
     private ArrayList<String> denyPerms = new ArrayList<>();
-    private boolean isDefaultGroup = false;
+    private ArrayList<String> extendsGroups = new ArrayList<>();  //内容是GroupPerm
 
-    public GroupPerm(String name) {
-        this.name = name;
-        //
+    public QGroupPerm(long groupID) {
+        this.groupID = groupID;
+        for (GroupPerm groupPerm : PermManager.GROUPS.values()) {
+            if (groupPerm.isDefaultGroup()) {
+                extendsGroups.add(groupPerm.getName());
+            }
+        }
     }
 
     @Override
     @SneakyThrows
     public void save() {
-        File f = new File(Module.getModule(PermManager.class).getDataFolder(), "Groups/" + name + ".json");
+        File f = new File(Module.getModule(PermManager.class).getDataFolder(), "QQGroups/" + groupID + ".json");
         FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(this));
     }
 }
