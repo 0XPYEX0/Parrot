@@ -17,7 +17,6 @@ import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 
-
 public class Main extends JavaPlugin {
     public static MiraiLogger LOGGER;
     public static Main INSTANCE;
@@ -42,11 +41,15 @@ public class Main extends JavaPlugin {
 
         for (Class<?> moduleClass : ReflectUtil.getClasses("module")) {
             if (ClassUtil.isAssignable(Module.class, moduleClass)) {
+                if (ClassUtil.isAbstract(moduleClass)) continue;
                 try {
                     moduleClass.getDeclaredConstructor().newInstance();
                 } catch (Throwable e) {
                     e.printStackTrace();
                     LOGGER.error("加载模块 " + moduleClass.getSimpleName() + " 时出错: " + e);
+                    if (e instanceof NoSuchMethodException) {  //缺少Module()构造方法，可能是别的参数的
+                        LOGGER.error("该模块的构造方法不标准！AllInOne无法构建模块实例");
+                    }
                 }
             }
         }
