@@ -9,10 +9,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import me.xpyex.plugin.allinone.api.MapBuilder;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.modulecode.bilibili.BilibiliUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
+import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -71,11 +72,11 @@ public final class Bilibili extends Module {
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
                         autoSendMsg(event,
                             MsgUtil.getForwardMsgBuilder(event)
-                                .add(MsgUtil.getRealSender(event, User.class),
+                                .add(Util.getBot(),
                                     new MessageBuilder()
-                                        .plus("番剧: " + msg.substring(1))
+                                        .plus("番剧ID: " + msg.substring(1))
                                         .plus("番剧名: " + title)
-                                        .plus("已完结: " + finished)
+                                        .plus("是否完结: " + (finished ? "已完结" : "连载中"))
                                         .plus("上映时间: " + publishTime)
                                         .plus("番剧播放地址: https://www.bilibili.com/bangumi/play/ss" + seasonId)
                                         .plus("最新集播放地址: https://www.bilibili.com/bangumi/play/ep" + newestEP.getInt("id"))

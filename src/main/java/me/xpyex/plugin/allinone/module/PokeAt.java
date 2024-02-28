@@ -1,7 +1,8 @@
 package me.xpyex.plugin.allinone.module;
 
 import java.io.File;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -15,9 +16,9 @@ public class PokeAt extends Module {
 
     @Override
     public void register() {
-        runTaskLater(() ->
-                         IMAGE = getBot().getAsFriend().uploadImage(ExternalResource.create(IMAGE_FILE)),
-            5);
+        executeOnce(BotOnlineEvent.class, event ->
+                                              IMAGE = getBot().getAsFriend().uploadImage(ExternalResource.create(IMAGE_FILE))
+        );
         listenEvent(NudgeEvent.class, (event) -> {
             if (event.getTarget().getId() != event.getBot().getId()) {
                 return;

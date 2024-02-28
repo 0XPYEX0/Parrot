@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.StringUtil;
 import net.mamoe.mirai.contact.User;
 

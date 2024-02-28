@@ -41,11 +41,12 @@ public class ContactTarget<C extends Contact> {
 
     public boolean hasPerm(String perm, MemberPermission adminPass) {
         perm = perm.toLowerCase();
-        if (!(getContact() instanceof User)) {
-            throw new IllegalStateException("群对象并不会记录权限");
-        }
         if (!PERM_CACHE.containsKey(perm)) {
-            PERM_CACHE.put(perm, PermManager.hasPerm((User) getContact(), perm, adminPass));
+            if (getContact() instanceof User) {
+                PERM_CACHE.put(perm, PermManager.hasPerm(getContactAsUser(), perm, adminPass));
+            } else if (isGroup()) {
+                //TODO
+            }
         }
         return PERM_CACHE.get(perm);
     }
@@ -58,5 +59,19 @@ public class ContactTarget<C extends Contact> {
     public boolean isGroup() {
         return getContact() instanceof Group;
         //
+    }
+
+    public Group getContactAsGroup() {
+        if (isGroup()) {
+            return (Group) this.getContact();
+        }
+        throw new UnsupportedOperationException("其中的对象不是Group");
+    }
+
+    public User getContactAsUser() {
+        if (getContact() instanceof User) {
+            return (User) getContact();
+        }
+        throw new UnsupportedOperationException("其中的对象不是User");
     }
 }

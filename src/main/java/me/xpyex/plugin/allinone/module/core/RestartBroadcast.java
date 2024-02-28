@@ -1,9 +1,9 @@
 package me.xpyex.plugin.allinone.module.core;
 
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.core.CoreModule;
+import me.xpyex.plugin.allinone.core.module.CoreModule;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
-import net.mamoe.mirai.console.MiraiConsoleImplementation;
+import net.mamoe.mirai.console.MiraiConsole;
 import net.mamoe.mirai.contact.Contact;
 
 public class RestartBroadcast extends CoreModule {
@@ -37,7 +37,7 @@ public class RestartBroadcast extends CoreModule {
                         Thread.sleep(1000);
                     }
                     MsgUtil.sendMsg(source, "开始重启");
-                    MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
+                    MiraiConsole.shutdown();
                 } catch (Throwable ignored) {
                 }
             } else if (args[0].equalsIgnoreCase("stop")) {
@@ -45,10 +45,7 @@ public class RestartBroadcast extends CoreModule {
                 MsgUtil.sendMsg(source, "已取消重启计划");
             } else if (args[0].equalsIgnoreCase("now")) {
                 MsgUtil.sendMsg(source, "开始重启");
-                MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
-            } else if (args[0].equalsIgnoreCase("exit")) {
-                MsgUtil.sendMsg(source, "关闭Bot");
-                MiraiConsoleImplementation.class.getMethod("shutdown").invoke(null);
+                MiraiConsole.shutdown();
             } else {
                 MsgUtil.sendMsg(source, "未知子命令");
             }

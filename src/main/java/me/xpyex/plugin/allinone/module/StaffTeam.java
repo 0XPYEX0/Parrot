@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.module;
 
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -12,7 +12,7 @@ public class StaffTeam extends Module {
     @Override
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
-            if (source.getContact().getBotPermission().getLevel() != 2) {
+            if (source.getContact().getBotPermission() != MemberPermission.OWNER) {
                 MsgUtil.sendMsg(source, "Bot非群主，无法执行此操作");
                 return;
             }

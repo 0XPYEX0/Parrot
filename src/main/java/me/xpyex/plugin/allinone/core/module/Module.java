@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.core;
+package me.xpyex.plugin.allinone.core.module;
 
 import java.io.File;
 import java.util.Arrays;
@@ -8,6 +8,9 @@ import java.util.UUID;
 import me.xpyex.plugin.allinone.Main;
 import me.xpyex.plugin.allinone.api.TryConsumer;
 import me.xpyex.plugin.allinone.api.TryRunnable;
+import me.xpyex.plugin.allinone.core.command.CommandBus;
+import me.xpyex.plugin.allinone.core.command.CommandExecutor;
+import me.xpyex.plugin.allinone.core.event.EventBus;
 import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
@@ -168,7 +171,8 @@ public abstract class Module {
             if (seconds > 0L) {
                 try {
                     Thread.sleep(seconds * 1000L);
-                } catch (Exception ignored) {
+                } catch (InterruptedException e) {
+                    return;
                 }
             }
 

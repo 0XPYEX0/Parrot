@@ -40,11 +40,8 @@ public class MessageBuilder {
      */
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (String argument : messages) {
-            result.append(argument).append("\n");
-        }
-        return result.substring(0, result.length() - 1);
+        return String.join("\n", messages);
+        //
     }
 
     public PlainText toMessage() {

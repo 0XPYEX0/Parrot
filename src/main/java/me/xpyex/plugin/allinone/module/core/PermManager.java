@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.WeakHashMap;
 import lombok.SneakyThrows;
 import me.xpyex.plugin.allinone.api.CommandMenu;
-import me.xpyex.plugin.allinone.core.CoreModule;
+import me.xpyex.plugin.allinone.core.module.CoreModule;
 import me.xpyex.plugin.allinone.core.permission.GroupPerm;
 import me.xpyex.plugin.allinone.core.permission.Perms;
 import me.xpyex.plugin.allinone.core.permission.QGroupPerm;
@@ -222,7 +222,7 @@ public class PermManager extends CoreModule {
         }, "permission", "permissions", "perm", "perms");
 
         registerCommand(Contact.class, (source, sender, label, args) -> {
-            if (!info(sender.hasPerm(info(getName() + ".setOp")))) {
+            if (!sender.hasPerm(getName() + ".setOp")) {
                 source.sendMessage("你没有权限");
                 return;
             }

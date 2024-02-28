@@ -2,7 +2,7 @@ package me.xpyex.plugin.allinone.module;
 
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.modulecode.mcpinger.Pinger;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.ValueUtil;

@@ -3,7 +3,7 @@ package me.xpyex.plugin.allinone.module;
 import java.util.Arrays;
 import java.util.UUID;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;

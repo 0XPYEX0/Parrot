@@ -17,8 +17,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import me.xpyex.plugin.allinone.Main;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.Bot;
@@ -38,9 +37,14 @@ public class EpicPush extends Module {
     private static ArrayList<String> userList;
     private static ArrayList<String> groupList;
 
+    private EpicPush() {
+        this.DEFAULT_DISABLED = true;
+        //
+    }
+
     public void init() {
-        userData = Main.INSTANCE.resolveDataFile("userData.txt");
-        groupData = Main.INSTANCE.resolveDataFile("groupData.txt");
+        userData = new File(getDataFolder(), "userData.txt");
+        groupData = new File(getDataFolder(), "groupData.txt");
         userList = new ArrayList<>();
         groupList = new ArrayList<>();
         try {
@@ -152,7 +156,6 @@ public class EpicPush extends Module {
 
     @Override
     public void register() {
-        DEFAULT_DISABLED = true;
         init();
         try {
             Timer timer = new Timer();

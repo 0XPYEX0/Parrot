@@ -1,7 +1,7 @@
 package me.xpyex.plugin.allinone.module;
 
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import net.mamoe.mirai.contact.Group;
 
 @SuppressWarnings("unused")

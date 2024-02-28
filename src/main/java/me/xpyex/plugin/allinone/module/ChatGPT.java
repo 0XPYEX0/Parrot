@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.WeakHashMap;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.CommandExecutor;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.command.CommandExecutor;
 import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.modulecode.chatgpt.ChatMessage;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
@@ -19,7 +19,6 @@ import me.xpyex.plugin.allinone.utils.Util;
 import me.xpyex.plugin.allinone.utils.ValueUtil;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
@@ -69,7 +68,7 @@ public final class ChatGPT extends Module {
                         source.sendMessage("你想聊什么？");
                         return;
                     }
-                    if (source.isGroup() && ((Group) source.getContact()).getBotPermission().getLevel() > ((Group) source.getContact()).getOrFail(sender.getId()).getPermission().getLevel()) {
+                    if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > source.getContactAsGroup().getOrFail(sender.getId()).getPermission().getLevel()) {
                         Mirai.getInstance().recallMessage(Util.getBot(), getEvent(source).getSource());
                     }
                     ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存

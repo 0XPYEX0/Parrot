@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.module.core.PermManager;
 import me.xpyex.plugin.allinone.utils.FileUtil;
 

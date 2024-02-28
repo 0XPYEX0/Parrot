@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import me.xpyex.plugin.allinone.api.TryCallable;
 import me.xpyex.plugin.allinone.api.TryRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ValueUtil {
     /**
@@ -256,6 +257,19 @@ public class ValueUtil {
                 throw new IllegalStateException(errMsg);
     }
 
+    @SafeVarargs
+    public static void mustTrue(String errMsg, TryCallable<Boolean>... results) {
+        for (TryCallable<Boolean> result : results) {
+            try {
+                if (!result.call()) {
+                    throw new IllegalStateException(errMsg);
+                }
+            } catch (Throwable e) {
+                throw new IllegalStateException(errMsg, e);
+            }
+        }
+    }
+
     @Deprecated
     public static void checkEmpty(String errMsg, Object... objects) {
         notEmpty(errMsg, objects);
@@ -300,10 +314,11 @@ public class ValueUtil {
      * 当需要获取值，而方法可能抛出错误时，使用该方法重复获取.
      *
      * @param callable    获取值的方法体
-     * @param repeatTimes 重复获取的次数，超出次数则返回null. 填入0则不限制获取次数，将不断尝试直至取到值. 填入0时请注意安全，避免堵塞主线程！
-     * @param waitMillis  当出现错误时，等待多久(单位: 毫秒)再次执行. 若为0则不等待. 填入非0时请注意安全，避免在主线程等待.
+     * @param repeatTimes 重复获取的次数，超出次数则返回null. 填入0则不限制获取次数，将不断尝试直至取到值. <br> 填入0时请注意安全，避免堵塞主线程！
+     * @param waitMillis  当出现错误时，等待多久(单位: 毫秒)再次执行. 若为0则不等待. <br> 填入非0时请注意安全，避免在主线程等待.
      * @return 返回需要获取的值
      */
+    @Nullable
     public static <T> T repeatIfError(TryCallable<T> callable, long repeatTimes, long waitMillis) {
         if (repeatTimes == 0) {
             while (true) {
@@ -313,7 +328,8 @@ public class ValueUtil {
                     if (waitMillis > 0) {
                         try {
                             Thread.sleep(waitMillis);
-                        } catch (Throwable ignored1) {
+                        } catch (InterruptedException ignored1) {
+                            return null;
                         }
                     }
                 }
@@ -326,7 +342,8 @@ public class ValueUtil {
                     if (waitMillis > 0) {
                         try {
                             Thread.sleep(waitMillis);
-                        } catch (Throwable ignored1) {
+                        } catch (InterruptedException ignored1) {
+                            return null;
                         }
                     }
                 }

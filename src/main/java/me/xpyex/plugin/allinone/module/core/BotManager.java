@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.CoreModule;
+import me.xpyex.plugin.allinone.core.module.CoreModule;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import me.xpyex.plugin.allinone.utils.StringUtil;
 import me.xpyex.plugin.allinone.utils.Util;
+import net.mamoe.mirai.console.MiraiConsole;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
@@ -193,6 +194,12 @@ public class BotManager extends CoreModule {
                     MsgUtil.sendMsg(source, "填入的QQ号非整数");
                     return;
                 }
+            }
+
+            if ("shutdown".equalsIgnoreCase(args[0])) {
+                source.sendMessage("开始重启");
+                MiraiConsole.shutdown();
+                return;
             }
 
 

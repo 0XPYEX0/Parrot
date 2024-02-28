@@ -1,4 +1,4 @@
-package me.xpyex.plugin.allinone.core;
+package me.xpyex.plugin.allinone.core.command;
 
 import java.util.WeakHashMap;
 import me.xpyex.plugin.allinone.core.mirai.ContactTarget;

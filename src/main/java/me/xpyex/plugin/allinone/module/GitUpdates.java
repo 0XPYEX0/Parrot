@@ -5,13 +5,18 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.modulecode.git.GitInfo;
 import me.xpyex.plugin.allinone.modulecode.git.ReleasesUpdate;
 import me.xpyex.plugin.allinone.utils.FileUtil;
@@ -20,7 +25,9 @@ import me.xpyex.plugin.allinone.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
+import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.utils.ExternalResource;
 
 public class GitUpdates extends Module {
     @Override
@@ -51,92 +58,121 @@ public class GitUpdates extends Module {
                 }
                 if (!args[2].contains("/")) {
                     source.sendMessage("需要填入 <用户名/仓库名> 的格式");
+                    return;
                 }
-                Map<Long, List<GitInfo>> map;
+                Map<Long, Set<GitInfo>> map;
                 if (source.getContact() instanceof Group) {
                     map = ReleasesUpdate.getInstance().getGroups();
                 } else {
                     map = ReleasesUpdate.getInstance().getUsers();
                 }
                 if (!map.containsKey(source.getId())) {
-                    map.put(source.getId(), new ArrayList<>());
+                    map.put(source.getId(), new HashSet<>());
                 }
-                map.get(source.getId()).add(new GitInfo(GitInfo.SupportedGits.valueOf(args[1]), args[2]));
-                FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
-                source.sendMessage("已订阅该Repo");
+                for (GitInfo.SupportedGits value : GitInfo.SupportedGits.values()) {
+                    if (value.toString().equalsIgnoreCase(args[1])) {
+                        map.get(source.getId()).add(new GitInfo(value, args[2]));
+                        FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
+                        source.sendMessage("已订阅该Repo");
+                        return;
+                    }
+                }
+                source.sendMessage("无效的仓库类型");
             }
         }, "updates", "gitUpdates");
         runTaskTimer(() -> {
+            HashMap<String, String> repoURLs = new HashMap<>();  //Repo, URL
             ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
-                for (GitInfo info : URLs) {
-                    if (info.getType() == GitInfo.SupportedGits.GitHub) {
-                        JSONObject result = new JSONObject(HttpRequest.get("https://api.github.com/repos/" + info.getRepo() + "/releases/latest")
-                                                               .header("Accept", "application/vnd.github+json")
-                                                               .header("X-GitHub-Api-Version", "2022-11-28")
-                                                               .execute().body()
-                        );
-                        if (!ReleasesUpdate.getInstance().getCache().containsKey(info.getRepo()) || !ReleasesUpdate.getInstance().getCache().get(info.getRepo()).equalsIgnoreCase(result.getStr("tag_name"))) {
-                            //此时就是检查到相对自身而言的“新版本”
-                            ReleasesUpdate.getInstance().getCache().put(info.getRepo(), result.getStr("tag_name"));
-                            Optional.ofNullable(Util.getBot().getGroup(ID))
-                                .ifPresent(group -> {
-                                    group.sendMessage(MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                                                          .add(Util.getBot(), new PlainText(new MessageBuilder()
-                                                                                  .plus(info.getRepo().split("/")[1] + " 发布了新Release:")
-                                                                                  .plus("版本: " + result.getStr("tag_name"))
-                                                                                  .plus("")
-                                                                                  .plus("更新内容: ")
-                                                                                  .plus(result.getStr("body").substring(0, Math.min(2000, result.getStr("body").length())))
-                                                                                  .plus("")
-                                                                                  .plus("发布页面: " + result.getStr("html_url"))
-                                                                                  .toString()))
-                                                          .build());
-
-                                    try {
-                                        FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
-                                    } catch (IOException e) {
-                                        handleException(e);
-                                    }
-                                });
-                        }
+                URLs.forEach(info -> {
+                    switch (info.getType()) {
+                        case Gitee:
+                            repoURLs.put(info.getRepo(), "https://gitee.com/api/v5/repos/" + info.getRepo() + "/releases/latest");
+                            break;
+                        case GitHub:
+                            repoURLs.put(info.getRepo(), "https://api.github.com/repos/" + info.getRepo() + "/releases/latest");
+                            break;
                     }
+                });
+            });
+
+            HashMap<String, JSONObject> results = new HashMap<>();  //Repo, Results
+            repoURLs.forEach((repo, api) -> {
+                JSONObject result = new JSONObject(info(HttpRequest.get(api).execute().body()));
+                if (!ReleasesUpdate.getInstance().getCache().containsKey(repo) || !ReleasesUpdate.getInstance().getCache().get(repo).equalsIgnoreCase(result.getStr("tag_name"))) {
+                    //此时就是检查到相对自身而言的“新版本”
+                    results.put(repo, result);
+                    //是新版本再存入
                 }
+            });
+
+            HashMap<Contact, ArrayList<String>> contacts = new HashMap<>();  //Contact, Repo
+            ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
+                Optional.ofNullable(Util.getBot().getGroup(ID)).ifPresent(group -> {
+                    for (GitInfo info : URLs) {
+                        if (!contacts.containsKey(group)) {
+                            contacts.put(group, new ArrayList<>());
+                        }
+                        contacts.get(group).add(info.getRepo());
+                    }
+                });
             });
             ReleasesUpdate.getInstance().getUsers().forEach((ID, URLs) -> {
-                for (GitInfo info : URLs) {
-                    if (info.getType() == GitInfo.SupportedGits.GitHub) {
-                        JSONObject result = new JSONObject(HttpRequest.get("https://api.github.com/repos/" + info.getRepo() + "/releases/latest")
-                                                               .header("Accept", "application/vnd.github+json")
-                                                               .header("X-GitHub-Api-Version", "2022-11-28")
-                                                               .execute().body()
-                        );
-                        if (!ReleasesUpdate.getInstance().getCache().containsKey(info.getRepo()) || !ReleasesUpdate.getInstance().getCache().get(info.getRepo()).equalsIgnoreCase(result.getStr("tag_name"))) {
-                            //此时就是检查到相对自身而言的“新版本”
-                            ReleasesUpdate.getInstance().getCache().put(info.getRepo(), result.getStr("tag_name"));
-                            Optional.ofNullable(Util.getBot().getGroup(ID))
-                                .ifPresent(group -> {
-                                    group.sendMessage(MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                                                          .add(Util.getBot(), new PlainText(new MessageBuilder()
-                                                                                                .plus(info.getRepo().split("/")[1] + " 发布了新Release:")
-                                                                                                .plus("版本: " + result.getStr("tag_name"))
-                                                                                                .plus("")
-                                                                                                .plus("更新内容: ")
-                                                                                                .plus(result.getStr("body").substring(0, Math.min(2000, result.getStr("body").length())))
-                                                                                                .plus("")
-                                                                                                .plus("发布页面: " + result.getStr("html_url"))
-                                                                                                .toString()))
-                                                          .build());
-
-                                    try {
-                                        FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
-                                    } catch (IOException e) {
-                                        handleException(e);
-                                    }
-                                });
+                Optional.ofNullable(Util.getBot().getFriend(ID)).ifPresent(friend -> {
+                    for (GitInfo info : URLs) {
+                        if (!contacts.containsKey(friend)) {
+                            contacts.put(friend, new ArrayList<>());
                         }
+                        contacts.get(friend).add(info.getRepo());
                     }
+                });
+            });
+
+            File cacheFolder = new File(getDataFolder(), "cache");
+            cacheFolder.mkdirs();
+            contacts.forEach((contact, list) -> {
+                for (String repo : list) {
+                    Optional.ofNullable(results.get(repo)).ifPresent(got -> {
+                        if (!ReleasesUpdate.getInstance().getCache().containsKey(repo) || !ReleasesUpdate.getInstance().getCache().get(repo).equalsIgnoreCase(got.getStr("tag_name"))) {
+                            //此时就是检查到相对自身而言的“新版本”
+                            ReleasesUpdate.getInstance().getCache().put(repo, got.getStr("tag_name"));
+                            ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend());
+                            String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + repo + "/releases";
+                            builder.add(Util.getBot(), new PlainText(new MessageBuilder()
+                                                                         .plus(repo.split("/")[1] + " 发布了新Release:")
+                                                                         .plus("版本名: " + got.getStr("name"))
+                                                                         .plus("版本号: " + got.getStr("tag_name"))
+                                                                         .plus("发布时间: " + got.getStr("created_at").replace("T", " ").replace("Z", ""))
+                                                                         .plus("")
+                                                                         .plus("更新内容: ")
+                                                                         .plus(got.getStr("body").substring(0, Math.min(2000, got.getStr("body").length())))
+                                                                         .plus("")
+                                                                         .plus("详细内容请至 <发布页面> 查看")
+                                                                         .plus("")
+                                                                         .plus("发布页面: " + releasePage)
+                                                                         .toString()));
+                            contact.sendMessage(builder.build());
+
+                            if (contact instanceof Group) {
+                                try {
+                                    File cacheFile = new File(cacheFolder, got.getJSONArray("assets").getJSONObject(0).getStr("name"));
+                                    if (!cacheFile.exists()) {
+                                        URLConnection connection = new URL(got.getJSONArray("assets").getJSONObject(0).getStr("browser_download_url")).openConnection();
+                                        connection.connect();
+                                        Files.copy(connection.getInputStream(), cacheFile.toPath());
+                                    }
+                                    try (ExternalResource file = ExternalResource.create(cacheFile)) {
+                                        ((Group) contact).getFiles().uploadNewFile("/RepoUpdates/" + cacheFile.getName(), file);
+                                    }
+                                } catch (IOException e) {
+                                    handleException(e);
+                                }
+                            }
+                        }
+                    });
                 }
             });
-        }, 10 * 60L, 60L);
+            FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
+            cacheFolder.delete();
+        }, 25 * 60L, 60L);
     }
 }

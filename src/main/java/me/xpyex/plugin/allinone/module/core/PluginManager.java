@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
-import me.xpyex.plugin.allinone.core.CommandBus;
-import me.xpyex.plugin.allinone.core.CoreModule;
-import me.xpyex.plugin.allinone.core.EventBus;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.command.CommandBus;
+import me.xpyex.plugin.allinone.core.module.CoreModule;
+import me.xpyex.plugin.allinone.core.event.EventBus;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 
@@ -87,6 +87,6 @@ public class PluginManager extends CoreModule {
             } else {
                 MsgUtil.sendMsg(source, "你没有权限");
             }
-        }), "pl", "plugin");
+        }), "pl", "plugin", "module");
     }
 }

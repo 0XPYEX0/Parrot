@@ -1,10 +1,11 @@
-package me.xpyex.plugin.allinone.core;
+package me.xpyex.plugin.allinone.core.command;
 
 import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.utils.ExceptionUtil;
 import me.xpyex.plugin.allinone.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;

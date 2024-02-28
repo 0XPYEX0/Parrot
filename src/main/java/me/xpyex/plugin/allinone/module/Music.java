@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
-import me.xpyex.plugin.allinone.core.Module;
+import me.xpyex.plugin.allinone.core.module.Module;
 import me.xpyex.plugin.allinone.modulecode.music.MusicCardProvider;
 import me.xpyex.plugin.allinone.modulecode.music.MusicInfo;
 import me.xpyex.plugin.allinone.modulecode.music.MusicSource;
