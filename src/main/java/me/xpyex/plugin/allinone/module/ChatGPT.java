@@ -57,7 +57,7 @@ public final class ChatGPT extends Module {
                         .add("talk <Messages>...", "与ChatGPT对话，每次对话保留5回合")
                         .add("reset", "开启新话题")
                         .add("reGo", "按照先前的话题重新生成")
-                        .add("groupRules")
+                        .add("groupRule", "设定在某个群的System语句")
                         .send(source);
                     return;
                 }
@@ -66,8 +66,8 @@ public final class ChatGPT extends Module {
                     source.sendMessage("已清除连续对话记忆");
                     return;
                 }
-                if ("groupRules".equalsIgnoreCase(args[0])) {
-                    if (!sender.hasPerm("ChatGPT.setGroupPerm", MemberPermission.ADMINISTRATOR)) {
+                if ("groupRule".equalsIgnoreCase(args[0])) {
+                    if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
                         source.sendMessage("不理你不理你！");
                         return;
                     }
