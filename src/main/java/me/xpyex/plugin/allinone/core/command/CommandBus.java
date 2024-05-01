@@ -50,7 +50,9 @@ public class CommandBus {
         if (args.length == 0 || (args.length == 1 && args[0].trim().isEmpty())) {
             args = new String[0];
         }
-        dispatchCommand(MsgUtil.getRealSender(event), event.getSender(), cmd, args);
+        ContactTarget<Contact> source = new ContactTarget<>(MsgUtil.getRealSender(event));
+        CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
+        dispatchCommand(source, new ContactTarget<>(event.getSender()), cmd, args);
     }
 
     /**

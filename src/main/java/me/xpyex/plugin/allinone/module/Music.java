@@ -31,6 +31,7 @@ import me.xpyex.plugin.allinone.modulecode.music.MusicCardProvider;
 import me.xpyex.plugin.allinone.modulecode.music.MusicInfo;
 import me.xpyex.plugin.allinone.modulecode.music.MusicSource;
 import me.xpyex.plugin.allinone.modulecode.music.cardprovider.MiraiCardProvider;
+import me.xpyex.plugin.allinone.modulecode.music.cardprovider.StructMsgCardProvider;
 import me.xpyex.plugin.allinone.modulecode.music.musicsource.KugouMusicSource;
 import me.xpyex.plugin.allinone.modulecode.music.musicsource.NetEaseMusicSource;
 import me.xpyex.plugin.allinone.modulecode.music.musicsource.QQMusicSource;
@@ -62,6 +63,7 @@ public class Music extends Module {
         SOURCES.put("酷狗", new KugouMusicSource());
         // 注册外观
         CARDS.put("Mirai", new MiraiCardProvider());
+        CARDS.put("StructMsg", new StructMsgCardProvider());
     }
 
     static {
@@ -76,7 +78,7 @@ public class Music extends Module {
      * @return return 返回一个指令执行器，可以注册到命令列表里面
      */
     public BiConsumer<Contact, String[]> makeTemplate(String source, String card) {
-        if (source.equals("all"))
+        if ("all".equals(source))
             return makeSearchesTemplate(card);
         MusicCardProvider cb = CARDS.get(card);
         if (cb == null)
@@ -143,9 +145,9 @@ public class Music extends Module {
 
     @Override
     public void register() {
-        COMMANDS.put("点歌", makeTemplate("QQ音乐", "Mirai")); // 标准样板
-        COMMANDS.put("网易", makeTemplate("网易", "Mirai"));
-        COMMANDS.put("酷狗", makeTemplate("酷狗", "Mirai"));
+        COMMANDS.put("点歌", makeTemplate("QQ音乐", "StructMsg")); // 标准样板
+        COMMANDS.put("网易", makeTemplate("网易", "StructMsg"));
+        COMMANDS.put("酷狗", makeTemplate("酷狗", "StructMsg"));
 
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {

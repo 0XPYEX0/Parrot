@@ -20,6 +20,7 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class PermManager extends CoreModule {
@@ -217,5 +218,9 @@ public class PermManager extends CoreModule {
                 source.sendMessage("成功创建组: " + args[1]);
             }
         }, "permission", "permissions", "perm", "perms");
+
+        executeOnce(BotOnlineEvent.class, event -> {
+            hasPerm(getBot().getAsFriend(), "test", null);  //初始化Perm类
+        });
     }
 }

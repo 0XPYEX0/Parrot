@@ -2,6 +2,7 @@ package me.xpyex.plugin.allinone;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
+import java.lang.reflect.Constructor;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.core.command.CommandBus;
 import me.xpyex.plugin.allinone.core.event.EventBus;
@@ -43,7 +44,11 @@ public class Main extends JavaPlugin {
             if (ClassUtil.isAssignable(Module.class, moduleClass)) {
                 if (ClassUtil.isAbstract(moduleClass)) continue;
                 try {
-                    moduleClass.getDeclaredConstructor().newInstance();
+                    Constructor<?> constructor = moduleClass.getDeclaredConstructor();
+                    boolean accessible = constructor.canAccess(null);
+                    constructor.setAccessible(true);
+                    constructor.newInstance();
+                    constructor.setAccessible(accessible);
                 } catch (Throwable e) {
                     e.printStackTrace();
                     LOGGER.error("加载模块 " + moduleClass.getSimpleName() + " 时出错: " + e);
