@@ -99,7 +99,9 @@ public final class ChatGPT extends Module {
                         return;
                     }
                     if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
-                        Mirai.getInstance().recallMessage(Util.getBot(), getEvent(source).getSource());
+                        getEvent(source).ifPresent(msgEvent -> {
+                            Mirai.getInstance().recallMessage(Util.getBot(), msgEvent.getSource());
+                        });
                     }
                     ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
                         CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
