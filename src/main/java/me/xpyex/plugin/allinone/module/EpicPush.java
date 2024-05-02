@@ -186,7 +186,7 @@ public class EpicPush extends Module {
             e.printStackTrace();
         }
 
-        listenEvent(GroupMessageEvent.class, (event) -> {
+        listenEvent(GroupMessageEvent.class, event -> {
             // 群组白嫖推送
             groupPush(event);
 
@@ -194,7 +194,7 @@ public class EpicPush extends Module {
             pushToGroup(event);
         });
 
-        listenEvent(FriendMessageEvent.class, (event) -> {
+        listenEvent(FriendMessageEvent.class, event -> {
             // 好友白嫖推送
             userPush(event);
 

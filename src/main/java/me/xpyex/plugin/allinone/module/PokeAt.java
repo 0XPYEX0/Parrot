@@ -19,7 +19,7 @@ public class PokeAt extends Module {
         executeOnce(BotOnlineEvent.class, event ->
                                               IMAGE = getBot().getAsFriend().uploadImage(ExternalResource.create(IMAGE_FILE))
         );
-        listenEvent(NudgeEvent.class, (event) -> {
+        listenEvent(NudgeEvent.class, event -> {
             if (event.getTarget().getId() != event.getBot().getId()) {
                 return;
             }

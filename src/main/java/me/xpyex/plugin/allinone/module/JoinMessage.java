@@ -18,7 +18,7 @@ public class JoinMessage extends Module {
 
     @Override
     public void register() {
-        listenEvent(MemberJoinEvent.class, (event) -> {
+        listenEvent(MemberJoinEvent.class, event -> {
             if (event.getGroup().getBotAsMember().isMuted() || (event.getGroup().getSettings().isMuteAll() && event.getGroup().getBotPermission().getLevel() == 0))
                 return;
 

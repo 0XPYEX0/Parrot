@@ -29,7 +29,7 @@ public final class Bilibili extends Module {
 
     @Override
     public void register() {
-        listenEvent(MessageEvent.class, (event) -> {
+        listenEvent(MessageEvent.class, event -> {
             SERVICE.submit(() -> {
                 String msg = MsgUtil.getPlainText(event.getMessage()).replace("\\/", "/");
                 if (StringUtil.startsWithIgnoreCaseOr(msg, "#AV", "#BV")) {
