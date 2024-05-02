@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import me.xpyex.plugin.allinone.api.TryConsumer;
 import me.xpyex.plugin.allinone.core.module.CoreModule;
 import me.xpyex.plugin.allinone.core.module.Module;
@@ -83,14 +84,14 @@ public class EventBus {
         }
     }
 
-    public static String[] getEvents(Module module) {
+    public static List<String> getEvents(Module module) {
         ArrayList<String> list = new ArrayList<>();
         for (Tuple bus : LISTENERS) {
             if (bus.get(1) == module) {
                 list.add(((Class<?>) bus.get(0)).getSimpleName());
             }
         }
-        return list.toArray(new String[0]);
+        return list;
     }
 
     @SuppressWarnings("unchecked")

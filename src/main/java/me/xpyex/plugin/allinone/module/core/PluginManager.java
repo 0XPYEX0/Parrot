@@ -1,6 +1,5 @@
 package me.xpyex.plugin.allinone.module.core;
 
-import java.util.Arrays;
 import java.util.TreeSet;
 import me.xpyex.plugin.allinone.api.CommandMenu;
 import me.xpyex.plugin.allinone.api.MessageBuilder;
@@ -17,7 +16,7 @@ import net.mamoe.mirai.contact.Contact;
 public class PluginManager extends CoreModule {
     @Override
     public void register() {
-        registerCommand(Contact.class, ((source, sender, label, args) -> {
+        registerCommand(Contact.class, (source, sender, label, args) -> {
             if (sender.hasPerm(getName() + ".use")) {
                 if (args.length == 0) {
                     new CommandMenu(label)
@@ -51,8 +50,8 @@ public class PluginManager extends CoreModule {
                     ArgParser.of(ModuleParser.class).parse(() -> args[1], Module.class)
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
                                                        .plus("是否禁用: " + module.isDisabled())
-                                                       .plus("已注册的命令: " + Arrays.toString(CommandBus.getCommands(module)))
-                                                       .plus("监听的事件: " + Arrays.toString(EventBus.getEvents(module)))
+                                                       .plus("已注册的命令: " + CommandBus.getCommands(module))
+                                                       .plus("监听的事件: " + EventBus.getEvents(module))
                                                        .send(source),
                             () -> source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表"));
                 } else {
@@ -61,6 +60,6 @@ public class PluginManager extends CoreModule {
             } else {
                 source.sendMessage("你没有权限");
             }
-        }), "pl", "plugin", "module");
+        }, "pl", "plugin", "module");
     }
 }

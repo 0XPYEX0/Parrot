@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import me.xpyex.plugin.allinone.core.command.argument.ArgParser;
 import me.xpyex.plugin.allinone.core.mirai.ContactTarget;
 import me.xpyex.plugin.allinone.core.module.Module;
@@ -23,17 +24,18 @@ public class CommandBus {
     }
 
     public static boolean isCmd(Module module, String cmd) {
-        return COMMAND_LIST.containsKey(cmd.toLowerCase()) && COMMAND_LIST.get(cmd.toLowerCase()).equals(module);
+        if (module == null || cmd == null) return false;
+        return module.equals(COMMAND_LIST.get(cmd.toLowerCase()));
     }
 
-    public static String[] getCommands(Module module) {
+    public static List<String> getCommands(Module module) {
         ArrayList<String> list = new ArrayList<>();
         for (String key : COMMAND_LIST.keySet()) {
             if (COMMAND_LIST.get(key) == module) {
                 list.add(key);
             }
         }
-        return list.toArray(new String[0]);
+        return list;
     }
 
     public static <C extends Contact> void takeInBus(Class<C> contactType, Module module, CommandExecutor<C> executor, String... aliases) {
