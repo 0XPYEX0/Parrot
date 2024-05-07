@@ -31,15 +31,18 @@ import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 
 public class GitUpdates extends Module {
     private File urls;
+    private File cacheFolder;
 
     @Override
     public void register() throws Throwable {
         urls = new File(getDataFolder(), "urls.json");
+        cacheFolder = new File(getDataFolder(), "cache");
         if (!urls.exists()) {
             urls.createNewFile();
             FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(new ReleasesUpdate()));
@@ -123,6 +126,12 @@ public class GitUpdates extends Module {
             }
         }, "updates", "gitUpdates", "git", "repo");
         runTaskTimer(this::checkUpdate, 25 * 60L, 60L);
+        executeOnce(BotOfflineEvent.class, event -> {
+            for (File file : cacheFolder.listFiles()) {
+                file.delete();
+            }
+            cacheFolder.delete();
+        });
     }
 
     private void checkUpdate() throws IOException {
@@ -184,7 +193,6 @@ public class GitUpdates extends Module {
             });
         });
 
-        File cacheFolder = new File(getDataFolder(), "cache");
         cacheFolder.mkdirs();
         HashMap<String, String> newVer = new HashMap<>();  //Repo, Version
         contacts.forEach((contact, list) -> {
@@ -203,12 +211,14 @@ public class GitUpdates extends Module {
                                                                      .plus("发布时间: " + got.getStr("created_at").replace("T", " ").replace("Z", ""))
                                                                      .plus("")
                                                                      .plus("更新内容: ")
-                                                                     .plus(got.getStr("body").substring(0, Math.min(2000, got.getStr("body").length())))
-                                                                     .plus("")
-                                                                     .plus("详细内容请至 <发布页面> 查看")
-                                                                     .plus("")
-                                                                     .plus("发布页面: " + releasePage)
-                                                                     .toString()));
+                                                                     .plus(got.getStr("body").substring(0, Math.min(2200, got.getStr("body").length())))
+                                                                     .toString()))
+                            .add(Util.getBot(), new PlainText(
+                                new MessageBuilder()
+                                    .plus("详细内容请至 <发布页面> 查看")
+                                    .plus("发布页面: " + releasePage)
+                                    .toString()
+                            ));
                         try {
                             contact.sendMessage(builder.build());
                         } catch (Throwable ignored) {}
@@ -216,10 +226,10 @@ public class GitUpdates extends Module {
                         if (contact instanceof Group) {
                             try {
                                 String fileName = got.getJSONArray("assets").getJSONObject(0).getStr("name");
-                                if (!fileName.contains(verName.replace("v", "").replace("V", ""))) {
+                                if (!fileName.contains(verName.replace("v", ""))) {
                                     String name = String.join(".", Arrays.copyOfRange(fileName.split("\\."), 0, fileName.split("\\.").length - 1));
                                     String type = fileName.split("\\.")[fileName.split("\\.").length - 1];
-                                    fileName = name + "_" + verName + type;
+                                    fileName = name + "-" + (verName.contains("v") ? "" : "v") + verName + "." + type;
                                 }
                                 File cacheFile = new File(cacheFolder, fileName);
                                 if (!cacheFile.exists()) {
@@ -238,6 +248,5 @@ public class GitUpdates extends Module {
         });
         ReleasesUpdate.getInstance().getCache().putAll(newVer);
         FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
-        cacheFolder.delete();
     }
 }
