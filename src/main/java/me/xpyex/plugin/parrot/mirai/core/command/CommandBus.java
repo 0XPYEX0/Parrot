@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ContactTarget;
+import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
@@ -52,9 +52,9 @@ public class CommandBus {
         if (args.length == 0 || (args.length == 1 && args[0].trim().isEmpty())) {
             args = new String[0];
         }
-        ContactTarget<Contact> source = new ContactTarget<>(MsgUtil.getRealSender(event));
+        ParrotContact<Contact> source = ParrotContact.of(MsgUtil.getRealSender(event));
         CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
-        dispatchCommand(source, new ContactTarget<>(event.getSender()), cmd, args);
+        dispatchCommand(source, ParrotContact.of(event.getSender()), cmd, args);
     }
 
     /**
@@ -65,7 +65,7 @@ public class CommandBus {
      * @param cmd     执行的命令
      * @param args    命令参数
      */
-    public static void dispatchCommand(ContactTarget<Contact> contact, ContactTarget<User> sender, String cmd, String... args) {
+    public static void dispatchCommand(ParrotContact<Contact> contact, ParrotContact<User> sender, String cmd, String... args) {
         if (!cmd.startsWith("#")) {
             cmd = "#" + cmd;
         }
@@ -81,7 +81,8 @@ public class CommandBus {
                                 try {
                                     command.executor().execute(contact, sender, cmd.substring(1), args);
                                 } catch (Throwable e) {
-                                    ExceptionUtil.handleException(e, false);
+                                    ExceptionUtil.handleException(e, false, null, null);
+                                    //
                                     MsgUtil.sendMsgToOwner("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
                                 }
                             }
@@ -101,7 +102,7 @@ public class CommandBus {
      * @param args    命令参数
      */
     public static void dispatchCommand(Contact contact, User sender, String cmd, String... args) {
-        dispatchCommand(new ContactTarget<>(contact), new ContactTarget<>(sender), cmd, args);
+        dispatchCommand(ParrotContact.of(contact), ParrotContact.of(sender), cmd, args);
         //
     }
 }

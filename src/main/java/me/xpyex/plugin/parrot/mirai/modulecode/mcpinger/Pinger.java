@@ -120,7 +120,7 @@ public class Pinger {
                 try {
                     socket.close();
                 } catch (IOException ex) {
-                    ExceptionUtil.handleException(ex);
+                    ExceptionUtil.handleException(ex, true, null, null);
                 }
                 socket = null;
                 return false;
@@ -129,7 +129,7 @@ public class Pinger {
                 try {
                     socket.close();
                 } catch (IOException ex2) {
-                    ExceptionUtil.handleException(ex2);
+                    ExceptionUtil.handleException(ex2, true, null, null);
                 }
                 socket = null;
                 return false;
@@ -139,7 +139,7 @@ public class Pinger {
                 try {
                     socket.close();
                 } catch (IOException ex3) {
-                    ExceptionUtil.handleException(ex3);
+                    ExceptionUtil.handleException(ex3, true, null, null);
                 }
                 socket = null;
                 return false;
@@ -148,7 +148,7 @@ public class Pinger {
                 try {
                     socket.close();
                 } catch (IOException ex4) {
-                    ExceptionUtil.handleException(ex4);
+                    ExceptionUtil.handleException(ex4, true, null, null);
                 }
                 socket = null;
                 return false;
@@ -158,7 +158,7 @@ public class Pinger {
                 try {
                     socket.close();
                 } catch (IOException ex5) {
-                    ExceptionUtil.handleException(ex5);
+                    ExceptionUtil.handleException(ex5, true, null, null);
                 }
                 return false;
             }
@@ -183,7 +183,7 @@ public class Pinger {
             inputStream.close();
             socket.close();
         } catch (IOException exception) {
-            ExceptionUtil.handleException(exception);
+            ExceptionUtil.handleException(exception, true, null, null);
             return false;
         }
         return true;

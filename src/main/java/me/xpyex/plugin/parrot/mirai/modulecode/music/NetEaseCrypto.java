@@ -51,7 +51,7 @@ public class NetEaseCrypto {
             bytes = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
             result = Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
-            ExceptionUtil.handleException(e);
+            ExceptionUtil.handleException(e, true, null, null);
         }
         return result;
     }

@@ -4,6 +4,7 @@ import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.modulecode.mcpinger.Pinger;
+import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -49,7 +50,7 @@ public class MCPinger extends Module {
                 MsgUtil.sendMsg(source, "您这端口还带非整数的啊？");
             } catch (Exception e) {
                 MsgUtil.sendMsg(source, "解析失败，出现异常: " + e);
-                handleException(e, false);
+                handleException(e, false, null);
             }
         }), "mc", "mcPing", "ping");
     }

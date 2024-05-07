@@ -3,7 +3,7 @@ package me.xpyex.plugin.parrot.mirai.utils;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ContactTarget;
+import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -50,12 +50,12 @@ public class MsgUtil {
         sendMsg(getRealSender(event), msg);
     }
 
-    public static void sendMsg(ContactTarget<? extends Contact> target, String msg) {
+    public static void sendMsg(ParrotContact<? extends Contact> target, String msg) {
         sendMsg(target.getContact(), msg);
         //
     }
 
-    public static void sendMsg(ContactTarget<? extends Contact> target, Message msg) {
+    public static void sendMsg(ParrotContact<? extends Contact> target, Message msg) {
         sendMsg(target.getContact(), msg);
         //
     }

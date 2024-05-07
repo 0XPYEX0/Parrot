@@ -49,7 +49,8 @@ public class EventBus {
                     try {
                         pair.getValue().accept(event);
                     } catch (Throwable e) {
-                        ExceptionUtil.handleException(e, false);
+                        ExceptionUtil.handleException(e, false, null, null);
+                        //
                         MsgUtil.sendMsgToOwner("在处理单次事件 " + event.getClass().getSimpleName() + " 时出现异常，已被捕获: " + e);
                     }
                     iterator.remove();
@@ -64,7 +65,8 @@ public class EventBus {
                     try {
                         listener.accept(event);
                     } catch (Throwable e) {
-                        ExceptionUtil.handleException(e, false);
+                        ExceptionUtil.handleException(e, false, null, null);
+                        //
                         StringBuilder eventName = new StringBuilder();
                         Class<?> coreClass = event.getClass();
                         while (!coreClass.isInterface() && coreClass != Object.class) {

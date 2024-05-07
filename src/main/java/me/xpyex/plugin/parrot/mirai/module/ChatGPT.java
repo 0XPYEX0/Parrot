@@ -18,7 +18,7 @@ import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ContactTarget;
+import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.modulecode.chatgpt.ChatMessage;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
@@ -47,7 +47,7 @@ public final class ChatGPT extends Module {
     public void register() throws Throwable {
         registerCommand(Contact.class, new CommandExecutor<>() {
             @Override
-            public void execute(ContactTarget<Contact> source, ContactTarget<User> sender, String label, String[] args) {
+            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String label, String[] args) {
                 if (!sender.hasPerm("ChatGPT.use", MemberPermission.ADMINISTRATOR)) {
                     source.sendMessage("你没有权限");
                     return;
@@ -203,7 +203,7 @@ public final class ChatGPT extends Module {
             chatMessage.plus(ChatMessage.Role.ASSISTANT, gptSaid);
             return gptSaid;
         } catch (IORuntimeException e) {
-            handleException(e);
+            handleException(e, true, null);
             return "网络异常，访问失败: " + e;
         }
     }

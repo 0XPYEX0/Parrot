@@ -15,11 +15,15 @@ public class UserParser extends ContactParser {
     private static final WeakHashMap<Long, User> CACHE = new WeakHashMap<>();
 
     @NotNull
-    public Optional<?> parse(String arg) {
+    public Optional<User> parse(String arg) {
         String strID = arg.replaceAll("[^0-9]", "");
         if (strID.isEmpty()) return Optional.empty();
         long id = Long.parseLong(strID);
+        return parse(id);
+    }
 
+    @NotNull
+    public Optional<User> parse(long id) {
         if (CACHE.containsKey(id)) {
             return Optional.ofNullable(CACHE.get(id));
         }

@@ -39,7 +39,7 @@ public class Util {
             ps = rt.exec(cmd);
             ps.waitFor();
         } catch (Throwable e) {
-            ExceptionUtil.handleException(e);
+            ExceptionUtil.handleException(e, true, null, null);
         }
         assert ps != null;
         int i = ps.exitValue();

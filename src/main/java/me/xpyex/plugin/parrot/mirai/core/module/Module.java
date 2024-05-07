@@ -173,7 +173,10 @@ public abstract class Module {
     public final void autoSendMsg(MessageEvent event, Message msg) {
         if (msg == null) return;
 
-        getRealSender(event).sendMessage(msg);
+        try {
+            getRealSender(event).sendMessage(msg);
+        } catch (Throwable ignored) {
+        }
     }
 
     public final void autoSendMsg(MessageEvent event, String msg) {
@@ -204,7 +207,10 @@ public abstract class Module {
             try {
                 r.run();
             } catch (Throwable e) {
-                handleException(e);
+                ExceptionUtil.handleException(e, true, null, null);
+                //
+                //
+                //
             }
         }, "Parrot-Task-" + this.getName()).start();
     }
@@ -234,7 +240,7 @@ public abstract class Module {
                     try {
                         r.run();
                     } catch (Throwable e) {
-                        handleException(e);
+                        handleException(e, true, null);
                     }
                 }
 
@@ -259,23 +265,8 @@ public abstract class Module {
         //
     }
 
-    public final void handleException(Throwable e) {
-        ExceptionUtil.handleException(e);
-        //
-    }
-
-    public final void handleException(Throwable e, Event event) {
-        ExceptionUtil.handleException(e, event);
-        //
-    }
-
     public final void handleException(Throwable e, boolean noticeOwner, Event event) {
-        ExceptionUtil.handleException(e, noticeOwner, event);
-        //
-    }
-
-    public final void handleException(Throwable e, boolean noticeOwner) {
-        ExceptionUtil.handleException(e, noticeOwner);
+        ExceptionUtil.handleException(e, noticeOwner, event, this);
         //
     }
 

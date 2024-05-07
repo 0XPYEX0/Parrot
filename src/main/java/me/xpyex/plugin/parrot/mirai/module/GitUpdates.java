@@ -21,6 +21,7 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
+import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.modulecode.git.GitInfo;
 import me.xpyex.plugin.parrot.mirai.modulecode.git.ReleasesUpdate;
@@ -28,12 +29,10 @@ import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
-import net.mamoe.mirai.utils.ExternalResource;
 
 public class GitUpdates extends Module {
     private File urls;
@@ -165,7 +164,7 @@ public class GitUpdates extends Module {
 
         HashMap<Contact, ArrayList<String>> contacts = new HashMap<>();  //Contact, Repo
         ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
-            ArgParser.of(GroupParser.class).parse(ID + "", Group.class).ifPresent(group -> {
+            ArgParser.of(GroupParser.class).parse(ID).ifPresent(group -> {
                 for (GitInfo info : URLs) {
                     if (!contacts.containsKey(group)) {
                         contacts.put(group, new ArrayList<>());
@@ -175,7 +174,7 @@ public class GitUpdates extends Module {
             });
         });
         ReleasesUpdate.getInstance().getUsers().forEach((ID, URLs) -> {
-            ArgParser.of(UserParser.class).parse(ID + "", Friend.class).ifPresent(friend -> {
+            ArgParser.of(UserParser.class).parse(ID).ifPresent(friend -> {
                 for (GitInfo info : URLs) {
                     if (!contacts.containsKey(friend)) {
                         contacts.put(friend, new ArrayList<>());
@@ -187,13 +186,14 @@ public class GitUpdates extends Module {
 
         File cacheFolder = new File(getDataFolder(), "cache");
         cacheFolder.mkdirs();
+        HashMap<String, String> newVer = new HashMap<>();  //Repo, Version
         contacts.forEach((contact, list) -> {
             for (String repo : list) {
                 Optional.ofNullable(results.get(repo)).ifPresent(got -> {
                     if (!ReleasesUpdate.getInstance().getCache().containsKey(repo) || !ReleasesUpdate.getInstance().getCache().get(repo).equalsIgnoreCase(got.getStr("tag_name"))) {
                         //此时就是检查到相对自身而言的“新版本”
                         String verName = got.getStr("tag_name");
-                        ReleasesUpdate.getInstance().getCache().put(repo, verName);
+                        newVer.put(repo, verName);
                         ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend());
                         String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + repo + "/releases";
                         builder.add(Util.getBot(), new PlainText(new MessageBuilder()
@@ -209,12 +209,14 @@ public class GitUpdates extends Module {
                                                                      .plus("")
                                                                      .plus("发布页面: " + releasePage)
                                                                      .toString()));
-                        contact.sendMessage(builder.build());
+                        try {
+                            contact.sendMessage(builder.build());
+                        } catch (Throwable ignored) {}
 
                         if (contact instanceof Group) {
                             try {
                                 String fileName = got.getJSONArray("assets").getJSONObject(0).getStr("name");
-                                if (!fileName.contains(verName)) {
+                                if (!fileName.contains(verName.replace("v", "").replace("V", ""))) {
                                     String name = String.join(".", Arrays.copyOfRange(fileName.split("\\."), 0, fileName.split("\\.").length - 1));
                                     String type = fileName.split("\\.")[fileName.split("\\.").length - 1];
                                     fileName = name + "_" + verName + type;
@@ -225,17 +227,16 @@ public class GitUpdates extends Module {
                                     connection.connect();
                                     Files.copy(connection.getInputStream(), cacheFile.toPath());
                                 }
-                                try (ExternalResource file = ExternalResource.create(cacheFile)) {
-                                    ((Group) contact).getFiles().uploadNewFile("RepoUpdates/" + cacheFile.getName(), file);
-                                }
+                                ParrotContact.of(contact).uploadFile(cacheFile, cacheFile.getName(), "RepoUpdates");
                             } catch (IOException e) {
-                                handleException(e);
+                                handleException(e, true, null);
                             }
                         }
                     }
                 });
             }
         });
+        ReleasesUpdate.getInstance().getCache().putAll(newVer);
         FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
         cacheFolder.delete();
     }

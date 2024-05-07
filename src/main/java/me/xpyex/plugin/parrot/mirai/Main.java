@@ -23,7 +23,7 @@ public class Main extends JavaPlugin {
     public static Main INSTANCE;
 
     public Main() {
-        super(new JvmPluginDescriptionBuilder("Parrot", "v3")
+        super(new JvmPluginDescriptionBuilder("Parrot", "3.0")
                   .id("me.xpyex.plugin.parrot.mirai.Main")
                   .author("XPYEX")
                   .info("QQ Bot Functions in mirai")
