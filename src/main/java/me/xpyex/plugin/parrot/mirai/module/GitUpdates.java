@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -15,6 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.SneakyThrows;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
@@ -39,6 +41,11 @@ public class GitUpdates extends Module {
     private File urls;
     private File cacheFolder;
 
+    @SneakyThrows
+    private void reload() {
+        ReleasesUpdate.setInstance(JSONUtil.toBean(FileUtil.readFile(urls), ReleasesUpdate.class));
+    }
+
     @Override
     public void register() throws Throwable {
         urls = new File(getDataFolder(), "urls.json");
@@ -47,8 +54,8 @@ public class GitUpdates extends Module {
             urls.createNewFile();
             FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(new ReleasesUpdate()));
         }
-        JSONObject i = JSONUtil.parseObj(FileUtil.readFile(urls));
-        ReleasesUpdate.setInstance(JSONUtil.toBean(i, ReleasesUpdate.class));
+
+        reload();
 
         registerCommand(Contact.class, (source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
@@ -57,7 +64,7 @@ public class GitUpdates extends Module {
             }
             if (args.length == 0) {
                 new CommandMenu(label)
-                    .add("add <GitHub|Gitee> <Owner/RepoName>", "订阅指定Git平台的仓库，发布releases时推送")
+                    .add("add <GitHub|Gitee> <Owner/RepoName> <是否需要上传文件(true|false)>", "订阅指定Git平台的仓库，发布releases时推送")
                     .add("remove <Owner/RepoName>", "解除订阅")
                     .send(source);
                 return;
@@ -66,7 +73,7 @@ public class GitUpdates extends Module {
                 checkUpdate();
             }
             if ("add".equalsIgnoreCase(args[0])) {
-                if (args.length < 3) {  //updates add GitHub Owner/RepoName
+                if (args.length < 4) {  //updates add GitHub Owner/RepoName
                     source.sendMessage("参数不足");
                     return;
                 }
@@ -85,7 +92,11 @@ public class GitUpdates extends Module {
                 }
                 for (GitInfo.SupportedGits value : GitInfo.SupportedGits.values()) {
                     if (value.toString().equalsIgnoreCase(args[1])) {
-                        map.get(source.getId()).add(new GitInfo(value, args[2]));
+                        map.get(source.getId()).add(new GitInfo()
+                                                        .setType(value)
+                                                        .setRepo(args[2])
+                                                        .setUploadFile("true".equalsIgnoreCase(args[3]))
+                        );
                         FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
                         source.sendMessage("已订阅该Repo");
                         return;
@@ -123,6 +134,10 @@ public class GitUpdates extends Module {
                         });
                         source.sendMessage(result[0] ? "已解除订阅" : "未订阅该Repo");
                     }, () -> source.sendMessage("参数不足"));
+            }
+            if ("reload".equalsIgnoreCase(args[0])) {
+                reload();
+                source.sendMessage("重新载入文件");
             }
         }, "updates", "gitUpdates", "git", "repo");
         runTaskTimer(this::checkUpdate, 25 * 60L, 60L);
@@ -171,14 +186,14 @@ public class GitUpdates extends Module {
             }
         });  //去获取更新
 
-        HashMap<Contact, ArrayList<String>> contacts = new HashMap<>();  //Contact, Repo
+        HashMap<Contact, ArrayList<Pair<String, Boolean>>> contacts = new HashMap<>();  //Contact, <Repo, Upload>
         ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
             ArgParser.of(GroupParser.class).parse(ID).ifPresent(group -> {
                 for (GitInfo info : URLs) {
                     if (!contacts.containsKey(group)) {
                         contacts.put(group, new ArrayList<>());
                     }
-                    contacts.get(group).add(info.getRepo());
+                    contacts.get(group).add(Pair.of(info.getRepo(), info.isUploadFile()));
                 }
             });
         });
@@ -188,7 +203,7 @@ public class GitUpdates extends Module {
                     if (!contacts.containsKey(friend)) {
                         contacts.put(friend, new ArrayList<>());
                     }
-                    contacts.get(friend).add(info.getRepo());
+                    contacts.get(friend).add(Pair.of(info.getRepo(), info.isUploadFile()));
                 }
             });
         });
@@ -196,16 +211,16 @@ public class GitUpdates extends Module {
         cacheFolder.mkdirs();
         HashMap<String, String> newVer = new HashMap<>();  //Repo, Version
         contacts.forEach((contact, list) -> {
-            for (String repo : list) {
-                Optional.ofNullable(results.get(repo)).ifPresent(got -> {
-                    if (!ReleasesUpdate.getInstance().getCache().containsKey(repo) || !ReleasesUpdate.getInstance().getCache().get(repo).equalsIgnoreCase(got.getStr("tag_name"))) {
+            for (Pair<String, Boolean> pair : list) {
+                Optional.ofNullable(results.get(pair.getKey())).ifPresent(got -> {
+                    if (!ReleasesUpdate.getInstance().getCache().containsKey(pair.getKey()) || !ReleasesUpdate.getInstance().getCache().get(pair.getKey()).equalsIgnoreCase(got.getStr("tag_name"))) {
                         //此时就是检查到相对自身而言的“新版本”
                         String verName = got.getStr("tag_name");
-                        newVer.put(repo, verName);
+                        newVer.put(pair.getKey(), verName);
                         ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend());
-                        String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + repo + "/releases";
+                        String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + pair.getKey() + "/releases";
                         builder.add(Util.getBot(), new PlainText(new MessageBuilder()
-                                                                     .plus(repo.split("/")[1] + " 发布了新Release:")
+                                                                     .plus(pair.getKey().split("/")[1] + " 发布了新Release:")
                                                                      .plus("版本名: " + got.getStr("name"))
                                                                      .plus("版本号: " + verName)
                                                                      .plus("发布时间: " + got.getStr("created_at").replace("T", " ").replace("Z", ""))
@@ -223,7 +238,7 @@ public class GitUpdates extends Module {
                             contact.sendMessage(builder.build());
                         } catch (Throwable ignored) {}
 
-                        if (contact instanceof Group) {
+                        if (pair.getValue()) {
                             try {
                                 String fileName = got.getJSONArray("assets").getJSONObject(0).getStr("name");
                                 if (!fileName.contains(verName.replace("v", ""))) {

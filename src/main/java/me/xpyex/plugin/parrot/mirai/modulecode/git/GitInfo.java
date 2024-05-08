@@ -1,20 +1,14 @@
 package me.xpyex.plugin.parrot.mirai.modulecode.git;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class GitInfo {
     private SupportedGits type;
     private String repo;
-
-    public GitInfo() {
-
-    }
-
-    public GitInfo(SupportedGits type, String repo) {
-        this.type = type;
-        this.repo = repo;
-    }
+    private boolean uploadFile = true;
 
     public enum SupportedGits {
         GitHub,
