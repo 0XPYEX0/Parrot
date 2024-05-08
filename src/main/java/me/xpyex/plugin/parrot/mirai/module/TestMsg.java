@@ -59,6 +59,9 @@ public class TestMsg extends Module {
         executeOnce(BotOnlineEvent.class, event -> {
             MsgUtil.sendMsgToOwner("已启动");
         });
+        registerCommand(Contact.class, (source, sender, label, args) -> {
+            source.sendMessage("这段文本长度为: " + String.join(" ", args).length());
+        }, "length");
         UUID taskUUID = runTaskTimer(() ->
                                          info("这是一条测试消息的亲"),
             10);

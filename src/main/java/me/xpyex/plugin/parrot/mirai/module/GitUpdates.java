@@ -213,17 +213,18 @@ public class GitUpdates extends Module {
         contacts.forEach((contact, list) -> {
             for (Pair<String, Boolean> pair : list) {
                 Optional.ofNullable(results.get(pair.getKey())).ifPresent(got -> {
+                    System.out.println(got.toStringPretty());
                     if (!ReleasesUpdate.getInstance().getCache().containsKey(pair.getKey()) || !ReleasesUpdate.getInstance().getCache().get(pair.getKey()).equalsIgnoreCase(got.getStr("tag_name"))) {
                         //此时就是检查到相对自身而言的“新版本”
                         String verName = got.getStr("tag_name");
                         newVer.put(pair.getKey(), verName);
-                        ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend());
+                        ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(contact);
                         String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + pair.getKey() + "/releases";
                         builder.add(Util.getBot(), new PlainText(new MessageBuilder()
                                                                      .plus(pair.getKey().split("/")[1] + " 发布了新Release:")
                                                                      .plus("版本名: " + got.getStr("name"))
                                                                      .plus("版本号: " + verName)
-                                                                     .plus("发布时间: " + got.getStr("created_at").replace("T", " ").replace("Z", ""))
+                                                                     .plus("发布时间: " + got.getStr("published_at", got.getStr("created_at")).replace("T", " ").replace("Z", "").replace("+08:00", ""))
                                                                      .plus("")
                                                                      .plus("更新内容: ")
                                                                      .plus(got.getStr("body").substring(0, Math.min(2200, got.getStr("body").length())))
