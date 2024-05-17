@@ -3,9 +3,12 @@ package me.xpyex.plugin.parrot.mirai.module;
 import java.util.Arrays;
 import java.util.UUID;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
+import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
+import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -59,8 +62,18 @@ public class TestMsg extends Module {
         executeOnce(BotOnlineEvent.class, event -> {
             MsgUtil.sendMsgToOwner("已启动");
         });
-        registerCommand(Contact.class, (source, sender, label, args) -> {
-            source.sendMessage("这段文本长度为: " + String.join(" ", args).length());
+        registerCommand(Contact.class, new CommandExecutor<>() {
+            @Override
+            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String label, String... args) {
+                if (source.isGroup()) {
+                    if (source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
+                        getEvent(source).ifPresent(event -> {
+                            Mirai.getInstance().recallMessage(Util.getBot(), event.getSource());
+                        });
+                    }
+                }
+                source.sendMessage("这段文本长度为: " + String.join(" ", args).length());
+            }
         }, "length");
         UUID taskUUID = runTaskTimer(() ->
                                          info("这是一条测试消息的亲"),

@@ -5,12 +5,13 @@ plugins {
 }
 
 group = 'me.xpyex'
-version = '3.2.2'
+version = '3.2.3'
 
 repositories {
     maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
     maven { url 'https://maven.aliyun.com/repository/public' }
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -21,6 +22,7 @@ dependencies {
     compileOnly 'net.mamoe:mirai-console:2.16.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'com.github.MrGraversen:minecraft-rcon:1.0.0'
 }
 
 tasks.withType(JavaCompile) {

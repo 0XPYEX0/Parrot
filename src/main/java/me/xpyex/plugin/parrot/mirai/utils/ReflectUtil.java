@@ -19,15 +19,19 @@ public class ReflectUtil {
                 try (JarFile jar = new JarFile(file)) {
                     Enumeration<JarEntry> enumFiles = jar.entries();
                     while (enumFiles.hasMoreElements()) {
-                        JarEntry entry = enumFiles.nextElement();
-                        if (!entry.getName().contains("META-INF")) {
-                            String classPath = entry.getName().replace("/", ".");
-                            if (classPath.endsWith(".class")) {
-                                String className = classPath.substring(0, classPath.length() - 6);
-                                if (className.contains(packagePath)) {
-                                    classList.add(Class.forName(className));
+                        try {
+                            JarEntry entry = enumFiles.nextElement();
+                            if (!entry.getName().contains("META-INF")) {
+                                String classPath = entry.getName().replace("/", ".");
+                                if (classPath.endsWith(".class")) {
+                                    String className = classPath.substring(0, classPath.length() - 6);
+                                    if (className.contains(packagePath)) {
+                                        classList.add(Class.forName(className));
+                                    }
                                 }
                             }
+                        } catch (Throwable e) {
+                            ExceptionUtil.handleException(e, false, null, null);
                         }
                     }
                 } catch (Exception e) {
