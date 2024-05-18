@@ -12,8 +12,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
@@ -22,14 +22,13 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 
 public class CraftRCon extends Module {
-    private static final HashMap<String, MinecraftRconService> CACHE = new HashMap<>();
+    private static final WeakHashMap<String, MinecraftRconService> CACHE = new WeakHashMap<>();
 
     private Optional<MinecraftRconService> getService(String name) throws IOException {
         MinecraftRconService service;
         if (!CACHE.containsKey(name)) {
             File file = new File(getDataFolder(), name + ".json");
             if (!file.exists()) {
-                info("RCon尚未记录，请先添加");
                 return Optional.empty();
             }
             JSONObject content = JSONUtil.parseObj(Files.readString(file.toPath()));
@@ -83,7 +82,7 @@ public class CraftRCon extends Module {
                     source.sendMessage("你机霸谁？不听你的");
                     return;
                 }
-                getService(args[1]).ifPresent(service -> {
+                getService(args[1]).ifPresentOrElse(service -> {
                     if (!service.isConnected()) {
                         service.connect();
                     }
@@ -96,6 +95,8 @@ public class CraftRCon extends Module {
                             .plus(codeStr(rcon.sendSync(() -> cmd).getResponseString(), Charset.forName("GBK"), StandardCharsets.UTF_8))
                             .send(source);
                     });
+                }, () -> {
+                    source.sendMessage("RCon尚未记录，请先添加");
                 });
             } else if ("chat".equalsIgnoreCase(args[0])) {
                 if (args.length < 3) {
@@ -107,19 +108,19 @@ public class CraftRCon extends Module {
                     source.sendMessage("你机霸谁？不听你的");
                     return;
                 }
-                getService(args[1]).ifPresent(service -> {
+                getService(args[1]).ifPresentOrElse(service -> {
                     if (!service.isConnected()) {
                         service.connect();
                     }
                     service.minecraftRcon().ifPresent(rcon -> {
                         String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                        rcon.sendSync(new SayCommand(text));
                         new MessageBuilder()
                             .plus("向 " + args[1] + " 发送语句 " + text)
-                            .plus("")
-                            .plus("返回: ")
-                            .plus(codeStr(rcon.sendSync(new SayCommand(text)).getResponseString(), StandardCharsets.UTF_8, Charset.forName("GBK")))
                             .send(source);
                     });
+                }, () -> {
+                    source.sendMessage("RCon尚未记录，请先添加");
                 });
             } else if ("remove".equalsIgnoreCase(args[0])) {
                 if (!sender.hasPerm(getName() + ".remove")) {
