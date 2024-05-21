@@ -15,4 +15,15 @@ public class GitInfo {
         Gitee,
         UNKNOWN
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GitInfo gitInfo = (GitInfo) o;
+        return type == gitInfo.type &&
+                repo.equals(gitInfo.repo) &&
+                uploadFile == gitInfo.uploadFile
+            ;
+    }
 }

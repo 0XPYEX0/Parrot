@@ -1,11 +1,15 @@
 package me.xpyex.plugin.parrot.mirai.modulecode.git;
 
+import cn.hutool.json.JSONUtil;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
 
 @Data
 public class ReleasesUpdate {
@@ -18,6 +22,12 @@ public class ReleasesUpdate {
 
     public ReleasesUpdate() {
         instance = this;
+        //
+    }
+
+    @SneakyThrows
+    public void save(File file) {
+        FileUtil.writeFile(file, JSONUtil.toJsonPrettyStr(this));
         //
     }
 }

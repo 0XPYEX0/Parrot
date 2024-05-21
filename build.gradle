@@ -22,7 +22,8 @@ dependencies {
     compileOnly 'net.mamoe:mirai-console:2.16.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation 'com.github.MrGraversen:minecraft-rcon:1.0.0'
+    //implementation 'com.github.MrGraversen:minecraft-rcon:1.0.0'
+    implementation 'io.netty:netty-all:4.1.72.Final'
 }
 
 tasks.withType(JavaCompile) {

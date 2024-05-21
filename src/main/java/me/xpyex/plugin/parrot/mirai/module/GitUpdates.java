@@ -33,7 +33,6 @@ import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
-import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 
@@ -52,7 +51,7 @@ public class GitUpdates extends Module {
         cacheFolder = new File(getDataFolder(), "cache");
         if (!urls.exists()) {
             urls.createNewFile();
-            FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(new ReleasesUpdate()));
+            new ReleasesUpdate().save(urls);
         }
 
         reload();
@@ -97,7 +96,7 @@ public class GitUpdates extends Module {
                                                         .setRepo(args[2])
                                                         .setUploadFile("true".equalsIgnoreCase(args[3]))
                         );
-                        FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
+                        ReleasesUpdate.getInstance().save(urls);
                         source.sendMessage("已订阅该Repo");
                         return;
                     }
@@ -114,6 +113,7 @@ public class GitUpdates extends Module {
                                 if (gitInfo.getRepo().equals(path)) {
                                     runTaskLater(() -> {
                                         ReleasesUpdate.getInstance().getUsers().get(ID).remove(gitInfo);
+                                        ReleasesUpdate.getInstance().save(urls);
                                     }, 1);
                                     result[0] = true;
                                     return;
@@ -126,6 +126,7 @@ public class GitUpdates extends Module {
                                 if (gitInfo.getRepo().equals(path)) {
                                     runTaskLater(() -> {
                                         ReleasesUpdate.getInstance().getGroups().get(ID).remove(gitInfo);
+                                        ReleasesUpdate.getInstance().save(urls);
                                     }, 1);
                                     result[0] = true;
                                     return;
@@ -141,15 +142,15 @@ public class GitUpdates extends Module {
             }
         }, "updates", "gitUpdates", "git", "repo");
         runTaskTimer(this::checkUpdate, 25 * 60L, 60L);
-        executeOnce(BotOfflineEvent.class, event -> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (File file : cacheFolder.listFiles()) {
                 file.delete();
             }
             cacheFolder.delete();
-        });
+        }));
     }
 
-    private void checkUpdate() throws IOException {
+    private void checkUpdate() {
         HashMap<String, String> repoURLs = new HashMap<>();  //Repo, URL
         ReleasesUpdate.getInstance().getGroups().values().forEach(URLs -> {
             URLs.forEach(info -> {
@@ -184,6 +185,12 @@ public class GitUpdates extends Module {
                 results.put(repo, result);
                 //是新版本再存入
             }
+
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException ignored) {
+            }
+
         });  //去获取更新
 
         HashMap<Contact, ArrayList<Pair<String, Boolean>>> contacts = new HashMap<>();  //Contact, <Repo, Upload>
@@ -263,6 +270,6 @@ public class GitUpdates extends Module {
             }
         });
         ReleasesUpdate.getInstance().getCache().putAll(newVer);
-        FileUtil.writeFile(urls, JSONUtil.toJsonPrettyStr(ReleasesUpdate.getInstance()));
+        ReleasesUpdate.getInstance().save(urls);
     }
 }
