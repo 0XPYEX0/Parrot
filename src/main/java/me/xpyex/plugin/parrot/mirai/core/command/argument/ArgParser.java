@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import net.mamoe.mirai.contact.Contact;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ArgParser {
     protected static final HashMap<Class<? extends ArgParser>, ArgParser> PARSERS = new HashMap<>();
-    private static final AtomicReference<Object> parseObj = new AtomicReference<>();
+    private static final AtomicReference<Contact> parseObj = new AtomicReference<>();
 
     protected ArgParser() {
         PARSERS.put(this.getClass(), this);
@@ -30,7 +31,7 @@ public abstract class ArgParser {
         //
     }
 
-    public static void setParseObj(Object parseObj) {
+    public static void setParseObj(Contact parseObj) {
         ArgParser.parseObj.set(parseObj);
         //
     }

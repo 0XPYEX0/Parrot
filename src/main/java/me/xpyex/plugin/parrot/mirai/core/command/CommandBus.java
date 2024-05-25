@@ -75,7 +75,7 @@ public class CommandBus {
                 if (module.isEnabled()) {
                     if (isCmd(module, cmd.substring(1))) {
                         Command<Contact> command = commandBus.get(2);
-                        ArgParser.setParseObj(contact.getContact());
+                        ArgParser.setParseObj(sender.getContact());
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {

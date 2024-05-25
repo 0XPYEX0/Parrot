@@ -28,6 +28,14 @@ public class UserParser extends ContactParser {
             return Optional.ofNullable(CACHE.get(id));
         }
 
+        if (getParseObj() != null && getParseObj() instanceof Member) {  //触发命令如果是群，先从群里找看看
+            NormalMember member = ((Member) getParseObj()).getGroup().get(id);
+            if (member != null) {
+                CACHE.put(id, member);
+                return Optional.of(member);
+            }
+        }
+
         Friend friend = Util.getBot().getFriend(id);  //加过的好友
         if (friend != null) {
             CACHE.put(id, friend);
@@ -37,14 +45,6 @@ public class UserParser extends ContactParser {
         if (stranger != null) {
             CACHE.put(id, stranger);
             return Optional.of(stranger);
-        }
-
-        if (getParseObj() != null && getParseObj() instanceof Member) {  //触发命令如果是群，从群里找看看
-            NormalMember member = ((Member) getParseObj()).getGroup().get(id);
-            if (member != null) {
-                CACHE.put(id, member);
-                return Optional.of(member);
-            }
         }
 
         for (Group group : Util.getBot().getGroups()) {  //在bot加过的群里找看看
