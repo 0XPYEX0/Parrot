@@ -33,8 +33,8 @@ public class PluginManager extends CoreModule {
                                 source.sendMessage("不允许操作核心模块");
                                 return;
                             }
-                            String mode = "enable".equalsIgnoreCase(args[1]) ? "启用" : "禁用";
-                            if ("enable".equalsIgnoreCase(args[1]) ? module.enable() : module.disable()) {
+                            String mode = "enable".equalsIgnoreCase(args[0]) ? "启用" : "禁用";
+                            if ("enable".equalsIgnoreCase(args[0]) ? module.enable() : module.disable()) {
                                 source.sendMessage("已" + mode + " " + module.getName() + " 模块");
                             } else {
                                 source.sendMessage("模块 " + module.getName() + " 已被" + mode + "，无需重复" + mode);
