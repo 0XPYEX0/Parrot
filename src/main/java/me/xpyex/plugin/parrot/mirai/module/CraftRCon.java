@@ -3,8 +3,6 @@ package me.xpyex.plugin.parrot.mirai.module;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
@@ -21,22 +19,22 @@ import net.mamoe.mirai.event.events.BotOfflineEvent;
 public class CraftRCon extends Module {
     private static final WeakHashMap<String, Rcon> CACHE = new WeakHashMap<>();
 
-    private Optional<Rcon> getService(String name) throws IOException {
+    private Optional<Rcon> getService(String name) {
         if (!CACHE.containsKey(name)) {
             File file = new File(getDataFolder(), name + ".json");
             if (!file.exists()) {
                 return Optional.empty();
             }
-            JSONObject content = JSONUtil.parseObj(Files.readString(file.toPath()));
-            Rcon rcon = new Rcon(content.getStr("hostname"), content.getInt("port"));
-            rcon.login(content.getStr("password"));
-            CACHE.put(name, rcon);
+            try {
+                JSONObject content = JSONUtil.parseObj(Files.readString(file.toPath()));
+                Rcon rcon = new Rcon(content.getStr("hostname"), content.getInt("port"));
+                rcon.login(content.getStr("password"));
+                CACHE.put(name, rcon);
+            } catch (Exception e) {
+                return Optional.empty();
+            }
         }
         return Optional.ofNullable(CACHE.get(name));
-    }
-
-    private String codeStr(String str, Charset from, Charset to) {
-        return new String(str.getBytes(from), to);
     }
 
     @Override
@@ -87,7 +85,7 @@ public class CraftRCon extends Module {
                             .send(source);
                     });
                 }, () -> {
-                    source.sendMessage("RCon尚未记录，请先添加");
+                    source.sendMessage("连接失败，或是RCon尚未记录");
                 });
             } else if ("remove".equalsIgnoreCase(args[0])) {
                 if (!sender.hasPerm(getName() + ".remove")) {
