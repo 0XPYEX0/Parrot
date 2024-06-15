@@ -18,7 +18,7 @@ public class RecallMsg extends Module {
             if (quote != null) {
                 MessageContent plain = event.getMessage().get(PlainText.Key);
                 if (plain != null && "#recall".equalsIgnoreCase(plain.contentToString().trim())) {
-                    if (!PermManager.hasPerm(event.getSender(), "RecallMsg.use", MemberPermission.ADMINISTRATOR)){
+                    if (!PermManager.hasPerm(event.getSender(), "RecallMsg.use", MemberPermission.ADMINISTRATOR)) {
                         autoSendMsg(event, "你没有权限");
                         return;
                     }

@@ -78,7 +78,8 @@ public class CraftRCon extends Module {
                 }
                 getService(args[1]).ifPresentOrElse(rcon -> {
                     String cmd = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-                    source.sendMessage("向 " + args[1] + " 发送命令 /" + cmd);rcon.send(cmd, s -> {
+                    source.sendMessage("向 " + args[1] + " 发送命令 /" + cmd);
+                    rcon.send(cmd, s -> {
                         new MessageBuilder()
                             .plus("返回: ")
                             .plus(s)

@@ -15,11 +15,10 @@ public class Rcon {
     private final String host;
     private final int port;
     private final EventLoopGroup group;
-    private Channel channel;
-    private AtomicInteger request = new AtomicInteger(0); // 这里使用线程安全的Int. netty的EventLoopGroup是线程池
-
     boolean logged;
     Map<Integer, Consumer<String>> waitResponseQueue = new ConcurrentHashMap<>();
+    private Channel channel;
+    private AtomicInteger request = new AtomicInteger(0); // 这里使用线程安全的Int. netty的EventLoopGroup是线程池
 
     public Rcon(String host, int port) {
         this.host = host;

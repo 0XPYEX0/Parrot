@@ -47,11 +47,11 @@ public class PluginManager extends CoreModule {
                     }
                     source.sendMessage("所有模块列表: " + list);
                 } else if ("info".equalsIgnoreCase(args[0])) {
-                    ArgParser.of(ModuleParser.class).parse(() -> args[1], Module.class)
+                    ArgParser.of(ModuleParser.class).parse(() -> args[1])
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
-                                                       .plus("是否禁用: " + module.isDisabled())
-                                                       .plus("已注册的命令: " + CommandBus.getCommands(module))
-                                                       .plus("监听的事件: " + EventBus.getEvents(module))
+                                                       .plus("状态: " + (module.isDisabled() ? "禁用" : "启用"))
+                                                       .plus("已注册的命令: " + (CommandBus.getCommands(module).isEmpty() ? "无" : CommandBus.getCommands(module)))
+                                                       .plus("监听的事件: " + (EventBus.getEvents(module).isEmpty() ? "无" : EventBus.getEvents(module)))
                                                        .send(source),
                             () -> source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表"));
                 } else {

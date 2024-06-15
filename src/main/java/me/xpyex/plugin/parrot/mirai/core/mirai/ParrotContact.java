@@ -98,12 +98,12 @@ public class ParrotContact<C extends Contact> {
         if (isGroup()) {
             bot.executeAction(debug(ActionPathEnum.UPLOAD_GROUP_FILE.getPath()),
                 debug(new JSONObject()
-                    .set("group_id", getId())
-                    .set("file", file.getAbsolutePath())
-                    .set("name", name)
-                    .set("folder", folder)
-                    .toString())
-                );
+                          .set("group_id", getId())
+                          .set("file", file.getAbsolutePath())
+                          .set("name", name)
+                          .set("folder", folder)
+                          .toString())
+            );
         } else {
             bot.executeAction(ActionPathEnum.UPLOAD_PRIVATE_FILE.getPath(),
                 new JSONObject()
@@ -111,7 +111,7 @@ public class ParrotContact<C extends Contact> {
                     .set("file", file.getAbsolutePath())
                     .set("name", name)
                     .toString()
-                );
+            );
         }
     }
 }

@@ -15,7 +15,7 @@ public class RconChannelInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         ch.pipeline()
-                .addLast(new RconBasedFrameHandler()) // 添加Rcon帧处理器
-                .addLast(new RconPacketHandler(rcon)); // 添加Rcon包处理器
+            .addLast(new RconBasedFrameHandler()) // 添加Rcon帧处理器
+            .addLast(new RconPacketHandler(rcon)); // 添加Rcon包处理器
     }
 }

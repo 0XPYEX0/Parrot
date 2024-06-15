@@ -244,7 +244,8 @@ public class GitUpdates extends Module {
                             ));
                         try {
                             contact.sendMessage(builder.build());
-                        } catch (Throwable ignored) {}
+                        } catch (Throwable ignored) {
+                        }
 
                         if (pair.getValue()) {
                             try {

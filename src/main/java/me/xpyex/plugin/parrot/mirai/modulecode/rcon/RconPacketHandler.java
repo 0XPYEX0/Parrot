@@ -2,9 +2,8 @@ package me.xpyex.plugin.parrot.mirai.modulecode.rcon;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.RequiredArgsConstructor;
-
 import java.util.function.Consumer;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Rcon包处理程序
