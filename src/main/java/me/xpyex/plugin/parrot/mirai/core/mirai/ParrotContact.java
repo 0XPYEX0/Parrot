@@ -1,13 +1,16 @@
 package me.xpyex.plugin.parrot.mirai.core.mirai;
 
-import cn.evole.onebot.sdk.enums.ActionPathEnum;
+import cn.evolvefield.onebot.sdk.enums.ActionPathEnum;
 import cn.hutool.json.JSONObject;
 import java.io.File;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
+import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
@@ -20,6 +23,14 @@ import top.mrxiaom.overflow.contact.RemoteBot;
 
 @Getter
 public class ParrotContact<C extends Contact> {
+    private static final File FILE_CACHE_FOLDER = new File("cache/file");
+
+    static {
+        if (!FILE_CACHE_FOLDER.exists()) {
+            FILE_CACHE_FOLDER.mkdirs();
+        }
+    }
+
     private final C contact;
     private final long createdTime = System.currentTimeMillis();
 
@@ -92,9 +103,10 @@ public class ParrotContact<C extends Contact> {
         return obj;
     }
 
-    @SneakyThrows
-    public void uploadFile(File file, String name, String folder) {
+    public void uploadFile(File file, String name, String folder) throws Exception {
         RemoteBot bot = RemoteBot.getAsRemoteBot(Util.getBot());
+        ValueUtil.mustTrue("file必须存在，且非文件夹", file::exists, file::isFile);
+        ValueUtil.notNull("参数name不应为null", file, name);
         if (isGroup()) {
             bot.executeAction(debug(ActionPathEnum.UPLOAD_GROUP_FILE.getPath()),
                 debug(new JSONObject()
@@ -113,5 +125,20 @@ public class ParrotContact<C extends Contact> {
                     .toString()
             );
         }
+    }
+
+    public void uploadFile(URL url, String name, String folder) throws Exception {
+        ValueUtil.notNull("参数除folder外，不应为null", url, name);
+        File f = new File(FILE_CACHE_FOLDER, name);
+        URLConnection connection = url.openConnection();
+        connection.connect();
+        Files.copy(connection.getInputStream(), f.toPath());
+        uploadFile(f, name, folder);
+        f.deleteOnExit();
+    }
+
+    public void uploadFile(String url, String name, String folder) throws Exception {
+        ValueUtil.notNull("参数除folder外，不应为null", url, name);
+        uploadFile(new URL(url), name, folder);
     }
 }

@@ -2,10 +2,12 @@ package me.xpyex.plugin.parrot.mirai.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+@Data(staticConstructor = "builder")
 public class MapBuilder<K, V> {
     private final Map<K, V> map;
 
@@ -35,13 +37,6 @@ public class MapBuilder<K, V> {
     @Contract(value = "_, _ -> new", pure = true)
     public static <K, V> MapBuilder<K, V> builder(Class<K> keyType, Class<V> valueType) {
         return new MapBuilder<>(keyType, valueType);
-        //
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public static <K, V> MapBuilder<K, V> builder(Map<K, V> map) {
-        return new MapBuilder<>(map);
         //
     }
 

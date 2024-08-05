@@ -17,7 +17,7 @@ repositories {
 dependencies {
     //compileOnly fileTree(dir:'libs' ,include:['*.jar'])
     implementation 'cn.hutool:hutool-all:5.8.21'
-    compileOnly "top.mrxiaom:overflow-core:2.16.0-a799c07-SNAPSHOT"
+    compileOnly "top.mrxiaom:overflow-core:2.16.0-b1eafba-SNAPSHOT"
     compileOnly 'net.mamoe:mirai-core-all:2.16.0'
     compileOnly 'net.mamoe:mirai-console:2.16.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'

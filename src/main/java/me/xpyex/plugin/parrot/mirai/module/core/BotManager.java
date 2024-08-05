@@ -6,6 +6,7 @@ import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
+import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -49,11 +50,11 @@ public class BotManager extends CoreModule {
 
             if (args[0].equalsIgnoreCase("group")) {  //群相关
                 if (args.length == 1) {
-                    CommandMenu menu = new CommandMenu(label + " group")
-                                           .add("quit <ID>", "令机器人退出该群")
-                                           .add("ignore <ID>", "忽略该群触发的事件")
-                                           .add("list", "列出该机器人加入的所有群");
-                    menu.send(source);
+                    new CommandMenu(label + " group")
+                        .add("quit <ID>", "令机器人退出该群")
+                        .add("ignore <ID>", "忽略该群触发的事件")
+                        .add("list", "列出该机器人加入的所有群")
+                        .send(source);
                     return;
                 }
                 if (args.length == 2) {
@@ -147,7 +148,6 @@ public class BotManager extends CoreModule {
                     return;
                 }
                 if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
-                    //
                     if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
                         source.sendMessage("不允许删除该好友");
                         return;
@@ -165,27 +165,19 @@ public class BotManager extends CoreModule {
                         .send(source);
                     return;
                 }
-                if (args.length == 2) {
+                ArgParser.of(UserParser.class).parse(args[2]).ifPresentOrElse(user -> {
                     if (args[1].equalsIgnoreCase("ignore")) {
-                        source.sendMessage("参数不足，请填写ID");
-                        return;
-                    }
-                }
-                try {
-                    long id = Long.parseLong(args[2]);
-                    if (args[1].equalsIgnoreCase("ignore")) {
-                        if (id == Util.OWNER_ID) {
+                        if (user.getId() == Util.OWNER_ID) {
                             source.sendMessage("不允许屏蔽该用户");
                             return;
                         }
-                        source.sendMessage("执行操作: 忽略用户 " + id);
-                        IGNORED_LIST.add("User-" + id);
+                        source.sendMessage("执行操作: 忽略用户 " + user.getId());
+                        IGNORED_LIST.add("User-" + user.getId());
                         return;
                     }
-                } catch (NumberFormatException ignored) {
-                    source.sendMessage("填入的QQ号非整数");
-                    return;
-                }
+                }, () -> {
+                    source.sendMessage("参数不足，请填入ID");
+                });
             }
 
             if (StringUtil.equalsIgnoreCaseOr(args[0], "shutdown", "exit", "stop", "end")) {
@@ -200,7 +192,6 @@ public class BotManager extends CoreModule {
         listenEvent(BotInvitedJoinGroupRequestEvent.class, event -> {
             User user = event.getInvitor();
             String perm = getName() + ".invite";
-            //
             if (PermManager.hasPerm(user, perm, null)) {
                 event.accept();
             }

@@ -28,11 +28,11 @@ public class UserParser extends ContactParser {
             return Optional.ofNullable(CACHE.get(id));
         }
 
-        if (getParseObj() != null && getParseObj() instanceof Member) {  //触发命令如果是群，先从群里找看看
-            NormalMember member = ((Member) getParseObj()).getGroup().get(id);
-            if (member != null) {
-                CACHE.put(id, member);
-                return Optional.of(member);
+        if (getParseObj() instanceof Member member) {  //触发命令如果是群，先从群里找看看
+            NormalMember result = member.getGroup().get(id);
+            if (result != null) {
+                CACHE.put(id, result);
+                return Optional.of(result);
             }
         }
 

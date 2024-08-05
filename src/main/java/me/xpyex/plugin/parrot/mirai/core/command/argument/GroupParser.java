@@ -11,8 +11,8 @@ public class GroupParser extends ContactParser {
     @Override
     public Optional<Group> parse(String arg) {
         if ("this".equalsIgnoreCase(arg)) {
-            if (getParseObj() instanceof Member) {
-                return Optional.of(((Member) getParseObj()).getGroup());
+            if (getParseObj() instanceof Member member) {
+                return Optional.of(member.getGroup());
             }
         }
         String strID = arg.replaceAll("[^0-9]", "");

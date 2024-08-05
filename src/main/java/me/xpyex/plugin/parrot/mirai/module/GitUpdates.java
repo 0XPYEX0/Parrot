@@ -5,10 +5,6 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +34,6 @@ import net.mamoe.mirai.message.data.PlainText;
 
 public class GitUpdates extends Module {
     private File urls;
-    private File cacheFolder;
 
     @SneakyThrows
     private void reload() {
@@ -48,7 +43,6 @@ public class GitUpdates extends Module {
     @Override
     public void register() throws Throwable {
         urls = new File(getDataFolder(), "urls.json");
-        cacheFolder = new File(getDataFolder(), "cache");
         if (!urls.exists()) {
             urls.createNewFile();
             new ReleasesUpdate().save(urls);
@@ -142,12 +136,6 @@ public class GitUpdates extends Module {
             }
         }, "updates", "gitUpdates", "git", "repo");
         runTaskTimer(this::checkUpdate, 25 * 60L, 60L);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            for (File file : cacheFolder.listFiles()) {
-                file.delete();
-            }
-            cacheFolder.delete();
-        }));
     }
 
     private void checkUpdate() {
@@ -193,7 +181,7 @@ public class GitUpdates extends Module {
 
         });  //去获取更新
 
-        HashMap<Contact, ArrayList<Pair<String, Boolean>>> contacts = new HashMap<>();  //Contact, <Repo, Upload>
+        HashMap<Contact, ArrayList<Pair<String, Boolean>>> contacts = new HashMap<>();  //Contact, <Repo, NeedUpload>
         ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
             ArgParser.of(GroupParser.class).parse(ID).ifPresent(group -> {
                 for (GitInfo info : URLs) {
@@ -215,7 +203,6 @@ public class GitUpdates extends Module {
             });
         });
 
-        cacheFolder.mkdirs();
         HashMap<String, String> newVer = new HashMap<>();  //Repo, Version
         contacts.forEach((contact, list) -> {
             for (Pair<String, Boolean> pair : list) {
@@ -247,24 +234,19 @@ public class GitUpdates extends Module {
                         } catch (Throwable ignored) {
                         }
 
-                        if (pair.getValue()) {
-                            try {
+                        try {
+                            if (pair.getValue()) {  //需要上传文件
                                 String fileName = got.getJSONArray("assets").getJSONObject(0).getStr("name");
                                 if (!fileName.contains(verName.replace("v", ""))) {
-                                    String name = String.join(".", Arrays.copyOfRange(fileName.split("\\."), 0, fileName.split("\\.").length - 1));
-                                    String type = fileName.split("\\.")[fileName.split("\\.").length - 1];
+                                    String[] splitName = fileName.split("\\.");
+                                    String name = String.join(".", Arrays.copyOfRange(splitName, 0, splitName.length - 1));
+                                    String type = splitName[splitName.length - 1];
                                     fileName = name + "-" + (verName.contains("v") ? "" : "v") + verName + "." + type;
                                 }
-                                File cacheFile = new File(cacheFolder, fileName);
-                                if (!cacheFile.exists()) {
-                                    URLConnection connection = new URL(got.getJSONArray("assets").getJSONObject(0).getStr("browser_download_url")).openConnection();
-                                    connection.connect();
-                                    Files.copy(connection.getInputStream(), cacheFile.toPath());
-                                }
-                                ParrotContact.of(contact).uploadFile(cacheFile, cacheFile.getName(), "RepoUpdates");
-                            } catch (IOException e) {
-                                handleException(e, true, null);
+                                ParrotContact.of(contact).uploadFile(got.getJSONArray("assets").getJSONObject(0).getStr("browser_download_url"), fileName, "RepoUpdates");
                             }
+                        } catch (Exception e) {
+                            contact.sendMessage("更新文件上传失败: " + e);
                         }
                     }
                 });

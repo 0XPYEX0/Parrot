@@ -62,19 +62,6 @@ public class ValueUtil {
     }
 
     /**
-     * 已过时 <br>
-     * 请使用 {@link ValueUtil#ifNull(Object, Runnable)} <br>
-     * 当值为null时执行方法体，类似Optional
-     *
-     * @param obj    要检查的对象
-     * @param orElse 若obj为null，执行此方法体
-     */
-    @Deprecated
-    public static void orElse(Object obj, Runnable orElse) {
-        ifNull(obj, orElse);
-    }
-
-    /**
      * 安全获取值，类似Optional
      *
      * @param value     需要判定的值.
@@ -173,7 +160,7 @@ public class ValueUtil {
      * @return 是否存在null
      */
     public static boolean isNull(Object... objects) {
-        if (objects.length == 0) {
+        if (objects == null || objects.length == 0) {
             return true;
         }
         for (Object o : objects) {

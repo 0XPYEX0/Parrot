@@ -39,10 +39,10 @@ public class JoinMessage extends Module {
                                       .plus("不看文档提问一律视为伸手党")
                                       .plus("本群禁止派发广告！")
                                       .toMessage())
-                            .plus(howToAsk)
                             .plus("先学会走再学飞")
-                            .plus(doNotFly)
                     );
+                    event.getGroup().sendMessage(howToAsk);
+                    event.getGroup().sendMessage(doNotFly);
                 }, RANDOM.nextInt(15));
             }
         });
