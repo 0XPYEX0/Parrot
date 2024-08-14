@@ -104,7 +104,7 @@ public abstract class Module {
     @NotNull
     public static <M extends Module> M getModule(Class<M> clazz) {
         ValueUtil.notNull("参数为null", clazz);
-        ValueUtil.mustTrue("参数不是Module的子类", clazz.isAssignableFrom(Module.class));
+        ValueUtil.mustTrue("参数不是Module的子类", ClassUtil.isAssignable(Module.class, clazz));
         ValueUtil.mustTrue("参数不是标准类", ClassUtil.isNormalClass(clazz));
         M module = getModule(clazz.getSimpleName());
         assert module != null;

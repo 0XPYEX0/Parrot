@@ -33,6 +33,11 @@ public class MessageBuilder {
         return this;
     }
 
+    public MessageBuilder plus(boolean condition, String message) {
+        if (condition) messages.add(message);
+        return this;
+    }
+
     /**
      * 获取最终结果
      *
