@@ -69,12 +69,12 @@ public class CommandBus {
         if (!cmd.startsWith("#")) {
             cmd = "#" + cmd;
         }
-        for (Tuple commandBus : COMMAND_BUSES) {
-            if (ClassUtil.isAssignable(commandBus.get(0), contact.getContact().getClass())) {
-                Module module = commandBus.get(1);
+        for (Tuple commandBus : COMMAND_BUSES) {  //contactType, module, command
+            if (ClassUtil.isAssignable(commandBus.get(0), contact.getContact().getClass())) {  //contactType
+                Module module = commandBus.get(1);  //module
                 if (module.isEnabled()) {
                     if (isCmd(module, cmd.substring(1))) {
-                        Command<Contact> command = commandBus.get(2);
+                        Command<Contact> command = commandBus.get(2);  //command
                         ArgParser.setParseObj(sender.getContact());
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
@@ -87,6 +87,7 @@ public class CommandBus {
                                 }
                             }
                         }
+                        ArgParser.setParseObj(null);
                     }
                 }
             }

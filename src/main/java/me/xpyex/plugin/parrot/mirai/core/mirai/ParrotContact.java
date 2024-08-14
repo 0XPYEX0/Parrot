@@ -91,7 +91,6 @@ public class ParrotContact<C extends Contact> {
     }
 
     public Member getContactAsMember() {
-        //
         if (getContact() instanceof Member) {
             return (Member) getContact();
         }

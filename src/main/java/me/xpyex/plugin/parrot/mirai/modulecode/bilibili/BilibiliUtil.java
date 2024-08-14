@@ -6,9 +6,10 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import me.xpyex.plugin.parrot.mirai.Main;
 import me.xpyex.plugin.parrot.mirai.api.MapBuilder;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.module.Bilibili;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -16,21 +17,19 @@ import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 
-@SuppressWarnings("all")  //不切实际的警告，编译器哪懂我(确信
 public class BilibiliUtil {
-
     private static final String URL_BILIBILI_VIDEO = "bilibili.com/video/";
     private static final String URL_LIVE = "live.bilibili.com/";
     private static final String API_URL_BILIBILI_USER = "https://api.bilibili.com/x/space/acc/info";
     private static final String API_URL_BILIBILI_VIDEO = "https://api.bilibili.com/x/web-interface/view";
     private static final String API_URL_BILIBILI_DYNAMIC = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail";
     private static final String API_URL_BILIBILI_LIVE_ROOM = "https://api.live.bilibili.com/room/v1/Room/get_info";
-    private static WeakHashMap<String, Message> VIDEO_CACHES = new WeakHashMap<>();
+    private static final WeakHashMap<String, Message> VIDEO_CACHES = new WeakHashMap<>();
 
     public static Message getVideoInfo(String url) throws Exception {
-        Main.LOGGER.info(url);
+        Module.getModule(Bilibili.class).info(url);
         String id = StringUtil.getStrBetweenKeywords(URL_BILIBILI_VIDEO + StringUtil.getStrBetweenKeywords(url, URL_BILIBILI_VIDEO, "?").split("\n")[0], URL_BILIBILI_VIDEO, "/");
-        Main.LOGGER.info("getVideoInfo时截取到的ID: " + id);
+        Module.getModule(Bilibili.class).info("getVideoInfo时截取到的ID: " + id);
         HashMap<String, Object> map = new HashMap<>();
         if (StringUtil.startsWithIgnoreCaseOr(id, "AV")) {
             map.put("aid", id.substring(2));
@@ -61,28 +60,17 @@ public class BilibiliUtil {
         if (result == null || result.isEmpty()) {
             return new PlainText("解析超时");
         }
-        Main.LOGGER.info(result);
+        Module.getModule(Bilibili.class).info(result);
         JSONObject infos = new JSONObject(result);
         int failed = infos.getInt("code");
         if (failed != 0) {
-            String reason;
-            switch (failed) {
-                case -400:
-                    reason = "请求错误";
-                    break;
-                case -403:
-                    reason = "权限不足";
-                    break;
-                case -404:
-                    reason = "视频不存在";
-                    break;
-                case 62002:
-                    reason = "视频不可见(被锁定)";
-                    break;
-                default:
-                    reason = "未知原因";
-                    break;
-            }
+            String reason = switch (failed) {
+                case -400 -> "请求错误";
+                case -403 -> "权限不足";
+                case -404 -> "视频不存在";
+                case 62002 -> "视频不可见(被锁定)";
+                default -> "未知原因";
+            };
             return new PlainText("解析失败: " + reason
                                      + "\n错误码: " + failed
                                      + "\n错误信息: " + infos.getStr("message"));
@@ -138,7 +126,7 @@ public class BilibiliUtil {
             Thread.sleep(5000L);
         }
 
-        Main.LOGGER.info(result);
+        Module.getModule(Bilibili.class).info(result);
         JSONObject infos = new JSONObject(result);
         int failed = infos.getInt("code");
         if (failed != 0) {
@@ -159,44 +147,20 @@ public class BilibiliUtil {
         int level = data.getInt("level");  //等级
         int vip = data.getJSONObject("vip").getInt("type");  //0无，1月度，2年度+
         int official = data.getJSONObject("official").getInt("role");  //0无;1,2,7个人认证;3,4,5,6机构认证
-        String officialInfo;
-        switch (official) {
-            case 1:
-            case 2:
-            case 7:
-                officialInfo = "个人认证: " + data.getJSONObject("official").getStr("title");
-                break;
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                officialInfo = "企业认证: " + data.getJSONObject("official").getStr("title");
-                break;
-            default:
-                officialInfo = "无";
-                break;
-        }
-        String vipInfo;
-        switch (vip) {
-            case 1:
-                vipInfo = "月度大会员";
-                break;
-            case 2:
-                switch (data.getJSONObject("vip").getJSONObject("label").getStr("label_theme")) {
-                    case "ten_annual_vip":
-                        vipInfo = "十年大会员";
-                        break;
-                    case "hundred_annual_vip":
-                        vipInfo = "百年大会员";
-                        break;
-                    default:
-                        vipInfo = "年度大会员";
-                        break;
-                }
-                break;
-            default:
-                vipInfo = "非大会员";
-        }
+        String officialInfo = switch (official) {
+            case 1, 2, 7 -> "个人认证: " + data.getJSONObject("official").getStr("title");
+            case 3, 4, 5, 6 -> "企业认证: " + data.getJSONObject("official").getStr("title");
+            default -> "无";
+        };
+        String vipInfo = switch (vip) {
+            case 1 -> "月度大会员";
+            case 2 -> switch (data.getJSONObject("vip").getJSONObject("label").getStr("label_theme")) {
+                case "ten_annual_vip" -> "十年大会员";
+                case "hundred_annual_vip" -> "百年大会员";
+                default -> "年度大会员";
+            };
+            default -> "非大会员";
+        };
         return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
                    .add(Util.getBot(), new PlainText("用户: " + userID + "\n" +
                                                          "昵称: " + name + "\n")
@@ -209,7 +173,7 @@ public class BilibiliUtil {
     }
 
     public static Message getDynamicInfo(long ID) throws Exception {
-        Main.LOGGER.info("getDynamicInfo时的ID: " + ID);
+        Module.getModule(Bilibili.class).info("getDynamicInfo时的ID: " + ID);
         if (true) {
             return new PlainText("动态: " + ID + "\n" +
                                      "暂不可用");
@@ -229,12 +193,9 @@ public class BilibiliUtil {
 
         JSONObject obj = new JSONObject(result);
         if (obj.getInt("code") != 0) {
-            String reason;
-            switch (obj.getInt("code")) {
-                default:
-                    reason = "未知原因";
-                    break;
-            }
+            String reason = switch (obj.getInt("code")) {
+                default -> "未知原因";
+            };
             return new PlainText("解析失败: " + reason + "\n" +
                                      "错误代码: " + obj.getInt("code") + "\n" +
                                      "错误信息: " + obj.getStr("message"));
@@ -251,43 +212,29 @@ public class BilibiliUtil {
     }
 
     public static Message getLiveInfo(BigInteger userID) throws Exception {
-        Main.LOGGER.info("getLiveInfo时的ID: " + userID);
+        Module.getModule(Bilibili.class).info("getLiveInfo时的ID: " + userID);
         String result = HttpUtil.get(API_URL_BILIBILI_LIVE_ROOM, MapBuilder.builder(String.class, Object.class).put("room_id", userID).build());
 
-        Main.LOGGER.info("请求结果: " + result);
+        Module.getModule(Bilibili.class).info("请求结果: " + result);
 
         JSONObject obj = new JSONObject(result);
         if (obj.getInt("code") != 0) {
-            String reason;
-            switch (obj.getInt("code")) {
-                case 1:
-                    reason = "直播间不存在";
-                    break;
-                case -400:
-                    reason = "请求错误";
-                    break;
-                default:
-                    reason = "未知原因";
-                    break;
-            }
+            String reason = switch (obj.getInt("code")) {
+                case 1 -> "直播间不存在";
+                case -400 -> "请求错误";
+                default -> "未知原因";
+            };
             return new PlainText("解析失败: " + reason + "\n" +
                                      "错误代码: " + obj.getInt("code") + "\n" +
                                      "错误信息: " + obj.getStr("message"));
         }
         JSONObject data = obj.getJSONObject("data");
         BigInteger uID = data.getBigInteger("uid");
-        String isOnline;
-        switch (data.getInt("live_status")) {
-            case 1:
-                isOnline = "直播中";
-                break;
-            case 2:
-                isOnline = "轮播中，主播不在线";
-                break;
-            default:
-                isOnline = "未开播";
-                break;
-        }
+        String isOnline = switch (data.getInt("live_status")) {
+            case 1 -> "直播中";
+            case 2 -> "轮播中，主播不在线";
+            default -> "未开播";
+        };
         MessageBuilder messager1 = new MessageBuilder()
                                        .plus(StringUtil.getStrBetweenKeywords(getUserInfo(uID).contentToString(), "昵称: ", "\n") + " 的直播间:")
                                        .plus("标题: " + data.getStr("title"))
@@ -309,7 +256,7 @@ public class BilibiliUtil {
     }
 
     public static String getFixedID(String s) {
-        Main.LOGGER.info("getFixedID中参数s为: " + s);
+        Module.getModule(Bilibili.class).info("getFixedID中参数s为: " + s);
         return s.replaceAll("_|\\W", "");
     }
 }

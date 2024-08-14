@@ -1,11 +1,12 @@
 package me.xpyex.plugin.parrot.mirai.core.module;
 
+import cn.hutool.core.util.ClassUtil;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
-import me.xpyex.plugin.parrot.mirai.Main;
+import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.mirai.api.TryConsumer;
 import me.xpyex.plugin.parrot.mirai.api.TryRunnable;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
@@ -56,8 +57,8 @@ public abstract class Module {
     public static final HashMap<String, Module> LOADED_MODELS = new HashMap<>();
     private static final HashSet<Module> DISABLED_MODULES = new HashSet<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
     private static final HashMap<Module, HashSet<UUID>> TASKS = new HashMap<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
-    private final File configFolder = new File(Main.INSTANCE.getConfigFolder(), getName());
-    private final File dataFolder = new File(Main.INSTANCE.getDataFolder(), getName());
+    private final File configFolder = new File(ParrotPlugin.INSTANCE.getConfigFolder(), getName());
+    private final File dataFolder = new File(ParrotPlugin.INSTANCE.getDataFolder(), getName());
     protected boolean DEFAULT_DISABLED = false;
 
     protected Module() {
@@ -102,9 +103,9 @@ public abstract class Module {
 
     @NotNull
     public static <M extends Module> M getModule(Class<M> clazz) {
-        if (clazz == null) throw new IllegalArgumentException("参数为null");
-        if (!clazz.isAssignableFrom(Module.class)) throw new IllegalArgumentException("参数不是Module的子类");
-        if (clazz.equals(Module.class)) throw new IllegalArgumentException("参数不能是Module类本身");
+        ValueUtil.notNull("参数为null", clazz);
+        ValueUtil.mustTrue("参数不是Module的子类", clazz.isAssignableFrom(Module.class));
+        ValueUtil.mustTrue("参数不是标准类", ClassUtil.isNormalClass(clazz));
         M module = getModule(clazz.getSimpleName());
         assert module != null;
         return module;
@@ -288,7 +289,7 @@ public abstract class Module {
     }
 
     private final MiraiLogger getLogger() {
-        return Main.LOGGER;
+        return ParrotPlugin.LOGGER;
         //
     }
 
