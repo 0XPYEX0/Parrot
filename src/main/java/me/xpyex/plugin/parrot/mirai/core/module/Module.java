@@ -115,10 +115,8 @@ public abstract class Module {
 
     public final <C extends Contact> void registerCommand(Class<C> contactType, CommandExecutor<C> exec, String... aliases) {
         for (String s : aliases) {
-            if (s == null) throw new IllegalArgumentException("注册命令怎么会混进来一个null？");
-            if (s.contains(" ")) {
-                throw new IllegalArgumentException("注册的命令不应包含空格，应作为参数判断");
-            }
+            ValueUtil.notNull("注册命令怎么会混进来一个null？", s);
+            ValueUtil.mustTrue("注册的命令不应包含空格，应作为参数判断", !s.contains(" "));
         }
         CommandBus.takeInBus(contactType, this, exec, aliases);
         getLogger().info(getName() + " 模块注册命令: " + Arrays.toString(aliases) + ", 命令监听范围: " + contactType.getSimpleName());
@@ -209,9 +207,6 @@ public abstract class Module {
                 r.run();
             } catch (Throwable e) {
                 ExceptionUtil.handleException(e, true, null, null);
-                //
-                //
-                //
             }
         }, "Parrot-Task-" + this.getName()).start();
     }
@@ -222,15 +217,9 @@ public abstract class Module {
     }
 
     public final UUID runTaskTimer(TryRunnable r, long repeatPeriodSeconds, long waitSeconds) {
-        if (r == null) {
-            throw new IllegalArgumentException("执行的任务为空");
-        }
-        if (repeatPeriodSeconds <= 0) {
-            throw new IllegalArgumentException("周期为0将堵塞任务线程");
-        }
-        if (waitSeconds < 0) {
-            throw new IllegalArgumentException("你可以不填这个参数的，谢谢");
-        }
+        ValueUtil.notNull("执行的任务为空", r);
+        ValueUtil.mustTrue("周期为0将堵塞任务线程", repeatPeriodSeconds > 0);
+        ValueUtil.mustTrue("你可以不填这个参数的，谢谢", waitSeconds >= 0);
         UUID uuid = UUID.randomUUID();
         TASKS.get(this).add(uuid);
         info("注册了定时任务. 间隔: " + repeatPeriodSeconds + " ，等待: " + waitSeconds + " ，UUID: " + uuid);

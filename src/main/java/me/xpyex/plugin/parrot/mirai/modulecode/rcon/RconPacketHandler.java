@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 
 /**
  * Rcon包处理程序
@@ -15,9 +16,7 @@ public class RconPacketHandler extends SimpleChannelInboundHandler<RconPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RconPacket msg) {
-        if (msg.getRequestId() == -1) {
-            throw new IllegalStateException("登录失败");
-        }
+        ValueUtil.mustTrue("登录失败", msg.getRequestId() != -1);
         if (msg.getType() == 2) {
             System.out.println("登录成功");
             rcon.logged = true;
