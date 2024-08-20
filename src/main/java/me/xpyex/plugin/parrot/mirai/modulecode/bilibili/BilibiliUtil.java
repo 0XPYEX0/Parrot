@@ -76,7 +76,7 @@ public class BilibiliUtil {
                                      + "\n错误信息: " + infos.getStr("message"));
         }
         JSONObject data = infos.getJSONObject("data");
-        int AvID = data.getInt("aid");
+        BigInteger AvID = data.getBigInteger("aid");
         String BvID = data.getStr("bvid");
         int videoCount = data.getInt("videos");
         String title = data.getStr("title");
