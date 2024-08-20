@@ -91,7 +91,7 @@ public abstract class Module {
     @Nullable
     @SuppressWarnings("unchecked")
     public static <M extends Module> M getModule(String name) {
-        if (name == null || name.trim().isEmpty()) return null;
+        if (ValueUtil.isEmpty(name)) return null;
 
         if (LOADED_MODELS.containsKey(name)) return (M) LOADED_MODELS.get(name);
 

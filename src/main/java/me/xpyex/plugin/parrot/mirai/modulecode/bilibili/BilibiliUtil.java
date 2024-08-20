@@ -114,16 +114,10 @@ public class BilibiliUtil {
     }
 
     public static Message getUserInfo(BigInteger userID) throws Exception {
-        Map<String, Object> param = MapBuilder.builder(String.class, Object.class).put("mid", (Object) userID).build();
-        String result = HttpUtil.get(API_URL_BILIBILI_USER, param);
-        int failCount = 0;
-        while (result == null || result.isEmpty()) {
-            if (failCount > 5) {
-                return new PlainText("解析超时");
-            }
-            result = HttpUtil.post(API_URL_BILIBILI_USER, param);
-            failCount++;
-            Thread.sleep(5000L);
+        Map<String, Object> param = MapBuilder.builder(String.class, Object.class).put("mid", userID).build();
+        String result = ValueUtil.repeatIfError(() -> HttpUtil.get(API_URL_BILIBILI_USER, param), 5, 5000);
+        if (result == null) {
+            return new PlainText("解析超时");
         }
 
         Module.getModule(Bilibili.class).info(result);
@@ -180,15 +174,9 @@ public class BilibiliUtil {
         }
 
         Map<String, Object> param = MapBuilder.builder(String.class, Object.class).put("dynamic_id", ID).build();
-        String result = HttpUtil.get(API_URL_BILIBILI_DYNAMIC, param);
-        int failCount = 0;
-        while (result == null || result.isEmpty()) {
-            if (failCount > 5) {
-                return new PlainText("解析超时");
-            }
-            result = HttpUtil.post(API_URL_BILIBILI_DYNAMIC, param);
-            failCount++;
-            Thread.sleep(5000L);
+        String result = ValueUtil.repeatIfError(() -> HttpUtil.get(API_URL_BILIBILI_DYNAMIC, param), 5, 5000);
+        if (result == null) {
+            return new PlainText("解析超时");
         }
 
         JSONObject obj = new JSONObject(result);
