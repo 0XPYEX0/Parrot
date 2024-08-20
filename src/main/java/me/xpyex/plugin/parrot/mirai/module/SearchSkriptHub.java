@@ -43,8 +43,8 @@ public class SearchSkriptHub extends Module {
                 source.sendMessage("缺少权限节点: " + getName() + ".use");
                 return;
             }
-            ArgParser.of(StrParser.class).parse(() -> args[0]).ifPresentOrElse(a -> {
-                if ("search".equalsIgnoreCase((String) a)) {
+            ArgParser.of(StrParser.class).parse(() -> args[0], String.class).ifPresentOrElse(a -> {
+                if ("search".equalsIgnoreCase(a)) {
                     ArrayList<String> addon = new ArrayList<>();
                     ArrayList<String> type = new ArrayList<>();
                     String[] key = {""};
@@ -56,6 +56,11 @@ public class SearchSkriptHub extends Module {
                         } else {
                             key[0] = key[0] + " " + s;
                         }
+                    }
+                    key[0] = key[0].trim();
+                    if (key[0].isEmpty()) {
+                        source.sendMessage("关键词为空");
+                        return;
                     }
                     ForwardMessageBuilder forwardMessage = new ForwardMessageBuilder(source.getContact());
                     syntaxList.stream().filter(json -> {
