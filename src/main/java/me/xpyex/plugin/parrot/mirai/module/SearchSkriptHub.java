@@ -24,6 +24,17 @@ import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 public class SearchSkriptHub extends Module {
     private static JSONArray syntaxList;
 
+    private static void downloadDocAndSave() throws IOException {
+        getModule(SearchSkriptHub.class).info("正在下载Skript文档...");
+        URL url = new URL("https://skripthub.net/api/v1/addonsyntaxlist/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        syntaxList = new JSONArray(new String(connection.getInputStream().readAllBytes()));
+        File syntaxListFile = new File(getModule(SearchSkriptHub.class).getDataFolder(), "SkriptExpressions.json");
+        Files.write(syntaxListFile.toPath(), syntaxList.toStringPretty().getBytes());
+        getModule(SearchSkriptHub.class).info("下载完成，文件已保存至" + syntaxListFile.getAbsolutePath());
+    }
+
     @Override
     public void register() throws Throwable {
         runTaskLater(SearchSkriptHub::downloadDocAndSave, 5);  //每次启动Bot时，下载最新版本覆盖
@@ -109,16 +120,5 @@ public class SearchSkriptHub extends Module {
                     .send(source);
             });
         }, "sk", "skript", "skriptHub");
-    }
-
-    private static void downloadDocAndSave() throws IOException {
-        getModule(SearchSkriptHub.class).info("正在下载Skript文档...");
-        URL url = new URL("https://skripthub.net/api/v1/addonsyntaxlist/");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        syntaxList = new JSONArray(new String(connection.getInputStream().readAllBytes()));
-        File syntaxListFile = new File(getModule(SearchSkriptHub.class).getDataFolder(), "SkriptExpressions.json");
-        Files.write(syntaxListFile.toPath(), syntaxList.toStringPretty().getBytes());
-        getModule(SearchSkriptHub.class).info("下载完成，文件已保存至" + syntaxListFile.getAbsolutePath());
     }
 }
