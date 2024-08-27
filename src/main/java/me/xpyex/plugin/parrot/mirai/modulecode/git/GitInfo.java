@@ -13,8 +13,7 @@ public class GitInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GitInfo gitInfo = (GitInfo) o;
+        if (!(o instanceof GitInfo gitInfo)) return false;
         return type == gitInfo.type &&
                    repo.equals(gitInfo.repo) &&
                    uploadFile == gitInfo.uploadFile
