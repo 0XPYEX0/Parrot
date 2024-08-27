@@ -16,8 +16,7 @@ public class MuteQuotePlusAt extends Module {
             if (event.getGroup().getBotPermission().getLevel() > event.getPermission().getLevel()) {  //Bot权限高于Sender
                 QuoteReply quote = event.getMessage().get(QuoteReply.Key);
                 if (quote != null) {  //消息有回复
-                    At at = (At) event.getMessage().get(At.Key);
-                    if (at != null) {  //消息有At
+                    if (event.getMessage().get(At.Key) instanceof At at) {  //消息有At
                         if (at.getTarget() != quote.getSource().getTargetId()) return;  //如果回复时@的不是消息的发送者，那可能是刻意在@其他人，不应处理
 
                         event.getSender().mute(10 * 60);  //十分钟
