@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
@@ -32,6 +33,7 @@ import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 
+@ExtensionMethod(ArgParser.class)
 public class GitUpdates extends Module {
     private File urls;
 
@@ -98,7 +100,7 @@ public class GitUpdates extends Module {
                 source.sendMessage("无效的仓库类型");
             }
             if ("remove".equalsIgnoreCase(args[0])) {
-                ArgParser.of(StrParser.class).parse(() -> args[1])
+                StrParser.class.of().parse(() -> args[1])
                     .ifPresentOrElse(path -> {
                         boolean[] result = {false};
                         ReleasesUpdate.getInstance().getUsers().forEach((ID, info) -> {
@@ -183,7 +185,7 @@ public class GitUpdates extends Module {
 
         HashMap<Contact, ArrayList<Pair<String, Boolean>>> contacts = new HashMap<>();  //Contact, <Repo, NeedUpload>
         ReleasesUpdate.getInstance().getGroups().forEach((ID, URLs) -> {
-            ArgParser.of(GroupParser.class).parse(ID).ifPresent(group -> {
+            GroupParser.class.of().parse(ID).ifPresent(group -> {
                 for (GitInfo info : URLs) {
                     if (!contacts.containsKey(group)) {
                         contacts.put(group, new ArrayList<>());
@@ -193,7 +195,7 @@ public class GitUpdates extends Module {
             });
         });
         ReleasesUpdate.getInstance().getUsers().forEach((ID, URLs) -> {
-            ArgParser.of(UserParser.class).parse(ID).ifPresent(friend -> {
+            UserParser.class.of().parse(ID).ifPresent(friend -> {
                 for (GitInfo info : URLs) {
                     if (!contacts.containsKey(friend)) {
                         contacts.put(friend, new ArrayList<>());

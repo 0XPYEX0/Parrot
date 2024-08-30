@@ -1,14 +1,11 @@
 package me.xpyex.plugin.parrot.mirai.core.permission;
 
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public interface Perms {
     static TreeSet<String> getLowerCaseSet(TreeSet<String> set) {
-        TreeSet<String> newOne = new TreeSet<>();
-        for (String s : set) {
-            newOne.add(s.toLowerCase());
-        }
-        return newOne;
+        return set.stream().map(String::toLowerCase).collect(Collectors.toCollection(TreeSet::new));
     }
 
     TreeSet<String> getPermissions();

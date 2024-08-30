@@ -2,6 +2,7 @@ package me.xpyex.plugin.parrot.mirai.module.core;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
@@ -24,6 +25,7 @@ import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.event.events.UserEvent;
 
 @SuppressWarnings("unused")
+@ExtensionMethod(ArgParser.class)
 public class BotManager extends CoreModule {
     private static final ArrayList<String> IGNORED_LIST = new ArrayList<>();
     private static final ArrayList<NewFriendRequestEvent> REQUESTS = new ArrayList<>();
@@ -72,7 +74,7 @@ public class BotManager extends CoreModule {
                         return;
                     }
                 }
-                ArgParser.of(GroupParser.class).parse(() -> args[2], Group.class)
+                GroupParser.class.of().parse(() -> args[2], Group.class)
                     .ifPresentOrElse(group -> {
                             if (args[1].equalsIgnoreCase("quit")) {
                                 source.sendMessage("执行操作: 退出群 " + group.getId());
@@ -165,7 +167,7 @@ public class BotManager extends CoreModule {
                         .send(source);
                     return;
                 }
-                ArgParser.of(UserParser.class).parse(args[2]).ifPresentOrElse(user -> {
+                UserParser.class.of().parse(args[2]).ifPresentOrElse(user -> {
                     if (args[1].equalsIgnoreCase("ignore")) {
                         if (user.getId() == Util.OWNER_ID) {
                             source.sendMessage("不允许屏蔽该用户");

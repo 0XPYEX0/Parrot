@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
@@ -9,6 +10,7 @@ import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.NormalMember;
 
 @SuppressWarnings("unused")
+@ExtensionMethod(ArgParser.class)
 public class StaffTeam extends Module {
     @Override
     public void register() {
@@ -28,7 +30,7 @@ public class StaffTeam extends Module {
                     .send(source);
                 return;
             }
-            ArgParser.of(UserParser.class).parse(() -> args[1], NormalMember.class)  //命令为群命令，只打算拿到Member
+            UserParser.class.of().parse(() -> args[1], NormalMember.class)  //命令为群命令，只打算拿到Member
                 .ifPresentOrElse(member -> {
                     if ("add".equalsIgnoreCase(args[0])) {
                         member.modifyAdmin(true);

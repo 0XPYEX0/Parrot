@@ -1,6 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.module.core;
 
 import java.util.TreeSet;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
@@ -13,6 +14,7 @@ import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 
 @SuppressWarnings("unused")
+@ExtensionMethod(ArgParser.class)
 public class PluginManager extends CoreModule {
     @Override
     public void register() {
@@ -26,7 +28,7 @@ public class PluginManager extends CoreModule {
                         .add("info <模块>", "查看单个模块的信息")
                         .send(source);
                 } else if (StringUtil.equalsIgnoreCaseOr(args[0], "enable", "disable")) {
-                    ArgParser.of(ModuleParser.class)
+                    ModuleParser.class.of()
                         .parse(() -> args[1], Module.class)
                         .ifPresentOrElse(module -> {
                             if (module.isCore()) {
@@ -47,7 +49,7 @@ public class PluginManager extends CoreModule {
                     }
                     source.sendMessage("所有模块列表: " + list);
                 } else if ("info".equalsIgnoreCase(args[0])) {
-                    ArgParser.of(ModuleParser.class).parse(() -> args[1])
+                    ModuleParser.class.of().parse(() -> args[1])
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
                                                        .plus("状态: " + (module.isDisabled() ? "禁用" : "启用"))
                                                        .plus("已注册的命令: " + (CommandBus.getCommands(module).isEmpty() ? "无" : CommandBus.getCommands(module)))

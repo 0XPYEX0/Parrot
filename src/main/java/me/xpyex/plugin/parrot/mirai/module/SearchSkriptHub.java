@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
@@ -21,6 +22,7 @@ import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 
+@ExtensionMethod(ArgParser.class)
 public class SearchSkriptHub extends Module {
     private static JSONArray syntaxList;
 
@@ -43,7 +45,7 @@ public class SearchSkriptHub extends Module {
                 source.sendMessage("缺少权限节点: " + getName() + ".use");
                 return;
             }
-            ArgParser.of(StrParser.class).parse(() -> args[0], String.class).ifPresentOrElse(a -> {
+            StrParser.class.of().parse(() -> args[0], String.class).ifPresentOrElse(a -> {
                 if ("search".equalsIgnoreCase(a)) {
                     ArrayList<String> addon = new ArrayList<>();
                     ArrayList<String> type = new ArrayList<>();

@@ -2,9 +2,11 @@ package me.xpyex.plugin.parrot.mirai.module.core;
 
 import cn.hutool.json.JSONUtil;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
@@ -23,6 +25,7 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import org.jetbrains.annotations.Nullable;
 
+@ExtensionMethod({Perms.class, Arrays.class, ArgParser.class})
 public class PermManager extends CoreModule {
     public static final HashMap<String, GroupPerm> GROUPS = new HashMap<>();
     private static final WeakHashMap<Long, UserPerm> USERS = new WeakHashMap<>();
@@ -35,10 +38,10 @@ public class PermManager extends CoreModule {
         if (user == null || perm == null || perm.isEmpty()) {
             return false;
         }
-        perm = perm.toLowerCase();
         if (adminPass != null && user instanceof Member && ((Member) user).getPermission().getLevel() >= adminPass.getLevel()) {
             return true;
         }
+        perm = perm.toLowerCase().trim();
         if (user instanceof Member) {
             QGroupPerm qGroupPerm = getQGroupPerm(((Member) user).getGroup().getId());
             if (Perms.getLowerCaseSet(qGroupPerm.getDenyPerms()).contains(perm)) {
@@ -47,6 +50,7 @@ public class PermManager extends CoreModule {
             if (Perms.getLowerCaseSet(qGroupPerm.getPermissions()).contains(perm)) {
                 return true;
             }
+
             for (String groupName : qGroupPerm.getExtendsGroups()) {
                 if (GROUPS.containsKey(groupName)) {
                     if (GROUPS.get(groupName).getPermissions().contains(perm)) {
@@ -164,8 +168,8 @@ public class PermManager extends CoreModule {
                 int state = Integer.parseInt(args[4]);
                 Perms permInstance = switch (type) {
                     case "组" -> GROUPS.get(id);
-                    case "用户" -> getUserPerm(ArgParser.of(UserParser.class).getParsedId(id));
-                    case "群" -> getQGroupPerm(ArgParser.of(GroupParser.class).getParsedId(id));
+                    case "用户" -> getUserPerm(UserParser.class.of().getParsedId(id));
+                    case "群" -> getQGroupPerm(GroupParser.class.of().getParsedId(id));
                     default -> null;
                 };
                 if (permInstance == null) {
@@ -178,11 +182,11 @@ public class PermManager extends CoreModule {
                     case 1 -> permInstance.getPermissions().add(perm) | permInstance.getDenyPerms().remove(perm);
                     default -> false;
                 }) {
-                    permInstance.save();
                     source.sendMessage("设置 <" + type + " " + id + "> 的权限 <" + perm + "> 状态为 <" + state + ">");
                 } else {
                     source.sendMessage("设置 <" + type + " " + id + "> 的权限 <" + perm + "> 失败: 无变化");
                 }
+                permInstance.save();
             } else if (StringUtil.equalsIgnoreCaseOr(args[0], "setAll", "op")) {
                 if (!sender.hasPerm(getName() + ".setOp")) {
                     source.sendMessage("你没有权限");

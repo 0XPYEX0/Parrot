@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.WeakHashMap;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
@@ -32,6 +33,7 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 
+@ExtensionMethod(ArgParser.class)
 public final class ChatGPT extends Module {
     private static final WeakHashMap<Long, ChatMessage> CHAT_CACHE = new WeakHashMap<>();
     private static final String DEFAULT_MSG = "";
@@ -71,8 +73,8 @@ public final class ChatGPT extends Module {
                         source.sendMessage("不理你不理你！");
                         return;
                     }
-                    ArgParser.of(GroupParser.class).parse(() -> args[1], Group.class).ifPresentOrElse(group -> {
-                        ArgParser.of(StrParser.class).parse(() -> String.join(" ", Arrays.copyOfRange(args, 2, args.length)), String.class).ifPresentOrElse(rule -> {
+                    GroupParser.class.of().parse(() -> args[1], Group.class).ifPresentOrElse(group -> {
+                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 2, args.length)), String.class).ifPresentOrElse(rule -> {
                             try {
                                 Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
                                 GROUP_RULES.put(group.getId(), rule);
