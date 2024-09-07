@@ -4,31 +4,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
+import java.nio.file.Files;
 
 public class FileUtil {
     public static void createNewFile(File target, boolean replaced) throws IOException {
         if (replaced) {
             target.delete();
         }
-        while (!target.exists()) {
-            Throwable ex = null;
-            try {
-                target.createNewFile();
-            } catch (Throwable e) {
-                ex = e;  //当没权限，或者文件所在的目录还未创建
+        if (!target.exists()) {
+            File parent = target.getParentFile();
+            if (!parent.exists()) {
+                parent.mkdirs();
+            } else if (parent.isFile()) {
+                throw new IllegalStateException("文件目录非法: parent为文件");
             }
-            File parent = target;  //先定义文件自身
-            while (ex != null) {  //此时文件尚未被创建，故尝试创建父文件夹
-                ValueUtil.mustTrue("无法创建文件 " + target.getPath() + " ,原因可能是Java没有访问权限", parent != null);
-                parent = parent.getParentFile();  //寻找所在目录
-                try {
-                    parent.mkdirs();  //尝试创建所在目录及其所有父目录
-                    ex = null;  //打破第二个while
-                } catch (Throwable e) {
-                    ex = e;  //重启第二个while
-                }
-            }
+            target.createNewFile();
         }
     }
 
@@ -40,12 +30,7 @@ public class FileUtil {
      * @throws IOException 文件异常
      */
     public static String readFile(File target) throws IOException {
-        Scanner in = new Scanner(target, StandardCharsets.UTF_8);
-        StringBuilder builder = new StringBuilder();
-        while (in.hasNextLine()) {
-            builder.append(in.nextLine()).append("\n");
-        }
-        return builder.toString();
+        return Files.readString(target.toPath());
     }
 
     /**
