@@ -54,9 +54,7 @@ public class BilibiliUtil {
                 return VIDEO_CACHES.get("BV" + param.get("bvid"));
             }
         }
-        String result = ValueUtil.repeatIfError(() -> {
-            return HttpUtil.get(API_URL_BILIBILI_VIDEO, param);
-        }, 5, 5000);
+        String result = ValueUtil.repeatIfError(() -> HttpUtil.get(API_URL_BILIBILI_VIDEO, param), 5, 5000);
         if (result == null || result.isEmpty()) {
             return new PlainText("解析超时");
         }
@@ -87,23 +85,25 @@ public class BilibiliUtil {
         String faceUrl = data.getStr("pic");
 
         String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
-        MessageBuilder messager = new MessageBuilder("")
-                                      .plus("AV号: AV" + AvID)
-                                      .plus("BV号: " + BvID)
-                                      .plus("标题: " + title)
-                                      .plus("简介: " + description)
-                                      .plus("分P数: " + videoCount)
-                                      .plus("播放地址:")
-                                      .plus("https://bilibili.com/video/av" + AvID)
-                                      .plus("https://bilibili.com/video/" + BvID)
-                                      .plus("")
-                                      .plus("作者: " + authorName)
-                                      .plus("作者主页: https://space.bilibili.com/" + authorId);
         Message out = ValueUtil.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                                                        .add(Util.getBot(), new PlainText("视频: " + videoID)
+                                                        .add(Util.getBot(), new PlainText("视频: " + videoID + "\n")
                                                                                 .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
-                                                                                .plus(messager.toString())
-                                                        )
+                                                                                .plus(new MessageBuilder()
+                                                                                          .plus("AV号: AV" + AvID)
+                                                                                          .plus("BV号: " + BvID)
+                                                                                          .plus("标题: " + title)
+                                                                                          .toString()))
+                                                        .add(Util.getBot(), new PlainText("简介: \n" + description))
+                                                        .add(Util.getBot(), new MessageBuilder("")
+                                                                                .plus("分P数: " + videoCount)
+                                                                                .plus("播放地址:")
+                                                                                .plus("https://bilibili.com/video/av" + AvID)
+                                                                                .plus("https://bilibili.com/video/" + BvID)
+                                                                                .toMessage())
+                                                        .add(Util.getBot(), new MessageBuilder()
+                                                                                .plus("作者: " + authorName)
+                                                                                .plus("作者主页: https://space.bilibili.com/" + authorId)
+                                                                                .toMessage())
                                                         .build(), 2, 3000);
         if (out == null) {
             return new PlainText("解析失败");
