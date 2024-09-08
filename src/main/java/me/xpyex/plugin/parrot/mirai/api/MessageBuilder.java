@@ -65,7 +65,7 @@ public class MessageBuilder {
     }
 
     public void send(ParrotContact<?> target) {
-        MsgUtil.sendMsg(target, this.toString());
+        send(target.getContact());
         //
     }
 

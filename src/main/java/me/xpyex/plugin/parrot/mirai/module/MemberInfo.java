@@ -17,7 +17,7 @@ public class MemberInfo extends Module {
     public void register() {
         registerCommand(Group.class, ((source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                MsgUtil.sendMsg(source, "你没有权限");
+                source.sendMessage("你没有权限");
                 return;
             }
             UserParser.class.of().parse(args[0], NormalMember.class).ifPresentOrElse(member -> {
@@ -26,13 +26,13 @@ public class MemberInfo extends Module {
                     return;
                 }
                 member.setNameCard(String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
-                MsgUtil.sendMsg(source, "已修改");
-            }, () -> MsgUtil.sendMsg(source, "参数不足"));
+                source.sendMessage("已修改");
+            }, () -> source.sendMessage("参数不足"));
         }), "setNameCard", "nameCard");
 
         registerCommand(Group.class, (source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                MsgUtil.sendMsg(source, "你没有权限");
+                source.sendMessage("你没有权限");
                 return;
             }
             UserParser.class.of().parse(args[0], NormalMember.class).ifPresentOrElse(member -> {
@@ -41,8 +41,8 @@ public class MemberInfo extends Module {
                     return;
                 }
                 member.setSpecialTitle(String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
-                MsgUtil.sendMsg(source, "已修改");
-            }, () -> MsgUtil.sendMsg(source, "参数不足"));
+                source.sendMessage("已修改");
+            }, () -> source.sendMessage("参数不足"));
         }, "prefix", "groupPrefix");
     }
 }

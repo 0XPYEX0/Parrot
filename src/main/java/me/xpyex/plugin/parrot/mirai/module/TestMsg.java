@@ -50,10 +50,10 @@ public class TestMsg extends Module {
                 .send(source);
         }, "test2");
         registerCommand(Group.class, ((source, sender, label, args) ->
-                                          MsgUtil.sendMsg(source, "这是群反馈器")
+                                          source.sendMessage("这是群反馈器")
         ), "testCmd");
         registerCommand(User.class, ((source, sender, label, args) ->
-                                         MsgUtil.sendMsg(source, "这是私聊反馈器")
+                                         source.sendMessage("这是私聊反馈器")
         ), "testCmd");
         registerCommand(Contact.class, (source, sender, label, args) -> {
             System.gc();

@@ -19,7 +19,7 @@ public class MCPinger extends Module {
                 return;
             }
             if (args.length != 1) {
-                MsgUtil.sendMsg(source, "您这服务器是不是有点多了");
+                source.sendMessage("您这服务器是不是有点多了");
                 return;
             }
             try {
@@ -43,12 +43,12 @@ public class MCPinger extends Module {
                         .plus("协议版本: " + ValueUtil.getOrDefault(pinger.getProtocolVersion(), ""))
                         .send(source);
                 } else {
-                    MsgUtil.sendMsg(source, "解析失败");
+                    source.sendMessage("解析失败");
                 }
             } catch (NumberFormatException ignored) {
-                MsgUtil.sendMsg(source, "您这端口还带非整数的啊？");
+                source.sendMessage("您这端口还带非整数的啊？");
             } catch (Exception e) {
-                MsgUtil.sendMsg(source, "解析失败，出现异常: " + e);
+                source.sendMessage("解析失败，出现异常: " + e);
                 handleException(e, false, null);
             }
         }), "mc", "mcPing", "ping");

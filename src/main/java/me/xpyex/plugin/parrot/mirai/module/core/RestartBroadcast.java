@@ -13,7 +13,7 @@ public class RestartBroadcast extends CoreModule {
     public void register() {
         registerCommand(Contact.class, ((source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use")) {
-                MsgUtil.sendMsg(source, "你没有权限");
+                source.sendMessage("你没有权限");
                 return;
             }
             if (args.length == 0) {
@@ -25,14 +25,14 @@ public class RestartBroadcast extends CoreModule {
                     .send(source);
             } else if (args[0].equalsIgnoreCase("start")) {
                 restartMode = true;
-                MsgUtil.sendMsg(source, "Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");
+                source.sendMessage("Mirai将在 10 秒后重启\n使用 #" + label + " stop 以停止重启");
                 try {
                     for (int i = 10; i >= 0; i--) {
                         if (!restartMode) {
                             return;
                         }
                         if (i <= 3) {
-                            MsgUtil.sendMsg(source, "倒计时: " + i);
+                            source.sendMessage("倒计时: " + i);
                         }
                         Thread.sleep(1000);
                     }
@@ -41,11 +41,11 @@ public class RestartBroadcast extends CoreModule {
                 }
             } else if (args[0].equalsIgnoreCase("stop")) {
                 restartMode = false;
-                MsgUtil.sendMsg(source, "已取消重启计划");
+                source.sendMessage("已取消重启计划");
             } else if (args[0].equalsIgnoreCase("now")) {
                 CommandBus.dispatchCommand(source, sender, "#bot", "shutdown");
             } else {
-                MsgUtil.sendMsg(source, "未知子命令");
+                source.sendMessage("未知子命令");
             }
         }), "rbc", "restart");
     }

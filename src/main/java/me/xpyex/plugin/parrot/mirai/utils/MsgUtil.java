@@ -3,7 +3,6 @@ package me.xpyex.plugin.parrot.mirai.utils;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -35,31 +34,6 @@ public class MsgUtil {
         return msg.contentToString();
     }
 
-    public static void autoSendMsg(MessageEvent event, String msg) {
-        if (msg == null) {
-            return;
-        }
-        autoSendMsg(event, new PlainText(msg));
-        //
-    }
-
-    public static void autoSendMsg(MessageEvent event, Message msg) {
-        if (event == null) {
-            return;
-        }
-        sendMsg(getRealSender(event), msg);
-    }
-
-    public static void sendMsg(ParrotContact<? extends Contact> target, String msg) {
-        sendMsg(target.getContact(), msg);
-        //
-    }
-
-    public static void sendMsg(ParrotContact<? extends Contact> target, Message msg) {
-        sendMsg(target.getContact(), msg);
-        //
-    }
-
     public static void sendMsg(Contact contact, String msg) {
         if (msg == null) {
             return;
@@ -80,16 +54,6 @@ public class MsgUtil {
             }
         }
         contact.sendMessage(msg);
-    }
-
-    public static void sendFriendMsg(long QQ, String Msg) {
-        Util.getBot().getFriend(QQ).sendMessage(Msg);
-        //
-    }
-
-    public static void sendFriendMsg(long QQ, Message Msg) {
-        Util.getBot().getFriend(QQ).sendMessage(Msg);
-        //
     }
 
     public static void sendMsgToOwner(String msg) {

@@ -63,7 +63,7 @@ public class CommandMenu {
     }
 
     public void send(ParrotContact<?> target) {
-        MsgUtil.sendMsg(target, this.toString());
+        send(target.getContact());
         //
     }
 }
