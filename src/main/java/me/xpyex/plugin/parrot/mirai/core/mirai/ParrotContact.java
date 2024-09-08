@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -22,14 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.overflow.contact.RemoteBot;
 
 @Getter
+@ExtensionMethod({MsgUtil.class, PermManager.class})
 public class ParrotContact<C extends Contact> {
-    private static final File FILE_CACHE_FOLDER = new File("cache/file");
-
-    static {
-        if (!FILE_CACHE_FOLDER.exists()) {
-            FILE_CACHE_FOLDER.mkdirs();
-        }
-    }
 
     private final C contact;
     private final long createdTime = System.currentTimeMillis();
@@ -47,12 +42,12 @@ public class ParrotContact<C extends Contact> {
     }
 
     public void sendMessage(String message) {
-        MsgUtil.sendMsg(getContact(), message);
+        getContact().sendMsg(message);
         //安全发送
     }
 
     public void sendMessage(Message message) {
-        MsgUtil.sendMsg(getContact(), message);
+        getContact().sendMsg(message);
         //安全发送
     }
 
@@ -63,7 +58,7 @@ public class ParrotContact<C extends Contact> {
 
     public boolean hasPerm(String perm, MemberPermission adminPass) {
         perm = perm.toLowerCase();
-        return PermManager.hasPerm(getContactAsUser(), perm, adminPass);
+        return getContactAsUser().hasPerm(perm, adminPass);
     }
 
     public long getId() {
@@ -128,7 +123,7 @@ public class ParrotContact<C extends Contact> {
 
     public void uploadFile(URL url, String name, String folder) throws Exception {
         ValueUtil.notNull("参数除folder外，不应为null", url, name);
-        File f = new File(FILE_CACHE_FOLDER, name);
+        File f = File.createTempFile("", name);
         URLConnection connection = url.openConnection();
         connection.connect();
         Files.copy(connection.getInputStream(), f.toPath());
