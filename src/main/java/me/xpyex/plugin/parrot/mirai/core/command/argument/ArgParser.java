@@ -19,7 +19,8 @@ public abstract class ArgParser {
     @SuppressWarnings("unchecked")
     public static <T extends ArgParser> T of(Class<T> clazz) {
         try {
-            return (T) PARSERS.getOrDefault(clazz, clazz.getConstructor().newInstance());
+            if (PARSERS.containsKey(clazz)) return (T) PARSERS.get(clazz);
+            return clazz.getConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new UnsupportedOperationException("无法构建Parser实例", e);
         }

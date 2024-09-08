@@ -1,6 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.module.core;
 
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
@@ -43,11 +44,11 @@ public class PluginManager extends CoreModule {
                             }
                         }, () -> source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表"));
                 } else if ("list".equalsIgnoreCase(args[0])) {
-                    TreeSet<String> list = new TreeSet<>();
-                    for (Module loadedModule : Module.LOADED_MODELS.values()) {
-                        list.add(loadedModule.getName() + (loadedModule.isDisabled() ? "(未启用)" : ""));
-                    }
-                    source.sendMessage("所有模块列表: " + list);
+                    source.sendMessage("所有模块列表: " +
+                                           Module.LOADED_MODELS.values()
+                                               .stream()
+                                               .map(module -> module.getName() + (module.isDisabled() ? "(未启用)" : ""))
+                                               .collect(Collectors.toCollection(TreeSet::new)));
                 } else if ("info".equalsIgnoreCase(args[0])) {
                     ModuleParser.class.of().parse(() -> args[1])
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
