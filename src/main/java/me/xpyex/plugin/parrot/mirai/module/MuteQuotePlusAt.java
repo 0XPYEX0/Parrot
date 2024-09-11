@@ -7,7 +7,6 @@ import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
-import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.message.data.QuoteReply;
 
@@ -26,12 +25,10 @@ public class MuteQuotePlusAt extends Module {
                         event.getSender().mute(10);  //10s
                         event.getGroup().sendMessage("能不能回复的时候不@人啊你妈的");
                         Mirai.getInstance().recallMessage(event.getBot(), event.getSource());  //撤回
-                        MessageChain origin = event.getMessage();
-                        origin.removeIf(msg -> msg.contentToString().contains("@" + quote.getSource().getFromId()));  //移除At部分的内容
                         event.getGroup().sendMessage(
                             new ForwardMessageBuilder(event.getGroup())
                                 .add(event.getGroup().getBotAsMember(), new PlainText("原消息如下"))
-                                .add(event.getSender(), origin)
+                                .add(event.getSender(), event.getMessage())
                                 .build()
                         );
                     }
