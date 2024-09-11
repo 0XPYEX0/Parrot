@@ -14,7 +14,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
@@ -251,6 +250,7 @@ public abstract class Module {
     }
 
     public final Bot getBot() {
+        if (Bot.getInstances().isEmpty()) return null;
         return Bot.getInstances().get(0);
         //
     }
@@ -263,18 +263,6 @@ public abstract class Module {
     public final String getPlainText(MessageChain message) {
         return MsgUtil.getPlainText(message);
         //
-    }
-
-    public final void sendMsgToOwner(String msg) {
-        if (msg == null || msg.isEmpty()) return;
-
-        sendMsgToOwner(new PlainText(msg));
-    }
-
-    public final void sendMsgToOwner(Message msg) {
-        if (msg == null) return;
-
-        getBot().getFriend(Util.OWNER_ID).sendMessage(msg);
     }
 
     private final MiraiLogger getLogger() {

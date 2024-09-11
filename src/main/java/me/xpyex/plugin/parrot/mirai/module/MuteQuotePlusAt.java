@@ -23,7 +23,7 @@ public class MuteQuotePlusAt extends Module {
                         if (!event.getMessage().contentToString().contains("@" + quote.getSource().getFromId())) return;  //如果回复时@的不是消息的发送者，那可能是刻意在@其他人，不应处理
                         if (PermManager.hasPerm(event.getSender(), getName() + ".bypass", MemberPermission.ADMINISTRATOR)) return;
 
-                        event.getSender().mute(60);  //1分钟
+                        event.getSender().mute(10);  //10s
                         event.getGroup().sendMessage("能不能回复的时候不@人啊你妈的");
                         Mirai.getInstance().recallMessage(event.getBot(), event.getSource());  //撤回
                         MessageChain origin = event.getMessage();
