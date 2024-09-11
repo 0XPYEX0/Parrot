@@ -3,7 +3,6 @@ package me.xpyex.plugin.parrot.mirai.module.core;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
-import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 
 public class RestartBroadcast extends CoreModule {

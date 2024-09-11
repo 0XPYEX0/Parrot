@@ -14,13 +14,16 @@ import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
+import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageSource;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.jetbrains.annotations.NotNull;
@@ -108,6 +111,11 @@ public abstract class Module {
         M module = getModule(clazz.getSimpleName());
         assert module != null;
         return module;
+    }
+
+    public static void recall(MessageSource source) {
+        Mirai.getInstance().recallMessage(Util.getBot(), source);
+        //
     }
 
     public abstract void register() throws Throwable;

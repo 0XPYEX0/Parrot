@@ -8,7 +8,6 @@ import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
-import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -68,7 +67,7 @@ public class TestMsg extends Module {
                 if (source.isGroup()) {
                     if (source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
                         getEvent(source).ifPresent(event -> {
-                            Mirai.getInstance().recallMessage(Util.getBot(), event.getSource());
+                            recall(event.getSource());
                         });
                     }
                 }

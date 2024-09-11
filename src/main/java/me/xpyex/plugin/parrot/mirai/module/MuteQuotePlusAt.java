@@ -2,7 +2,6 @@ package me.xpyex.plugin.parrot.mirai.module;
 
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
-import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.At;
@@ -19,12 +18,14 @@ public class MuteQuotePlusAt extends Module {
                 QuoteReply quote = event.getMessage().get(QuoteReply.Key);
                 if (quote != null) {  //消息有回复
                     if (event.getMessage().get(At.Key) != null) {  //消息有At
-                        if (!event.getMessage().contentToString().contains("@" + quote.getSource().getFromId())) return;  //如果回复时@的不是消息的发送者，那可能是刻意在@其他人，不应处理
-                        if (PermManager.hasPerm(event.getSender(), getName() + ".bypass", MemberPermission.ADMINISTRATOR)) return;
+                        if (!event.getMessage().contentToString().contains("@" + quote.getSource().getFromId()))
+                            return;  //如果回复时@的不是消息的发送者，那可能是刻意在@其他人，不应处理
+                        if (PermManager.hasPerm(event.getSender(), getName() + ".bypass", MemberPermission.ADMINISTRATOR))
+                            return;
 
                         event.getSender().mute(10);  //10s
                         event.getGroup().sendMessage("能不能回复的时候不@人啊你妈的");
-                        Mirai.getInstance().recallMessage(event.getBot(), event.getSource());  //撤回
+                        recall(event.getSource());  //撤回
                         event.getGroup().sendMessage(
                             new ForwardMessageBuilder(event.getGroup())
                                 .add(event.getGroup().getBotAsMember(), new PlainText("原消息如下"))

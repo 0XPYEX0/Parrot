@@ -4,7 +4,6 @@ import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.modulecode.mcpinger.Pinger;
-import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 

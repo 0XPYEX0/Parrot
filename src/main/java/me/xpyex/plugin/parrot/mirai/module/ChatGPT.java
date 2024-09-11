@@ -25,7 +25,6 @@ import me.xpyex.plugin.parrot.mirai.modulecode.chatgpt.ChatMessage;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
-import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -102,7 +101,7 @@ public final class ChatGPT extends Module {
                     }
                     if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
                         getEvent(source).ifPresent(msgEvent -> {
-                            Mirai.getInstance().recallMessage(Util.getBot(), msgEvent.getSource());
+                            recall(msgEvent.getSource());
                         });
                     }
                     ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
