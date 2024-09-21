@@ -4,6 +4,7 @@ import cn.hutool.json.JSONUtil;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
@@ -36,24 +37,27 @@ public class PermManager extends CoreModule {
 
     public static boolean hasPerm(User user, String perm, @Nullable MemberPermission adminPass) {
         if (user == null || perm == null || perm.isEmpty()) {
-            return false;
+            return false;  //空检查
         }
-        if (adminPass != null && user instanceof Member && ((Member) user).getPermission().getLevel() >= adminPass.getLevel()) {
-            return true;
+        if (adminPass != null && user instanceof Member member && member.getPermission().getLevel() >= adminPass.getLevel()) {
+            return true;  //用户在群内权限允许规避权限检查
         }
         perm = perm.toLowerCase().trim();
-        if (user instanceof Member) {
-            QGroupPerm qGroupPerm = getQGroupPerm(((Member) user).getGroup().getId());
-            if (Perms.getLowerCaseSet(qGroupPerm.getDenyPerms()).contains(perm)) {
+        if (user instanceof Member member) {
+            QGroupPerm qGroupPerm = getQGroupPerm(member.getGroup().getId());
+            if (Perms.getLowerCaseSet(qGroupPerm.getDenyPerms()).contains(perm)) {  //QQ群内禁止此权限
                 return false;
             }
-            if (Perms.getLowerCaseSet(qGroupPerm.getPermissions()).contains(perm)) {
+            if (Perms.getLowerCaseSet(getUserPerm(user.getId()).getDenyPerms()).contains(perm)) {  //用户被禁止此权限
+                return false;
+            }
+            if (Perms.getLowerCaseSet(qGroupPerm.getPermissions()).contains(perm)) {  //QQ群内允许
                 return true;
             }
 
-            for (String groupName : qGroupPerm.getExtendsGroups()) {
+            for (String groupName : qGroupPerm.getExtendsGroups()) {  //QQ群依赖于哪个权限组
                 if (GROUPS.containsKey(groupName)) {
-                    if (GROUPS.get(groupName).getPermissions().contains(perm)) {
+                    if (Perms.getLowerCaseSet(GROUPS.get(groupName).getPermissions()).contains(perm)) {
                         return true;
                     }
                 }
@@ -64,17 +68,18 @@ public class PermManager extends CoreModule {
 
     public static boolean hasPerm(long id, String perm) {
         UserPerm userPerm = getUserPerm(id);
-        if (userPerm.getDenyPerms().contains(perm)) {
+        perm = perm.toLowerCase();
+        if (Perms.getLowerCaseSet(userPerm.getDenyPerms()).contains(perm)) {
             return false;
         }
         if (userPerm.hasAllPerms())
             return true;
-        if (userPerm.getPermissions().contains(perm)) {
+        if (Perms.getLowerCaseSet(userPerm.getPermissions()).contains(perm)) {
             return true;
         }
         for (String groupName : userPerm.getExtendsGroups()) {
             if (GROUPS.containsKey(groupName)) {
-                if (GROUPS.get(groupName).getPermissions().contains(perm)) {
+                if (Perms.getLowerCaseSet(GROUPS.get(groupName).getPermissions()).contains(perm)) {
                     return true;
                 }
             }
@@ -142,7 +147,7 @@ public class PermManager extends CoreModule {
                 new CommandMenu(label)
                     .add("newGroup <Name> <isDefault>", "创建新的权限组")
                     .add("reload", "尝试重载所有权限内容")
-                    .add("set <Group|User|QQGroup> <Name|ID> <Perm> <State>", "给<组|用户|QQ群>修改权限状态")
+                    .add("set <Group|User|QGroup> <Name|ID> <Perm> <State>", "给<组|用户|QQ群>修改权限状态")
                     .add("setAll <UserID> <true/false>", "给予用户所有权限")
                     .send(source);
                 return;
@@ -152,14 +157,13 @@ public class PermManager extends CoreModule {
                     source.sendMessage("参数不足");
                     return;
                 }
-                String type;
-                if ("group".equalsIgnoreCase(args[1])) {
-                    type = "组";
-                } else if ("user".equalsIgnoreCase(args[1])) {
-                    type = "用户";
-                } else if ("qGroup".equalsIgnoreCase(args[1])) {
-                    type = "群";
-                } else {
+                String type = switch (args[1].toLowerCase()) {
+                    case "group" -> "组";
+                    case "user" -> "用户";
+                    case "qgroup", "qqgroup" -> "群";
+                    default -> null;
+                };
+                if (type == null) {
                     source.sendMessage("参数错误: " + args[1]);
                     return;
                 }
@@ -176,16 +180,22 @@ public class PermManager extends CoreModule {
                     source.sendMessage("错误: <" + type + " " + id + "> 不存在");
                     return;
                 }
+                TreeSet<String> denied = Perms.getLowerCaseSet(permInstance.getDenyPerms());
+                TreeSet<String> permitted = Perms.getLowerCaseSet(permInstance.getPermissions());
                 if (switch (state) {
-                    case -1 -> permInstance.getPermissions().remove(perm) | permInstance.getDenyPerms().add(perm);
-                    case 0 -> permInstance.getDenyPerms().remove(perm) | permInstance.getPermissions().remove(perm);
-                    case 1 -> permInstance.getPermissions().add(perm) | permInstance.getDenyPerms().remove(perm);
+                    case -1 -> permitted.remove(perm) | denied.add(perm);
+                    case 0 -> permitted.remove(perm) | denied.remove(perm);
+                    case 1 -> permitted.add(perm) | denied.remove(perm);
                     default -> false;
                 }) {
                     source.sendMessage("设置 <" + type + " " + id + "> 的权限 <" + perm + "> 状态为 <" + state + ">");
                 } else {
                     source.sendMessage("设置 <" + type + " " + id + "> 的权限 <" + perm + "> 失败: 无变化");
                 }
+                permInstance.getDenyPerms().clear();
+                permInstance.getDenyPerms().addAll(denied);
+                permInstance.getPermissions().clear();
+                permInstance.getPermissions().addAll(permitted);
                 permInstance.save();
             } else if (StringUtil.equalsIgnoreCaseOr(args[0], "setAll", "op")) {
                 if (!sender.hasPerm(getName() + ".setOp")) {
