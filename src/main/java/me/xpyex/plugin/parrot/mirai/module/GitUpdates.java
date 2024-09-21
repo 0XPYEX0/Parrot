@@ -12,7 +12,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
@@ -22,8 +26,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.modulecode.git.GitInfo;
-import me.xpyex.plugin.parrot.mirai.modulecode.git.ReleasesUpdate;
 import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -256,5 +258,50 @@ public class GitUpdates extends Module {
         });
         ReleasesUpdate.getInstance().getCache().putAll(newVer);
         ReleasesUpdate.getInstance().save(urls);
+    }
+
+    @Data
+    @Accessors(chain = true)
+    public static class GitInfo {
+        private SupportedGits type = SupportedGits.UNKNOWN;
+        private String repo = "";
+        private boolean uploadFile = true;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GitInfo gitInfo)) return false;
+            return type == gitInfo.type &&
+                       repo.equals(gitInfo.repo) &&
+                       uploadFile == gitInfo.uploadFile
+                ;
+        }
+
+        public enum SupportedGits {
+            GitHub,
+            Gitee,
+            UNKNOWN
+        }
+    }
+
+    @Data
+    public static class ReleasesUpdate {
+        @Setter
+        @Getter
+        private static ReleasesUpdate instance;
+        private Map<Long, Set<GitInfo>> Groups = new HashMap<>();  //群号, <GitHub, Owner/RepoName>
+        private Map<Long, Set<GitInfo>> Users = new HashMap<>();
+        private Map<String, String> Cache = new HashMap<>();  //Repo, Version(R-ver|P-ID)
+
+        public ReleasesUpdate() {
+            instance = this;
+            //
+        }
+
+        @SneakyThrows
+        public void save(File file) {
+            FileUtil.writeFile(file, JSONUtil.toJsonPrettyStr(this));
+            //
+        }
     }
 }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package me.xpyex.plugin.parrot.mirai.module;
+package me.xpyex.plugin.parrot.mirai.module.music;
 
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -27,14 +27,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicCardProvider;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicInfo;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicSource;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.cardprovider.MiraiCardProvider;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.cardprovider.StructMsgCardProvider;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.musicsource.KugouMusicSource;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.musicsource.NetEaseMusicSource;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.musicsource.QQMusicSource;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicCardProvider;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicInfo;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicSource;
+import me.xpyex.plugin.parrot.mirai.module.music.api.cardprovider.MiraiCardProvider;
+import me.xpyex.plugin.parrot.mirai.module.music.api.cardprovider.StructMsgCardProvider;
+import me.xpyex.plugin.parrot.mirai.module.music.api.musicsource.KugouMusicSource;
+import me.xpyex.plugin.parrot.mirai.module.music.api.musicsource.NetEaseMusicSource;
+import me.xpyex.plugin.parrot.mirai.module.music.api.musicsource.QQMusicSource;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;

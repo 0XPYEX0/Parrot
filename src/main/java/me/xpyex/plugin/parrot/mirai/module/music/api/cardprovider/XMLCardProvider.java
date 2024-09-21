@@ -1,7 +1,7 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.music.cardprovider;
+package me.xpyex.plugin.parrot.mirai.module.music.api.cardprovider;
 
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicCardProvider;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicInfo;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicCardProvider;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicInfo;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;

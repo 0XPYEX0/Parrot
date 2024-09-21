@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.music.musicsource;
+package me.xpyex.plugin.parrot.mirai.module.music.api.musicsource;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -7,9 +7,9 @@ import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicInfo;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicSource;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicUtils;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicInfo;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicSource;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicUtils;
 
 public class QQMusicSource implements MusicSource {
 

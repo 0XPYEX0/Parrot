@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package me.xpyex.plugin.parrot.mirai.modulecode.music;
+package me.xpyex.plugin.parrot.mirai.module.music.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

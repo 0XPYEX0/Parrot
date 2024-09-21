@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.music;
+package me.xpyex.plugin.parrot.mirai.module.music.api;
 
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;

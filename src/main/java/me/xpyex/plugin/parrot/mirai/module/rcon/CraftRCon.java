@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module;
+package me.xpyex.plugin.parrot.mirai.module.rcon;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -11,7 +11,7 @@ import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.modulecode.rcon.Rcon;
+import me.xpyex.plugin.parrot.mirai.module.rcon.api.Rcon;
 import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.BotOfflineEvent;

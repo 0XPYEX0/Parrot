@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.rcon;
+package me.xpyex.plugin.parrot.mirai.module.rcon.api;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

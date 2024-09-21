@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.music;
+package me.xpyex.plugin.parrot.mirai.module.music.api;
 
 public class MusicInfo {
     public final String title;

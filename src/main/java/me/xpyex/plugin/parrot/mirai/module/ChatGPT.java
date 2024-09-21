@@ -2,6 +2,7 @@ package me.xpyex.plugin.parrot.mirai.module;
 
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import java.io.File;
@@ -21,7 +22,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.modulecode.chatgpt.ChatMessage;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
@@ -31,6 +31,8 @@ import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 @ExtensionMethod(ArgParser.class)
 public final class ChatGPT extends Module {
@@ -206,6 +208,43 @@ public final class ChatGPT extends Module {
         } catch (IORuntimeException e) {
             handleException(e, true, null);
             return "网络异常，访问失败: " + e;
+        }
+    }
+
+    public static class ChatMessage {
+        private final JSONArray msg = new JSONArray();
+
+        @NotNull
+        @Contract(" -> new")
+        public static ChatMessage of() {
+            return new ChatMessage();
+            //
+        }
+
+        @NotNull
+        @Contract("_, _ -> new")
+        public static ChatMessage of(Role role, String msg) {
+            return of().plus(role, msg);
+            //
+        }
+
+        @NotNull
+        public ChatMessage plus(Role role, String msg) {
+            getMessage().add(new JSONObject()
+                                 .set("role", role.name().toLowerCase())
+                                 .set("content", msg));
+            return this;
+        }
+
+        public JSONArray getMessage() {
+            return msg;
+            //
+        }
+
+        public enum Role {
+            SYSTEM,
+            USER,
+            ASSISTANT
         }
     }
 }

@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.modulecode.music.cardprovider;
+package me.xpyex.plugin.parrot.mirai.module.music.api.cardprovider;
 
 import cn.evolvefield.onebot.sdk.enums.ActionPathEnum;
 import cn.hutool.json.JSONObject;
@@ -7,9 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicCardProvider;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicInfo;
-import me.xpyex.plugin.parrot.mirai.modulecode.music.MusicUtils;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicCardProvider;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicInfo;
+import me.xpyex.plugin.parrot.mirai.module.music.api.MusicUtils;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.LightApp;
