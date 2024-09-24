@@ -23,8 +23,8 @@ public class Util {
     }
 
     public static Bot getBot() {
+        if (Bot.getInstances().isEmpty()) throw new IllegalStateException("没有Bot处于登录状态");
         return Bot.getInstances().get(0);
-        //
     }
 
     public static Friend getOwner() {

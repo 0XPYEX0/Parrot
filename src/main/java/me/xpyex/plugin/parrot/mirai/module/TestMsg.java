@@ -39,7 +39,7 @@ public class TestMsg extends Module {
                 .plus("你执行的命令是: " + label)
                 .plus("你填入的参数是: " + Arrays.toString(args))
                 .send(source);
-        }, "testCmd");
+        }, "test2");
         registerCommand(Contact.class, (source, sender, label, args) -> {
             new MessageBuilder()
                 .plus("这是全局反馈器")
@@ -47,7 +47,7 @@ public class TestMsg extends Module {
                 .plus("你执行的命令是: " + label)
                 .plus("你填入的参数是: " + Arrays.toString(args))
                 .send(source);
-        }, "test2");
+        }, "testCmd");
         registerCommand(Group.class, ((source, sender, label, args) ->
                                           source.sendMessage("这是群反馈器")
         ), "testCmd");

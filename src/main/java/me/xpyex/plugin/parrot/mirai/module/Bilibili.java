@@ -15,7 +15,6 @@ import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -76,7 +75,7 @@ public final class Bilibili extends Module {
                         int seasonId = infos.getJSONObject("result").getInt("season_id");
                         autoSendMsg(event,
                             MsgUtil.getForwardMsgBuilder(event)
-                                .add(Util.getBot(),
+                                .add(getBot(),
                                     new MessageBuilder()
                                         .plus("番剧ID: " + msg.substring(1))
                                         .plus("番剧名: " + title)
@@ -299,22 +298,22 @@ public final class Bilibili extends Module {
             String faceUrl = data.getStr("pic");
 
             String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
-            Message out = ValueUtil.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                                                            .add(Util.getBot(), new PlainText("视频: " + videoID + "\n")
-                                                                                    .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
+            Message out = ValueUtil.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
+                                                            .add(getBot(), new PlainText("视频: " + videoID + "\n")
+                                                                                    .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
                                                                                     .plus(new MessageBuilder()
                                                                                               .plus("AV号: AV" + AvID)
                                                                                               .plus("BV号: " + BvID)
                                                                                               .plus("标题: " + title)
                                                                                               .toString()))
-                                                            .add(Util.getBot(), new PlainText("简介: \n" + description))
-                                                            .add(Util.getBot(), new MessageBuilder()
+                                                            .add(getBot(), new PlainText("简介: \n" + description))
+                                                            .add(getBot(), new MessageBuilder()
                                                                                     .plus("分P数: " + videoCount)
                                                                                     .plus("播放地址:")
                                                                                     .plus("https://bilibili.com/video/av" + AvID)
                                                                                     .plus("https://bilibili.com/video/" + BvID)
                                                                                     .toMessage())
-                                                            .add(Util.getBot(), new MessageBuilder()
+                                                            .add(getBot(), new MessageBuilder()
                                                                                     .plus("作者: " + authorName)
                                                                                     .plus("作者主页: https://space.bilibili.com/" + authorId)
                                                                                     .toMessage())
@@ -369,10 +368,10 @@ public final class Bilibili extends Module {
                 };
                 default -> "非大会员";
             };
-            return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                       .add(Util.getBot(), new PlainText("用户: " + userID + "\n" +
+            return MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
+                       .add(getBot(), new PlainText("用户: " + userID + "\n" +
                                                              "昵称: " + name + "\n")
-                                               .plus(Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
+                                               .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
                                                .plus("性别: " + gender + "\n" +
                                                          "等级: LV" + level + "\n" +
                                                          "会员: " + vipInfo + "\n" +
@@ -408,8 +407,8 @@ public final class Bilibili extends Module {
             MessageBuilder messager = new MessageBuilder()
                                           .plus("动态: " + ID)
                                           .plus("内容: " + card.getStr("desc"));
-            return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                       .add(Util.getBot(), new PlainText(messager.toString()))
+            return MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
+                       .add(getBot(), new PlainText(messager.toString()))
                        .build();
         }
 
@@ -446,10 +445,10 @@ public final class Bilibili extends Module {
                                            .plus("直播间地址: https://" + URL_LIVE + data.getBigInteger("room_id"));
             Message image = null;
             if (data.containsKey("cover")) {
-                image = Util.getBot().getFriend(Util.getBot().getId()).uploadImage(MsgUtil.getImage(data.getStr("cover")));
+                image = getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(data.getStr("cover")));
             }
-            return MsgUtil.getForwardMsgBuilder(Util.getBot().getAsFriend())
-                       .add(Util.getBot(), new PlainText(messager1.toString())
+            return MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
+                       .add(getBot(), new PlainText(messager1.toString())
                                                .plus(null != image ? image : MsgUtil.getEmptyMessage())
                                                .plus(messager2.toString())
                                                .plus("\n")

@@ -1,6 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command.argument;
 
 import java.util.Optional;
+import me.xpyex.plugin.parrot.mirai.api.TryCallable;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
@@ -18,6 +19,13 @@ public class GroupParser extends ContactParser {
         String strID = arg.replaceAll("[^0-9]", "");
         if (strID.trim().isEmpty()) return Optional.empty();
         return parse(Long.parseLong(strID));
+    }
+
+    @NotNull
+    @Override
+    public Optional<Group> parse(TryCallable<String> callable) {
+        return parse(callable, Group.class);
+        //
     }
 
     public Optional<Group> parse(long id) {

@@ -23,10 +23,8 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
@@ -74,8 +72,8 @@ public final class ChatGPT extends Module {
                         source.sendMessage("不理你不理你！");
                         return;
                     }
-                    GroupParser.class.of().parse(() -> args[1], Group.class).ifPresentOrElse(group -> {
-                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 2, args.length)), String.class).ifPresentOrElse(rule -> {
+                    GroupParser.class.of().parse(() -> args[1]).ifPresentOrElse(group -> {
+                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 2, args.length))).ifPresentOrElse(rule -> {
                             try {
                                 Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
                                 GROUP_RULES.put(group.getId(), rule);
@@ -117,9 +115,9 @@ public final class ChatGPT extends Module {
                     ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                     for (int i = 1; i < chatMessage.getMessage().size(); i++) {
                         JSONObject obj = chatMessage.getMessage().getJSONObject(i);
-                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : Util.getBot(), new PlainText(obj.getStr("content")));
+                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
                     }
-                    builder.add(Util.getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
+                    builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                     source.sendMessage(builder.build());
                     return;
                 }
@@ -143,9 +141,9 @@ public final class ChatGPT extends Module {
                     ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                     for (int i = 1; i < chatMessage.getMessage().size(); i++) {
                         JSONObject obj = chatMessage.getMessage().getJSONObject(i);
-                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : Util.getBot(), new PlainText(obj.getStr("content")));
+                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
                     }
-                    builder.add(Util.getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
+                    builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                     source.sendMessage(builder.build());
                     return;
                 }

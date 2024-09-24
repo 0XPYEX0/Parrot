@@ -17,7 +17,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
@@ -45,7 +44,7 @@ public class SearchSkriptHub extends Module {
                 source.sendMessage("缺少权限节点: " + getName() + ".use");
                 return;
             }
-            StrParser.class.of().parse(() -> args[0], String.class).ifPresentOrElse(a -> {
+            StrParser.class.of().parse(() -> args[0]).ifPresentOrElse(a -> {
                 if ("search".equalsIgnoreCase(a)) {
                     ArrayList<String> addon = new ArrayList<>();
                     ArrayList<String> type = new ArrayList<>();
@@ -97,7 +96,7 @@ public class SearchSkriptHub extends Module {
                         return true;
                     }).forEach(json -> {
                         JSONObject obj = (JSONObject) json;
-                        forwardMessage.add(Util.getBot(),
+                        forwardMessage.add(getBot(),
                             new MessageBuilder()
                                 .plus("查找结果: " + obj.getStr("title"))
                                 .plus("该条描述: " + obj.getStr("description"))

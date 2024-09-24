@@ -218,7 +218,7 @@ public class GitUpdates extends Module {
                         newVer.put(pair.getKey(), verName);
                         ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(contact);
                         String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + pair.getKey() + "/releases";
-                        builder.add(Util.getBot(), new PlainText(new MessageBuilder()
+                        builder.add(getBot(), new PlainText(new MessageBuilder()
                                                                      .plus(pair.getKey().split("/")[1] + " 发布了新Release:")
                                                                      .plus("版本名: " + got.getStr("name"))
                                                                      .plus("版本号: " + verName)
@@ -227,7 +227,7 @@ public class GitUpdates extends Module {
                                                                      .plus("更新内容: ")
                                                                      .plus(got.getStr("body").substring(0, Math.min(2200, got.getStr("body").length())))
                                                                      .toString()))
-                            .add(Util.getBot(), new PlainText(
+                            .add(getBot(), new PlainText(
                                 new MessageBuilder()
                                     .plus("详细内容请至 <发布页面> 查看")
                                     .plus("发布页面: " + releasePage)

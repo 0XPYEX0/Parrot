@@ -67,7 +67,7 @@ public class BotManager extends CoreModule {
                     if (args[1].equalsIgnoreCase("list")) {
                         MessageBuilder messager = new MessageBuilder();
                         messager.plus("机器人加入的群列表: ");
-                        for (Group g : Util.getBot().getGroups()) {
+                        for (Group g : getBot().getGroups()) {
                             messager.plus(g.getName() + " (" + g.getId() + ")");
                         }
                         messager.send(source);
@@ -112,7 +112,7 @@ public class BotManager extends CoreModule {
                     if (args[1].equalsIgnoreCase("list")) {
                         MessageBuilder messager = new MessageBuilder();
                         messager.plus("机器人的好友列表: ");
-                        for (Friend f : Util.getBot().getFriends()) {
+                        for (Friend f : getBot().getFriends()) {
                             messager.plus(f.getNick() + " (" + f.getId() + ")");
                         }
                         messager.send(source);
@@ -141,7 +141,7 @@ public class BotManager extends CoreModule {
                 }
                 Friend friend;
                 try {
-                    friend = Util.getBot().getFriendOrFail(Long.parseLong(args[2]));
+                    friend = getBot().getFriendOrFail(Long.parseLong(args[2]));
                 } catch (NumberFormatException ignored) {
                     source.sendMessage("填入的QQ号非整数");
                     return;

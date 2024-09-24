@@ -15,9 +15,8 @@ public class ModuleParser extends ArgParser {
 
     @NotNull
     @Override
-    @SuppressWarnings("unchecked")
     public Optional<Module> parse(TryCallable<String> callable) {
-        return (Optional<Module>) super.parse(callable);
+        return parse(callable, Module.class);
         //
     }
 }

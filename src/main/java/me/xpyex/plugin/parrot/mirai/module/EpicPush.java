@@ -170,7 +170,7 @@ public class EpicPush extends Module {
                 public void run() {
                     try {
                         String json = getJson();
-                        Bot bot = Util.getBot();
+                        Bot bot = getBot();
                         for (String s : userList) {
                             sendPushData(json, null, bot.getFriend(Long.parseLong(s)));
                         }

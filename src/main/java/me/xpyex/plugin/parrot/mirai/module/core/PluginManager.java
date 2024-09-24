@@ -30,7 +30,7 @@ public class PluginManager extends CoreModule {
                         .send(source);
                 } else if (StringUtil.equalsIgnoreCaseOr(args[0], "enable", "disable")) {
                     ModuleParser.class.of()
-                        .parse(() -> args[1], Module.class)
+                        .parse(() -> args[1])
                         .ifPresentOrElse(module -> {
                             if (module.isCore()) {
                                 source.sendMessage("不允许操作核心模块");
