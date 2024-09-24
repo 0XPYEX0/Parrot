@@ -22,12 +22,12 @@ public class JoinMessage extends Module {
             if (event.getGroup().getBotAsMember().isMuted() || (event.getGroup().getSettings().isMuteAll() && event.getGroup().getBotPermission().getLevel() == 0))
                 return;
 
-            Image newMember = event.getGroup().uploadImage(ExternalResource.create(IMAGE_NEW_MEMBER_FILE));
-            event.getGroup().sendMessage(newMember);
+            try (ExternalResource newMemberImage = ExternalResource.create(IMAGE_NEW_MEMBER_FILE)) {
+                Image newMember = event.getGroup().uploadImage(newMemberImage);
+                event.getGroup().sendMessage(newMember);
+            }
             if (event.getGroupId() == 906768617) {
                 runTaskLater(() -> {
-                    Image howToAsk = event.getGroup().uploadImage(ExternalResource.create(IMAGE_HOW_TO_ASK_FILE));
-                    Image doNotFly = event.getGroup().uploadImage(ExternalResource.create(IMAGE_DONT_FLY_FILE));
                     event.getGroup().sendMessage(
                         new At(event.getMember().getId())
                             .plus(new MessageBuilder()
@@ -41,8 +41,14 @@ public class JoinMessage extends Module {
                                       .toMessage())
                             .plus("先学会走再学飞")
                     );
-                    event.getGroup().sendMessage(howToAsk);
-                    event.getGroup().sendMessage(doNotFly);
+                    try (ExternalResource howToAskImage = ExternalResource.create(IMAGE_HOW_TO_ASK_FILE)) {
+                        Image howToAsk = event.getGroup().uploadImage(howToAskImage);
+                        event.getGroup().sendMessage(howToAsk);
+                    }
+                    try (ExternalResource dontFlyImage = ExternalResource.create(IMAGE_DONT_FLY_FILE)) {
+                        Image doNotFly = event.getGroup().uploadImage(dontFlyImage);
+                        event.getGroup().sendMessage(doNotFly);
+                    }
                 }, RANDOM.nextInt(15));
             }
         });
