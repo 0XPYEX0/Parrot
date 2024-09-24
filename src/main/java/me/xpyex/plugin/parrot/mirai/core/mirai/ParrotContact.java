@@ -123,7 +123,7 @@ public class ParrotContact<C extends Contact> {
 
     public void uploadFile(URL url, String name, String folder) throws Exception {
         ValueUtil.notNull("参数除folder外，不应为null", url, name);
-        File f = File.createTempFile("", name);
+        File f = File.createTempFile("tmp-", "-" + name);
         URLConnection connection = url.openConnection();
         connection.connect();
         Files.copy(connection.getInputStream(), f.toPath());
