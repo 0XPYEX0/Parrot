@@ -2,14 +2,17 @@ package me.xpyex.plugin.parrot.mirai.module;
 
 import java.io.File;
 import java.util.Random;
+import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.utils.ExternalResource;
 
 @SuppressWarnings("unused")
+@ExtensionMethod(MsgUtil.class)
 public class JoinMessage extends Module {
     private static final File IMAGE_HOW_TO_ASK_FILE = new File("pictures/提问の艺术.png");
     private static final File IMAGE_DONT_FLY_FILE = new File("pictures/一步登天.png");
@@ -19,16 +22,13 @@ public class JoinMessage extends Module {
     @Override
     public void register() {
         listenEvent(MemberJoinEvent.class, event -> {
-            if (event.getGroup().getBotAsMember().isMuted() || (event.getGroup().getSettings().isMuteAll() && event.getGroup().getBotPermission().getLevel() == 0))
-                return;
-
             try (ExternalResource newMemberImage = ExternalResource.create(IMAGE_NEW_MEMBER_FILE)) {
                 Image newMember = event.getGroup().uploadImage(newMemberImage);
-                event.getGroup().sendMessage(newMember);
+                event.getGroup().sendMsg(newMember);
             }
             if (event.getGroupId() == 906768617) {
                 runTaskLater(() -> {
-                    event.getGroup().sendMessage(
+                    event.getGroup().sendMsg(
                         new At(event.getMember().getId())
                             .plus(new MessageBuilder()
                                       .plus(" 欢迎入群")
@@ -43,11 +43,11 @@ public class JoinMessage extends Module {
                     );
                     try (ExternalResource howToAskImage = ExternalResource.create(IMAGE_HOW_TO_ASK_FILE)) {
                         Image howToAsk = event.getGroup().uploadImage(howToAskImage);
-                        event.getGroup().sendMessage(howToAsk);
+                        event.getGroup().sendMsg(howToAsk);
                     }
                     try (ExternalResource dontFlyImage = ExternalResource.create(IMAGE_DONT_FLY_FILE)) {
                         Image doNotFly = event.getGroup().uploadImage(dontFlyImage);
-                        event.getGroup().sendMessage(doNotFly);
+                        event.getGroup().sendMsg(doNotFly);
                     }
                 }, RANDOM.nextInt(15));
             }
