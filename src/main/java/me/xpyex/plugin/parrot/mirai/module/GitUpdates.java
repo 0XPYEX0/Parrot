@@ -28,7 +28,6 @@ import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -172,6 +171,7 @@ public class GitUpdates extends Module {
         HashMap<String, JSONObject> results = new HashMap<>();  //Repo, Results
         repoURLs.forEach((repo, api) -> {
             JSONObject result = new JSONObject(HttpRequest.get(api).execute().body());
+            if (!result.containsKey("tag_name")) return;
             if (!ReleasesUpdate.getInstance().getCache().containsKey(repo) || !ReleasesUpdate.getInstance().getCache().get(repo).equalsIgnoreCase(result.getStr("tag_name"))) {
                 //此时就是检查到相对自身而言的“新版本”
                 results.put(repo, result);
