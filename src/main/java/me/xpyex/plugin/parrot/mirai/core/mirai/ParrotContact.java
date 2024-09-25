@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
@@ -126,7 +127,7 @@ public class ParrotContact<C extends Contact> {
         File f = File.createTempFile("tmp-", "-" + name);
         URLConnection connection = url.openConnection();
         connection.connect();
-        Files.copy(connection.getInputStream(), f.toPath());
+        Files.copy(connection.getInputStream(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
         uploadFile(f, name, folder);
         f.deleteOnExit();
     }
