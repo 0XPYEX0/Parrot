@@ -54,8 +54,11 @@ public abstract class ArgParser {
     @SuppressWarnings("unchecked")
     public <T> Optional<T> parse(TryCallable<String> callable, Class<T> clazz) {
         try {
-            return (Optional<T>) parse(callable);
-        } catch (ClassCastException ignored) {
+            return (Optional<T>) parse(callable.call());
+        } catch (Throwable e) {
+            if (!(e instanceof ClassCastException)) {
+                e.printStackTrace();
+            }
             return Optional.empty();
         }
     }
