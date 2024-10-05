@@ -75,9 +75,9 @@ public class ParrotPlugin extends JavaPlugin {
                     return;  //该事件已被CoreModule拦截不允许下发处理
                 }
 
-                if (event instanceof MessageEvent && MsgUtil.getPlainText(((MessageEvent) event).getMessage()).startsWith("#")) {
-                    if (CommandBus.isCmd(MsgUtil.getPlainText(((MessageEvent) event).getMessage()).split(" ")[0].substring(1))) {
-                        CommandBus.callCommands((MessageEvent) event, MsgUtil.getPlainText(((MessageEvent) event).getMessage()));
+                if (event instanceof MessageEvent msgEvent && MsgUtil.getPlainText(msgEvent.getMessage()).startsWith("#")) {
+                    if (CommandBus.isCmd(MsgUtil.getPlainText(msgEvent.getMessage()).split(" ")[0].substring(1))) {
+                        CommandBus.callCommands(msgEvent, MsgUtil.getPlainText(msgEvent.getMessage()));
                         return;
                     }
                 }

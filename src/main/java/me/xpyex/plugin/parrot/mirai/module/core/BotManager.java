@@ -215,16 +215,16 @@ public class BotManager extends CoreModule {
 
     @Override
     public boolean acceptEvent(Event event) {
-        if (event instanceof GroupEvent && IGNORED_LIST.contains("Group-" + ((GroupEvent) event).getGroup().getId()))
+        if (event instanceof GroupEvent ge && IGNORED_LIST.contains("Group-" + ge.getGroup().getId()))
             return false;
 
-        if (event instanceof UserEvent && IGNORED_LIST.contains("User-" + ((UserEvent) event).getUser().getId()))
+        if (event instanceof UserEvent ue && IGNORED_LIST.contains("User-" + ue.getUser().getId()))
             return false;
 
-        if (event instanceof MessageEvent && IGNORED_LIST.contains("User-" + ((MessageEvent) event).getSender().getId()))
+        if (event instanceof MessageEvent me && IGNORED_LIST.contains("User-" + me.getSender().getId()))
             return false;
 
-        if (event instanceof NudgeEvent && (IGNORED_LIST.contains("User-" + ((NudgeEvent) event).getFrom().getId()) || IGNORED_LIST.contains("Group-" + ((NudgeEvent) event).getSubject().getId())))
+        if (event instanceof NudgeEvent ne && (IGNORED_LIST.contains("User-" + ne.getFrom().getId()) || IGNORED_LIST.contains("Group-" + ne.getSubject().getId())))
             return false;
         return true;
     }

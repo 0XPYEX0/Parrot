@@ -113,7 +113,7 @@ public abstract class Module {
         return module;
     }
 
-    public static void recall(MessageSource source) {
+    protected static void recall(MessageSource source) {
         Mirai.getInstance().recallMessage(getBot(), source);
         //
     }
@@ -171,7 +171,7 @@ public abstract class Module {
     }
 
     @SuppressWarnings("unchecked")
-    public static  <C extends Contact> C getRealSender(MessageEvent event) {
+    protected static  <C extends Contact> C getRealSender(MessageEvent event) {
         return (C) MsgUtil.getRealSender(event);
         //
     }
@@ -258,7 +258,7 @@ public abstract class Module {
     }
 
     @NotNull
-    public static Bot getBot() {
+    protected static Bot getBot() {
         return Util.getBot();
         //
     }
@@ -268,7 +268,7 @@ public abstract class Module {
         //
     }
 
-    public static String getPlainText(MessageChain message) {
+    protected static String getPlainText(MessageChain message) {
         return MsgUtil.getPlainText(message);
         //
     }

@@ -81,7 +81,7 @@ public class CommandBus {
                                 try {
                                     command.executor().execute(contact, sender, cmd.substring(1), args);
                                 } catch (Throwable e) {
-                                    ExceptionUtil.handleException(e, false, null, null);
+                                    ExceptionUtil.handleException(e, false, null, module);
                                     MsgUtil.sendMsgToOwner("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
                                 }
                             }
