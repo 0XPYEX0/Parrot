@@ -26,6 +26,13 @@ import top.mrxiaom.overflow.contact.RemoteBot;
 @Getter
 @ExtensionMethod({MsgUtil.class, PermManager.class})
 public class ParrotContact<C extends Contact> {
+    private static final File FILE_CACHE_FOLDER = new File("cache/file");
+
+    static {
+        if (!FILE_CACHE_FOLDER.exists()) {
+            FILE_CACHE_FOLDER.mkdirs();
+        }
+    }
 
     private final C contact;
     private final long createdTime = System.currentTimeMillis();
@@ -124,7 +131,7 @@ public class ParrotContact<C extends Contact> {
 
     public void uploadFile(URL url, String name, String folder) throws Exception {
         ValueUtil.notNull("参数除folder外，不应为null", url, name);
-        File f = File.createTempFile("tmp-", "-" + name);
+        File f = new File(FILE_CACHE_FOLDER, name);
         URLConnection connection = url.openConnection();
         connection.connect();
         Files.copy(connection.getInputStream(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);

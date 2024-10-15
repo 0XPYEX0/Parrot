@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'me.xpyex'
-version = '3.2.5'
+version = '3.2.6'
 
 repositories {
     maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     //compileOnly fileTree(dir:'libs' ,include:['*.jar'])
     implementation 'cn.hutool:hutool-all:5.8.21'
-    compileOnly "top.mrxiaom:overflow-core:2.16.0-b1eafba-SNAPSHOT"
+    compileOnly 'top.mrxiaom.mirai:overflow-core:1.0.0'
     compileOnly 'net.mamoe:mirai-core-all:2.16.0'
     compileOnly 'net.mamoe:mirai-console:2.16.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
