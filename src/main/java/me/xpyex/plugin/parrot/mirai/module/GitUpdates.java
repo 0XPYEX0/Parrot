@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.Data;
@@ -275,6 +276,12 @@ public class GitUpdates extends Module {
                        repo.equals(gitInfo.repo) &&
                        uploadFile == gitInfo.uploadFile
                 ;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, repo, uploadFile);
+            //
         }
 
         public enum SupportedGits {
