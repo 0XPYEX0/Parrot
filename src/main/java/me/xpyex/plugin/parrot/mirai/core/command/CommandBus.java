@@ -5,11 +5,13 @@ import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
+import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -43,7 +45,6 @@ public class CommandBus {
             COMMAND_LIST.put(alias.toLowerCase(), module);  //注册
         }
         COMMAND_BUSES.add(new Tuple(contactType, module, new Command<>(executor, aliases)));
-        //
     }
 
     public static void callCommands(MessageEvent event, String msg) {
@@ -66,7 +67,7 @@ public class CommandBus {
      * @param args    命令参数
      */
     public static void dispatchCommand(ParrotContact<Contact> contact, ParrotContact<User> sender, String cmd, String... args) {
-        if (!cmd.startsWith("#")) {
+        if (!StringUtil.startsWithIgnoreCaseOr(cmd, ParrotPlugin.CMD_PREFIX)) {
             cmd = "#" + cmd;
         }
         for (Tuple commandBus : COMMAND_BUSES) {  //contactType, module, command

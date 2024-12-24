@@ -9,6 +9,7 @@ import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ReflectUtil;
+import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.Event;
@@ -19,6 +20,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 public class ParrotPlugin extends JavaPlugin {
+    public static final String[] CMD_PREFIX = {"#", "$", "/", "!", "！"};
     public static MiraiLogger LOGGER;
     public static ParrotPlugin INSTANCE;
 
@@ -75,7 +77,7 @@ public class ParrotPlugin extends JavaPlugin {
                     return;  //该事件已被CoreModule拦截不允许下发处理
                 }
 
-                if (event instanceof MessageEvent msgEvent && MsgUtil.getPlainText(msgEvent.getMessage()).startsWith("#")) {
+                if (event instanceof MessageEvent msgEvent && StringUtil.startsWithIgnoreCaseOr(MsgUtil.getPlainText(msgEvent.getMessage()), CMD_PREFIX)) {
                     if (CommandBus.isCmd(MsgUtil.getPlainText(msgEvent.getMessage()).split(" ")[0].substring(1))) {
                         CommandBus.callCommands(msgEvent, MsgUtil.getPlainText(msgEvent.getMessage()));
                         return;

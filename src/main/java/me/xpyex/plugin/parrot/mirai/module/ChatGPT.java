@@ -43,6 +43,7 @@ public final class ChatGPT extends Module {
     private static final String DENIED_MSG_3 = "你没有使用 ChatGPT 3.5 模型的权限";
     private static final String DENIED_MSG_4 = "你没有使用 ChatGPT 4 模型的权限";
     private static final HashMap<Long, String> GROUP_RULES = new HashMap<>();
+    private static final int MSG_SIZE_LIMIT = 20;
 
     @Override
     public void register() throws Throwable {
@@ -170,7 +171,7 @@ public final class ChatGPT extends Module {
                                      .set("stop", JSONNull.NULL);
             ChatMessage chatMessage = CHAT_CACHE.get(id);  //获取其缓存
 
-            while (chatMessage.getMessage().size() >= 11) {  //只保留5回合，第一条为System
+            while (chatMessage.getMessage().size() >= MSG_SIZE_LIMIT + 1) {  //只保留指定回合的对话，第一条为System
                 chatMessage.getMessage().remove(1);  //0是System语句，无需移除。从1开始是对话语句
             }
 
