@@ -19,7 +19,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
-import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;

@@ -300,23 +300,23 @@ public final class Bilibili extends Module {
             String videoID = param.containsKey("aid") ? "AV" + param.get("aid") : "BV" + param.get("bvid");
             Message out = ValueUtil.repeatIfError(() -> MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
                                                             .add(getBot(), new PlainText("视频: " + videoID + "\n")
-                                                                                    .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
-                                                                                    .plus(new MessageBuilder()
-                                                                                              .plus("AV号: AV" + AvID)
-                                                                                              .plus("BV号: " + BvID)
-                                                                                              .plus("标题: " + title)
-                                                                                              .toString()))
+                                                                               .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceUrl)))
+                                                                               .plus(new MessageBuilder()
+                                                                                         .plus("AV号: AV" + AvID)
+                                                                                         .plus("BV号: " + BvID)
+                                                                                         .plus("标题: " + title)
+                                                                                         .toString()))
                                                             .add(getBot(), new PlainText("简介: \n" + description))
                                                             .add(getBot(), new MessageBuilder()
-                                                                                    .plus("分P数: " + videoCount)
-                                                                                    .plus("播放地址:")
-                                                                                    .plus("https://bilibili.com/video/av" + AvID)
-                                                                                    .plus("https://bilibili.com/video/" + BvID)
-                                                                                    .toMessage())
+                                                                               .plus("分P数: " + videoCount)
+                                                                               .plus("播放地址:")
+                                                                               .plus("https://bilibili.com/video/av" + AvID)
+                                                                               .plus("https://bilibili.com/video/" + BvID)
+                                                                               .toMessage())
                                                             .add(getBot(), new MessageBuilder()
-                                                                                    .plus("作者: " + authorName)
-                                                                                    .plus("作者主页: https://space.bilibili.com/" + authorId)
-                                                                                    .toMessage())
+                                                                               .plus("作者: " + authorName)
+                                                                               .plus("作者主页: https://space.bilibili.com/" + authorId)
+                                                                               .toMessage())
                                                             .build(), 2, 3000);
             if (out == null) {
                 return new PlainText("解析失败");
@@ -370,13 +370,13 @@ public final class Bilibili extends Module {
             };
             return MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
                        .add(getBot(), new PlainText("用户: " + userID + "\n" +
-                                                             "昵称: " + name + "\n")
-                                               .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
-                                               .plus("性别: " + gender + "\n" +
-                                                         "等级: LV" + level + "\n" +
-                                                         "会员: " + vipInfo + "\n" +
-                                                         "认证信息: " + officialInfo + "\n" +
-                                                         "空间地址: https://space.bilibili.com/" + userID)).build();
+                                                        "昵称: " + name + "\n")
+                                          .plus(getBot().getFriend(getBot().getId()).uploadImage(MsgUtil.getImage(faceURL)))
+                                          .plus("性别: " + gender + "\n" +
+                                                    "等级: LV" + level + "\n" +
+                                                    "会员: " + vipInfo + "\n" +
+                                                    "认证信息: " + officialInfo + "\n" +
+                                                    "空间地址: https://space.bilibili.com/" + userID)).build();
         }
 
         public static Message getDynamicInfo(long ID) throws Exception {
@@ -449,10 +449,10 @@ public final class Bilibili extends Module {
             }
             return MsgUtil.getForwardMsgBuilder(getBot().getAsFriend())
                        .add(getBot(), new PlainText(messager1.toString())
-                                               .plus(null != image ? image : MsgUtil.getEmptyMessage())
-                                               .plus(messager2.toString())
-                                               .plus("\n")
-                                               .plus(getUserInfo(uID)))
+                                          .plus(null != image ? image : MsgUtil.getEmptyMessage())
+                                          .plus(messager2.toString())
+                                          .plus("\n")
+                                          .plus(getUserInfo(uID)))
                        .build();
         }
 

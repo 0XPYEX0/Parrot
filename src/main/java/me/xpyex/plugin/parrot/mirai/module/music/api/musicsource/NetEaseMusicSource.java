@@ -9,9 +9,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import me.xpyex.plugin.parrot.mirai.module.music.api.MusicInfo;
-import me.xpyex.plugin.parrot.mirai.module.music.api.NetEaseCrypto;
 import me.xpyex.plugin.parrot.mirai.module.music.api.MusicSource;
 import me.xpyex.plugin.parrot.mirai.module.music.api.MusicUtils;
+import me.xpyex.plugin.parrot.mirai.module.music.api.NetEaseCrypto;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 
 public class NetEaseMusicSource implements MusicSource {

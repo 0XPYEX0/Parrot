@@ -118,6 +118,23 @@ public abstract class Module {
         //
     }
 
+    @SuppressWarnings("unchecked")
+    protected static <C extends Contact> C getRealSender(MessageEvent event) {
+        return (C) MsgUtil.getRealSender(event);
+        //
+    }
+
+    @NotNull
+    protected static Bot getBot() {
+        return Util.getBot();
+        //
+    }
+
+    protected static String getPlainText(MessageChain message) {
+        return MsgUtil.getPlainText(message);
+        //
+    }
+
     public abstract void register() throws Throwable;
 
     public final <C extends Contact> void registerCommand(Class<C> contactType, CommandExecutor<C> exec, String... aliases) {
@@ -167,12 +184,6 @@ public abstract class Module {
 
     public final void debug(Throwable e) {
         getLogger().debug("[" + getName() + "]", e);
-        //
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static  <C extends Contact> C getRealSender(MessageEvent event) {
-        return (C) MsgUtil.getRealSender(event);
         //
     }
 
@@ -257,19 +268,8 @@ public abstract class Module {
         return TASKS.get(this).remove(uuid);
     }
 
-    @NotNull
-    protected static Bot getBot() {
-        return Util.getBot();
-        //
-    }
-
     public final void handleException(Throwable e, boolean noticeOwner, Event event) {
         ExceptionUtil.handleException(e, noticeOwner, event, this);
-        //
-    }
-
-    protected static String getPlainText(MessageChain message) {
-        return MsgUtil.getPlainText(message);
         //
     }
 

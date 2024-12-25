@@ -220,14 +220,14 @@ public class GitUpdates extends Module {
                         ForwardMessageBuilder builder = MsgUtil.getForwardMsgBuilder(contact);
                         String releasePage = got.containsKey("html_url") ? got.getStr("html_url") : "https://gitee.com/" + pair.getKey() + "/releases";
                         builder.add(getBot(), new PlainText(new MessageBuilder()
-                                                                     .plus(pair.getKey().split("/")[1] + " 发布了新Release:")
-                                                                     .plus("版本名: " + got.getStr("name"))
-                                                                     .plus("版本号: " + verName)
-                                                                     .plus("发布时间: " + got.getStr("published_at", got.getStr("created_at")).replace("T", " ").replace("Z", "").replace("+08:00", ""))
-                                                                     .plus("")
-                                                                     .plus("更新内容: ")
-                                                                     .plus(got.getStr("body").substring(0, Math.min(2200, got.getStr("body").length())))
-                                                                     .toString()))
+                                                                .plus(pair.getKey().split("/")[1] + " 发布了新Release:")
+                                                                .plus("版本名: " + got.getStr("name"))
+                                                                .plus("版本号: " + verName)
+                                                                .plus("发布时间: " + got.getStr("published_at", got.getStr("created_at")).replace("T", " ").replace("Z", "").replace("+08:00", ""))
+                                                                .plus("")
+                                                                .plus("更新内容: ")
+                                                                .plus(got.getStr("body").substring(0, Math.min(2200, got.getStr("body").length())))
+                                                                .toString()))
                             .add(getBot(), new PlainText(
                                 new MessageBuilder()
                                     .plus("详细内容请至 <发布页面> 查看")
@@ -269,6 +269,12 @@ public class GitUpdates extends Module {
         private boolean uploadFile = true;
 
         @Override
+        public int hashCode() {
+            return Objects.hash(type, repo, uploadFile);
+            //
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof GitInfo gitInfo)) return false;
@@ -276,12 +282,6 @@ public class GitUpdates extends Module {
                        repo.equals(gitInfo.repo) &&
                        uploadFile == gitInfo.uploadFile
                 ;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(type, repo, uploadFile);
-            //
         }
 
         public enum SupportedGits {

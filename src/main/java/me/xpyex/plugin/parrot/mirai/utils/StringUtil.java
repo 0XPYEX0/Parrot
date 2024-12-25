@@ -1,5 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.utils;
 
+import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+
 public class StringUtil {
     public static String getStrBetweenKeywords(String _string, String _key1, String _key2) {
         int firstKeyIndex = _key1.length() + _string.indexOf(_key1);
@@ -28,5 +30,23 @@ public class StringUtil {
                 return true;
         }
         return false;
+    }
+
+    public static boolean equalsIgnoreCaseOr(TryCallable<String> target, String... contents) {
+        try {
+            return equalsIgnoreCaseOr(target.call(), contents);
+        } catch (Throwable e) {
+            return false;
+        }
+        //
+    }
+
+    public static boolean equalsIgnoreCase(String target, TryCallable<String> another) {
+        try {
+            return target.equalsIgnoreCase(another.call());
+        } catch (Throwable e) {
+            return false;
+        }
+        //
     }
 }

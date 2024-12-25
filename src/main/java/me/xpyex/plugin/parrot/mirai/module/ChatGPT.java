@@ -32,7 +32,7 @@ import net.mamoe.mirai.message.data.PlainText;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-@ExtensionMethod(ArgParser.class)
+@ExtensionMethod({ArgParser.class, StringUtil.class})
 public final class ChatGPT extends Module {
     private static final WeakHashMap<Long, ChatMessage> CHAT_CACHE = new WeakHashMap<>();
     private static final String DEFAULT_MSG = "";
@@ -54,21 +54,12 @@ public final class ChatGPT extends Module {
                     source.sendMessage("你没有权限");
                     return;
                 }
-                if (args.length == 0) {
-                    new CommandMenu(label)
-                        .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
-                        .add("reset", "开启新话题")
-                        .add("reGo", "按照先前的话题重新生成")
-                        .add("groupRule", "设定在某个群的System语句")
-                        .send(source);
-                    return;
-                }
-                if ("reset".equalsIgnoreCase(args[0])) {
+                if ("reset".equalsIgnoreCase(() -> args[0])) {
                     CHAT_CACHE.remove(sender.getId());
                     source.sendMessage("已清除连续对话记忆");
                     return;
                 }
-                if ("groupRule".equalsIgnoreCase(args[0])) {
+                if ("groupRule".equalsIgnoreCase(() -> args[0])) {
                     if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
                         source.sendMessage("不理你不理你！");
                         return;
@@ -86,7 +77,7 @@ public final class ChatGPT extends Module {
                     }, () -> source.sendMessage("未输入群号"));
                     return;
                 }
-                if (StringUtil.equalsIgnoreCaseOr(args[0], "talk", "talk4")) {
+                if (StringUtil.equalsIgnoreCaseOr(() -> args[0], "talk", "talk4")) {
                     boolean is3 = "talk".equalsIgnoreCase(args[0]);
                     if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
                         source.sendMessage(DENIED_MSG_3);
@@ -122,7 +113,7 @@ public final class ChatGPT extends Module {
                     source.sendMessage(builder.build());
                     return;
                 }
-                if (StringUtil.equalsIgnoreCaseOr(args[0], "reGo", "reGo4")) {  //重新生成
+                if (StringUtil.equalsIgnoreCaseOr(() -> args[0], "reGo", "reGo4")) {  //重新生成
                     boolean is3 = "reGo".equalsIgnoreCase(args[0]);
                     if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
                         source.sendMessage(DENIED_MSG_3);
@@ -148,7 +139,12 @@ public final class ChatGPT extends Module {
                     source.sendMessage(builder.build());
                     return;
                 }
-                new MessageBuilder("未知的参数").plus("执行 #" + label).plus("查看帮助").send(source);
+                new CommandMenu(label)
+                    .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
+                    .add("reset", "开启新话题")
+                    .add("reGo", "按照先前的话题重新生成")
+                    .add("groupRule", "设定在某个群的System语句")
+                    .send(source);
             }
         }, "ChatGPT", "GPT", "Chat", "ChatBot");
 
