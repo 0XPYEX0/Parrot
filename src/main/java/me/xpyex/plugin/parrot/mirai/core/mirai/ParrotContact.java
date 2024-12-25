@@ -81,7 +81,7 @@ public class ParrotContact<C extends Contact> {
 
     public Group getContactAsGroup() {
         if (isGroup()) {
-            return (Group) this.getContact();
+            return (Group) getContact();
         }
         throw new ClassCastException("其中的对象不是Group");
     }
@@ -108,7 +108,7 @@ public class ParrotContact<C extends Contact> {
     public void uploadFile(File file, String name, String folder) throws Exception {
         RemoteBot bot = RemoteBot.getAsRemoteBot(Util.getBot());
         ValueUtil.mustTrue("file必须存在，且非文件夹", file::exists, file::isFile);
-        ValueUtil.notNull("参数name不应为null", file, name);
+        ValueUtil.notNull("参数name不应为null", name);  //上方可catch NullPointerException
         if (isGroup()) {
             bot.executeAction(debug(ActionPathEnum.UPLOAD_GROUP_FILE.getPath()),
                 debug(new JSONObject()

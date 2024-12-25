@@ -20,7 +20,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 public class ParrotPlugin extends JavaPlugin {
-    public static final String[] CMD_PREFIX = {"#", "$", "/", "!", "！"};
+    public static final String[] CMD_PREFIX = {"#", "$", "/", "!", "！", "＃"};
     public static MiraiLogger LOGGER;
     public static ParrotPlugin INSTANCE;
 
