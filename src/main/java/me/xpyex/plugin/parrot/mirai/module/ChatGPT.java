@@ -56,7 +56,7 @@ public final class ChatGPT extends Module {
                 }
                 if (args.length == 0) {
                     new CommandMenu(label)
-                        .add("talk <Messages>...", "与ChatGPT对话，每次对话保留5回合")
+                        .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
                         .add("reset", "开启新话题")
                         .add("reGo", "按照先前的话题重新生成")
                         .add("groupRule", "设定在某个群的System语句")
