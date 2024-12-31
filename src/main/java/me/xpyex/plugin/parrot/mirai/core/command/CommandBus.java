@@ -40,7 +40,7 @@ public class CommandBus {
         return list;
     }
 
-    public static <C extends Contact> void takeInBus(Class<C> contactType, Module module, CommandExecutor<C> executor, String... aliases) {
+    public static <C extends Contact> void takeInBus(Class<C> contactType, Module module, CommandNode<C> executor, String... aliases) {
         for (String alias : aliases) {
             COMMAND_LIST.put(alias.toLowerCase(), module);  //注册
         }
@@ -80,10 +80,10 @@ public class CommandBus {
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {
-                                    command.executor().execute(contact, sender, cmd.substring(1), args);
+                                    command.node().execute(contact, sender, cmd, args);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false, null, module);
-                                    MsgUtil.sendMsgToOwner("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
+                                    contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
                                 }
                             }
                         }

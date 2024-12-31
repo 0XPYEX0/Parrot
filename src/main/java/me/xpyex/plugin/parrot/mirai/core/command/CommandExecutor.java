@@ -9,9 +9,10 @@ import net.mamoe.mirai.event.events.MessageEvent;
 
 @FunctionalInterface
 public interface CommandExecutor<C extends Contact> {
-    WeakHashMap<Long, MessageEvent> EVENT_POOL = new WeakHashMap<>();
+    @SuppressWarnings("all")
+    public static final WeakHashMap<Long, MessageEvent> EVENT_POOL = new WeakHashMap<>();
 
-    void execute(ParrotContact<C> source, ParrotContact<User> sender, String label, String... args) throws Throwable;
+    void execute(ParrotContact<C> source, ParrotContact<User> sender, String nodeArgSelf, String... argsLater) throws Throwable;
 
     /**
      * 获取触发命令的事件

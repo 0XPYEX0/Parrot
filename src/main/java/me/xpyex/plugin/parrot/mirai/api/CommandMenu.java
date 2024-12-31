@@ -52,7 +52,7 @@ public class CommandMenu {
     public String toString() {
         MessageBuilder messager = new MessageBuilder();
         for (Pair<String, String> pair : helpList) {
-            messager.plus("#" + command + " " + pair.getKey() + " - " + pair.getValue());
+            messager.plus(command + " " + pair.getKey() + " - " + pair.getValue());
         }
         return messager.toString();
     }
