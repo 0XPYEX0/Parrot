@@ -80,7 +80,7 @@ public class CommandBus {
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(cmd.substring(1))) {
                                 try {
-                                    command.node().execute(contact, sender, cmd, args);
+                                    command.node().execute(contact, sender, new String[]{cmd}, args);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false, null, module);
                                     contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);

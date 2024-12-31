@@ -24,6 +24,11 @@ public class CommandMenu {
         //
     }
 
+    public CommandMenu(String[] command) {
+        this(String.join(" ", command));
+        //
+    }
+
     public CommandMenu add(String arg) {
         return add(arg, "");
     }

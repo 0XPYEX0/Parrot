@@ -10,7 +10,7 @@ import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.mirai.api.TryConsumer;
 import me.xpyex.plugin.parrot.mirai.api.TryRunnable;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
-import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
@@ -137,7 +137,7 @@ public abstract class Module {
 
     public abstract void register() throws Throwable;
 
-    public final <C extends Contact> void registerCommand(Class<C> contactType, CommandExecutor<C> exec, String... aliases) {
+    public final <C extends Contact> void registerCommand(Class<C> contactType, CommandNode<C> exec, String... aliases) {
         for (String s : aliases) {
             ValueUtil.notNull("注册命令怎么会混进来一个null？", s);
             ValueUtil.mustTrue("注册的命令不应包含空格，应作为参数判断", !s.contains(" "));

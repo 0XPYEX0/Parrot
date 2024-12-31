@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ExceptionUtil {
     public static void handleException(Throwable e, boolean noticeOwner, @Nullable Event event, @Nullable Module module) {
-        e.printStackTrace();
+        new Throwable("模块 " + (module == null ? "null" : module.getName()) + " 出现异常: " + e, e).printStackTrace();
         if (noticeOwner) {
             String eventCause;
             if (event != null) {
