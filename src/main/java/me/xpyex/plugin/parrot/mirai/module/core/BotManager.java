@@ -1,7 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
@@ -49,7 +48,7 @@ public class BotManager extends CoreModule {
                     return true;
                 })
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(Arrays.toString(nodeArgSelf))
+                            new CommandMenu(nodeArgSelf)
                                 .add("quit <ID>", "令机器人退出该群")
                                 .add("ignore <ID>", "忽略该群触发的事件")
                                 .add("list", "列出该机器人加入的所有群")
@@ -93,7 +92,7 @@ public class BotManager extends CoreModule {
                            }), "ignore")
                     , "group")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(nodeArgSelf, "friend")
+                            new CommandMenu(nodeArgSelf)
                                 .add("delete <ID>", "令机器人删除该好友")
                                 .add("list", "列出该机器人的好友列表")
                                 .send(source);
@@ -144,7 +143,7 @@ public class BotManager extends CoreModule {
                            }), "del", "delete")
                     , "friend")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(nodeArgSelf, "user")
+                            new CommandMenu(nodeArgSelf)
                                 .add("ignore <ID>", "忽略该用户触发的事件")
                                 .send(source);
                         })
