@@ -68,67 +68,63 @@ public final class ChatGPT extends Module {
                     source.sendMessage("已清除连续对话记忆");
                 }), "reset")
                 .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
-                        GroupParser.class.of().parse(() -> args[0]).ifPresentOrElse(group -> {
-                            StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 1, args.length))).ifPresentOrElse(rule -> {
-                                try {
-                                    Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
-                                    GROUP_RULES.put(group.getId(), rule);
-                                    source.sendMessage("已保存规则");
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }, () -> source.sendMessage("未输入具体规则"));
-                        }, () -> source.sendMessage("未输入群号"));
-                    })
-                           .executableCheck((source, sender) -> {
-                               if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
-                                   source.sendMessage("不理你不理你！");
-                                   return false;
-                               }
-                               return true;
-                           }), "groupRule")
-                .child(
-                    CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            source.sendMessage("你想聊点什么？😊");
-                        })
-                        .executableCheckWithCmdArg((source, sender, args) -> {
-                            boolean is3 = "talk".equalsIgnoreCase(() -> args[args.length - 1]);
-                            if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
-                                source.sendMessage(DENIED_MSG_3);
-                                return false;
+                    GroupParser.class.of().parse(() -> args[0]).ifPresentOrElse(group -> {
+                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 1, args.length))).ifPresentOrElse(rule -> {
+                            try {
+                                Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
+                                GROUP_RULES.put(group.getId(), rule);
+                                source.sendMessage("已保存规则");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
-                            if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
-                                source.sendMessage(DENIED_MSG_4);
-                                return false;
-                            }
-                            return true;
-                        })
-                        .notMatchedArg(new CommandExecutor<>() {
-                            @Override
-                            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String[] nodeArgSelf, String[] argsLater) throws Throwable {
-                                boolean is3 = "talk".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
-                                if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
-                                    getEvent(source).ifPresent(msgEvent -> {
-                                        recall(msgEvent.getSource());
-                                    });
-                                }
-                                ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
-                                    CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
+                        }, () -> source.sendMessage("未输入具体规则"));
+                    }, () -> source.sendMessage("未输入群号"));
+                }).executableCheck((source, sender) -> {
+                    if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
+                        source.sendMessage("不理你不理你！");
+                        return false;
+                    }
+                    return true;
+                }), "groupRule")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                        source.sendMessage("你想聊点什么？😊");
+                    }).executableCheckWithCmdArg((source, sender, args) -> {
+                        boolean is3 = "talk".equalsIgnoreCase(() -> args[args.length - 1]);
+                        if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
+                            source.sendMessage(DENIED_MSG_3);
+                            return false;
+                        }
+                        if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
+                            source.sendMessage(DENIED_MSG_4);
+                            return false;
+                        }
+                        return true;
+                    }).notMatchedArg(new CommandExecutor<>() {
+                        @Override
+                        public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String[] nodeArgSelf, String[] argsLater) throws Throwable {
+                            boolean is3 = "talk".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                            if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
+                                getEvent(source).ifPresent(msgEvent -> {
+                                    recall(msgEvent.getSource());
                                 });
-                                String userMsg = String.join(" ", argsLater);
-
-                                ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
-                                chatMessage.plus(ChatMessage.Role.USER, userMsg);
-
-                                ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
-                                for (int i = 1; i < chatMessage.getMessage().size(); i++) {
-                                    JSONObject obj = chatMessage.getMessage().getJSONObject(i);
-                                    builder.add("user".equalsIgnoreCase(() -> obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
-                                }
-                                builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
-                                source.sendMessage(builder.build());
                             }
-                        })
+                            ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
+                                CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
+                            });
+                            String userMsg = String.join(" ", argsLater);
+
+                            ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
+                            chatMessage.plus(ChatMessage.Role.USER, userMsg);
+
+                            ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
+                            for (int i = 1; i < chatMessage.getMessage().size(); i++) {
+                                JSONObject obj = chatMessage.getMessage().getJSONObject(i);
+                                builder.add("user".equalsIgnoreCase(() -> obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
+                            }
+                            builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
+                            source.sendMessage(builder.build());
+                        }
+                    })
                     , "talk", "talk4")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     boolean is3 = "reGo".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
@@ -158,7 +154,7 @@ public final class ChatGPT extends Module {
                     }
                     return true;
                 }), "reGo", "reGo4")
-        ,"ChatGPT", "GPT", "Chat", "ChatBot");
+            , "ChatGPT", "GPT", "Chat", "ChatBot");
 
         for (File file : getDataFolder().listFiles()) {
             GROUP_RULES.put(Long.parseLong(file.getName().split("\\.")[0]), Files.readString(file.toPath(), StandardCharsets.UTF_8));
