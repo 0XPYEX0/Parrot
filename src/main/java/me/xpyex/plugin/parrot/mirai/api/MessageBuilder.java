@@ -75,7 +75,7 @@ public class MessageBuilder {
      * @param event 目标事件
      */
     public void send(MessageEvent event) {
-        send(MsgUtil.getRealSender(event));
+        send(event.getSubject());
         //
     }
 }

@@ -118,12 +118,6 @@ public abstract class Module {
         //
     }
 
-    @SuppressWarnings("unchecked")
-    protected static <C extends Contact> C getRealSender(MessageEvent event) {
-        return (C) MsgUtil.getRealSender(event);
-        //
-    }
-
     @NotNull
     protected static Bot getBot() {
         return Util.getBot();
@@ -192,7 +186,7 @@ public abstract class Module {
         if (msg == null) return;
 
         try {
-            getRealSender(event).sendMessage(msg);
+            event.getSubject().sendMessage(msg);
         } catch (Throwable ignored) {
         }
     }

@@ -10,7 +10,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
-import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
@@ -53,7 +52,7 @@ public class CommandBus {
         if (args.length == 0 || (args.length == 1 && args[0].trim().isEmpty())) {
             args = new String[0];
         }
-        ParrotContact<Contact> source = ParrotContact.of(MsgUtil.getRealSender(event));
+        ParrotContact<Contact> source = ParrotContact.of(event.getSubject());
         CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
         dispatchCommand(source, ParrotContact.of(event.getSender()), cmd, args);
     }

@@ -12,7 +12,7 @@ public class ExceptionUtil {
             String eventCause;
             if (event != null) {
                 if (event instanceof MessageEvent) {
-                    eventCause = (Util.isGroupEvent(event) ? "群聊-" : "私聊-") + MsgUtil.getRealSender((MessageEvent) event).getId();
+                    eventCause = (Util.isGroupEvent(event) ? "群聊-" : "私聊-") + ((MessageEvent) event).getSubject().getId();
                 } else {
                     eventCause = "事件-" + event.getClass().getSimpleName() + "\n详细信息: " + event;
                 }
