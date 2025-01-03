@@ -195,7 +195,7 @@ public class ValueUtil {
      * @return 是否存在空
      */
     public static boolean isEmpty(Object... objects) {
-        if (objects.length == 0) {
+        if (objects == null || objects.length == 0) {
             return true;
         }
         for (Object o : objects) {
@@ -238,6 +238,7 @@ public class ValueUtil {
      * @param errMsg  错误信息
      * @param results 条件
      */
+    @SafeVarargs
     public static void mustTrue(String errMsg, boolean... results) {
         for (boolean result : results)
             if (!result)

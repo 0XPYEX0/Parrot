@@ -65,8 +65,7 @@ public class EventBus {
                     try {
                         listener.accept(event);
                     } catch (Throwable e) {
-                        ExceptionUtil.handleException(e, false, null, null);
-                        //
+                        ExceptionUtil.handleException(e, false, event, module);
                         StringBuilder eventName = new StringBuilder();
                         Class<?> coreClass = event.getClass();
                         while (!coreClass.isInterface() && coreClass != Object.class) {

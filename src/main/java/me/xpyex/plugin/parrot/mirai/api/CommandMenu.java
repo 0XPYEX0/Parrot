@@ -2,6 +2,7 @@ package me.xpyex.plugin.parrot.mirai.api;
 
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;
+import java.util.Arrays;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -21,6 +22,11 @@ public class CommandMenu {
      */
     public CommandMenu(String command) {
         this.command = command;
+        //
+    }
+
+    public CommandMenu(String[] command, String sub) {
+        this(Arrays.toString(command) + " " + sub);
         //
     }
 

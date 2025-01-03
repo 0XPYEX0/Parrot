@@ -6,12 +6,12 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ModuleParser;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 
 @SuppressWarnings("unused")
@@ -19,50 +19,56 @@ import net.mamoe.mirai.contact.Contact;
 public class PluginManager extends CoreModule {
     @Override
     public void register() {
-        registerCommand(Contact.class, (source, sender, label, args) -> {
-            if (sender.hasPerm(getName() + ".use")) {
-                if (args.length == 0) {
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, label, argsLater) -> {
                     new CommandMenu(label)
                         .add("enable <模块>", "启用该模块")
                         .add("disable <模块>", "禁用该模块")
                         .add("list", "查询所有模块")
                         .add("info <模块>", "查看单个模块的信息")
                         .send(source);
-                } else if (StringUtil.equalsIgnoreCaseOr(args[0], "enable", "disable")) {
+                })
+                .executableCheck((source, sender) -> {
+                    if (!sender.hasPerm(getName() + ".use")) {
+                        source.sendMessage("你没有权限");
+                        return false;
+                    }
+                    return true;
+                })
+                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
                     ModuleParser.class.of()
-                        .parse(() -> args[1])
+                        .parse(() -> args[0])
                         .ifPresentOrElse(module -> {
                             if (module.isCore()) {
                                 source.sendMessage("不允许操作核心模块");
                                 return;
                             }
-                            String mode = "enable".equalsIgnoreCase(args[0]) ? "启用" : "禁用";
-                            if ("enable".equalsIgnoreCase(args[0]) ? module.enable() : module.disable()) {
+                            String mode = "enable".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1]) ? "启用" : "禁用";
+                            if ("enable".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1]) ? module.enable() : module.disable()) {
                                 source.sendMessage("已" + mode + " " + module.getName() + " 模块");
                             } else {
                                 source.sendMessage("模块 " + module.getName() + " 已被" + mode + "，无需重复" + mode);
                             }
-                        }, () -> source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表"));
-                } else if ("list".equalsIgnoreCase(args[0])) {
+                        }, () -> source.sendMessage("模块不存在\n执行 #" + nodeArgSelf[0] + " list 查看所有列表"));
+                }), "enable", "disable")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     source.sendMessage("所有模块列表: " +
                                            Module.LOADED_MODELS.values()
                                                .stream()
                                                .map(module -> module.getName() + (module.isDisabled() ? "(未启用)" : ""))
                                                .collect(Collectors.toCollection(TreeSet::new)));
-                } else if ("info".equalsIgnoreCase(args[0])) {
-                    ModuleParser.class.of().parse(() -> args[1])
+                }), "list")
+                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
+                    ModuleParser.class.of().parse(() -> args[0])
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
                                                        .plus("状态: " + (module.isDisabled() ? "禁用" : "启用"))
                                                        .plus("已注册的命令: " + (CommandBus.getCommands(module).isEmpty() ? "无" : CommandBus.getCommands(module)))
                                                        .plus("监听的事件: " + (EventBus.getEvents(module).isEmpty() ? "无" : EventBus.getEvents(module)))
                                                        .send(source),
-                            () -> source.sendMessage("模块不存在\n执行 #" + label + " list 查看所有列表"));
-                } else {
+                            () -> source.sendMessage("模块不存在\n执行 #" + nodeArgSelf[0] + " list 查看所有列表"));
+                }), "info")
+                .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
                     source.sendMessage("未知子命令");
-                }
-            } else {
-                source.sendMessage("你没有权限");
-            }
-        }, "pl", "plugin", "module");
+                }), "pl", "plugin", "module");
     }
 }

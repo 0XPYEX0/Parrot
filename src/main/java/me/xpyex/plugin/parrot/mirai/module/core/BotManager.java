@@ -1,15 +1,16 @@
 package me.xpyex.plugin.parrot.mirai.module.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
-import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.console.MiraiConsole;
 import net.mamoe.mirai.contact.Contact;
@@ -32,164 +33,146 @@ public class BotManager extends CoreModule {
 
     @Override
     public void register() {
-        registerCommand(Contact.class, ((source, sender, label, args) -> {
-            if (!sender.hasPerm(getName() + ".use")) {
-                source.sendMessage("你没有权限");
-                return;
-            }
-
-
-            if (args.length == 0) {  //根帮助
-                new CommandMenu(label)
-                    .add("group", "群相关操作")
-                    .add("friend", "好友相关操作")
-                    .add("user", "用户相关操作")
-                    .add("end|exit|shutdown|stop", "关闭Bot，自动重启")
-                    .send(source);
-                return;
-            }
-
-
-            if (args[0].equalsIgnoreCase("group")) {  //群相关
-                if (args.length == 1) {
-                    new CommandMenu(label + " group")
-                        .add("quit <ID>", "令机器人退出该群")
-                        .add("ignore <ID>", "忽略该群触发的事件")
-                        .add("list", "列出该机器人加入的所有群")
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, label, args) -> {
+                    new CommandMenu(label)
+                        .add("group", "群相关操作")
+                        .add("friend", "好友相关操作")
+                        .add("user", "用户相关操作")
+                        .add("end|exit|shutdown|stop", "关闭Bot，自动重启")
                         .send(source);
-                    return;
-                }
-                if (args.length == 2) {
-                    if (StringUtil.equalsIgnoreCaseOr(args[1], "quit", "ignore")) {
-                        source.sendMessage("参数不足，请填写ID");
-                        return;
+                }).executableCheck((source, sender) -> {
+                    if (!sender.hasPerm(getName() + ".use")) {
+                        source.sendMessage("你没有权限");
+                        return false;
                     }
-                    if (args[1].equalsIgnoreCase("list")) {
-                        MessageBuilder messager = new MessageBuilder();
-                        messager.plus("机器人加入的群列表: ");
-                        for (Group g : getBot().getGroups()) {
-                            messager.plus(g.getName() + " (" + g.getId() + ")");
-                        }
-                        messager.send(source);
-                        return;
-                    }
-                }
-                GroupParser.class.of().parse(() -> args[2], Group.class)
-                    .ifPresentOrElse(group -> {
-                            if (args[1].equalsIgnoreCase("quit")) {
-                                source.sendMessage("执行操作: 退出群 " + group.getId());
-                                group.quit();
-                                return;
-                            }
-                            if (args[1].equalsIgnoreCase("ignore")) {
-                                source.sendMessage("执行操作: 忽略群 " + group.getId());
-                                IGNORED_LIST.add("Group-" + group.getId());
-                                return;
-                            }
-                        }, () ->
-                               new MessageBuilder()
-                                   .plus("群不存在")
-                                   .plus("原因可能是: ")
-                                   .plus("①群不存在，即群号输入有误")
-                                   .plus("②Bot不在指定群内")
-                                   .send(source)
-                    );
-            }
+                    return true;
+                })
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                            new CommandMenu(Arrays.toString(nodeArgSelf))
+                                .add("quit <ID>", "令机器人退出该群")
+                                .add("ignore <ID>", "忽略该群触发的事件")
+                                .add("list", "列出该机器人加入的所有群")
+                                .send(source);
+                        })
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                               MessageBuilder messager = new MessageBuilder();
+                               messager.plus("机器人加入的群列表: ");
+                               for (Group g : getBot().getGroups()) {
+                                   messager.plus(g.getName() + " (" + g.getId() + ")");
+                               }
+                               messager.send(source);
+                           }), "list")
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                               GroupParser.class.of().parse(() -> argsLater[0], Group.class)
+                                   .ifPresentOrElse(group -> {
+                                           source.sendMessage("执行操作: 忽略群 " + group.getId());
+                                           IGNORED_LIST.add("Group-" + group.getId());
+                                       }, () ->
+                                              new MessageBuilder()
+                                                  .plus("群不存在")
+                                                  .plus("原因可能是: ")
+                                                  .plus("①群不存在，即群号输入有误")
+                                                  .plus("②Bot不在指定群内")
+                                                  .send(source)
+                                   );
+                           }), "quit")
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                               GroupParser.class.of().parse(() -> argsLater[0], Group.class)
+                                   .ifPresentOrElse(group -> {
+                                           source.sendMessage("执行操作: 忽略群 " + group.getId());
+                                           IGNORED_LIST.add("Group-" + group.getId());
+                                       }, () ->
+                                              new MessageBuilder()
+                                                  .plus("群不存在")
+                                                  .plus("原因可能是: ")
+                                                  .plus("①群不存在，即群号输入有误")
+                                                  .plus("②Bot不在指定群内")
+                                                  .send(source)
+                                   );
+                           }), "ignore")
+                    , "group")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                            new CommandMenu(nodeArgSelf, "friend")
+                                .add("delete <ID>", "令机器人删除该好友")
+                                .add("list", "列出该机器人的好友列表")
+                                .send(source);
+                        })
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                               MessageBuilder messager = new MessageBuilder();
+                               messager.plus("机器人的好友列表: ");
+                               for (Friend f : getBot().getFriends()) {
+                                   messager.plus(f.getNick() + " (" + f.getId() + ")");
+                               }
+                               messager.send(source);
+                           }), "list")
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                                   try {
+                                       NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(argsLater[0]));
+                                       if ("accept".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1])) {
+                                           event.accept();
+                                       } else {
+                                           event.reject(false);
+                                       }
+                                       new MessageBuilder()
+                                           .plus("已处理编号为 " + argsLater[0] + " 的好友申请")
+                                           .plus("ID: " + event.getFromId())
+                                           .plus("Nick: " + event.getFromNick())
+                                           .plus("Group: " + event.getFromGroupId())
+                                           .send(source);
+                                       REQUESTS.remove(Integer.parseInt(argsLater[0]));
+                                   } catch (NoSuchElementException |
+                                            NumberFormatException ignored) {
+                                       source.sendMessage("没有这条申请");
+                                   }
+                               }), "accept", "deny")
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                                   UserParser.class.of().parse(() -> argsLater[0], Friend.class)
+                                       .ifPresentOrElse(friend -> {
+                                           if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
+                                               source.sendMessage("不允许删除该好友");
+                                               return;
+                                           }
+                                           source.sendMessage("执行操作: 删除好友 " + friend.getId());
+                                           friend.delete();
+                                       }, () -> {
+                                           new MessageBuilder("不存在该好友")
+                                               .plus("可能性如下: ")
+                                               .plus("①填入的QQ号非整数")
+                                               .plus("②机器人并非指定QQ的好友，无法操作");
+                                       });
+                               }), "del", "delete")
+                    , "friend")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                            new CommandMenu(nodeArgSelf, "user")
+                                .add("ignore <ID>", "忽略该用户触发的事件")
+                                .send(source);
+                        })
+                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                                   UserParser.class.of().parse(() -> argsLater[0]).ifPresentOrElse(user -> {
+                                       if (user.getId() == Util.OWNER_ID) {
+                                           source.sendMessage("不允许屏蔽该用户");
+                                           return;
+                                       }
+                                       source.sendMessage("执行操作: 忽略用户 " + user.getId());
+                                       IGNORED_LIST.add("User-" + user.getId());
+                                   }, () -> {
+                                       source.sendMessage("参数不足，请填入ID");
+                                   });
+                               }), "ignore")
+                    , "user")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                        source.sendMessage("开始重启");
+                        MiraiConsole.shutdown();
+                    }), "shutdown", "exit", "stop", "end")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
 
-            if (args[0].equalsIgnoreCase("friend")) {  //好友相关
-                if (args.length == 1) {
-                    CommandMenu menu = new CommandMenu(label + " friend")
-                                           .add("delete <ID>", "令机器人删除该好友")
-                                           .add("list", "列出该机器人的好友列表");
-                    menu.send(source);
-                    return;
-                }
-                if (args.length == 2) {
-                    if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete", "accept", "deny")) {
-                        source.sendMessage("参数不足，请填写ID");
-                        return;
+                }), "info")
+                .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
+                        source.sendMessage("未知子命令，请执行 #" + nodeArgSelf[0] + " 查看帮助");
                     }
-                    if (args[1].equalsIgnoreCase("list")) {
-                        MessageBuilder messager = new MessageBuilder();
-                        messager.plus("机器人的好友列表: ");
-                        for (Friend f : getBot().getFriends()) {
-                            messager.plus(f.getNick() + " (" + f.getId() + ")");
-                        }
-                        messager.send(source);
-                        return;
-                    }
-                }
-                if (StringUtil.equalsIgnoreCaseOr(args[1], "accept", "deny")) {
-                    try {
-                        NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(args[2]));
-                        if ("accept".equalsIgnoreCase(args[1])) {
-                            event.accept();
-                        } else {
-                            event.reject(false);
-                        }
-                        new MessageBuilder()
-                            .plus("已处理编号为 " + args[2] + " 的好友申请")
-                            .plus("ID: " + event.getFromId())
-                            .plus("Nick: " + event.getFromNick())
-                            .plus("Group: " + event.getFromGroupId())
-                            .send(source);
-                        REQUESTS.remove(Integer.parseInt(args[2]));
-                    } catch (NoSuchElementException | NumberFormatException ignored) {
-                        source.sendMessage("没有这条申请");
-                    }
-                    return;
-                }
-                Friend friend;
-                try {
-                    friend = getBot().getFriendOrFail(Long.parseLong(args[2]));
-                } catch (NumberFormatException ignored) {
-                    source.sendMessage("填入的QQ号非整数");
-                    return;
-                } catch (NoSuchElementException ignored) {
-                    source.sendMessage("机器人并非指定QQ的好友，无法操作");
-                    return;
-                }
-                if (StringUtil.equalsIgnoreCaseOr(args[1], "del", "delete")) {
-                    if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
-                        source.sendMessage("不允许删除该好友");
-                        return;
-                    }
-                    source.sendMessage("执行操作: 删除好友 " + friend.getId());
-                    friend.delete();
-                    return;
-                }
-            }
-
-            if (args[0].equalsIgnoreCase("user")) {  //用户相关
-                if (args.length == 1) {
-                    new CommandMenu(label + " user")
-                        .add("ignore <ID>", "忽略该用户触发的事件")
-                        .send(source);
-                    return;
-                }
-                UserParser.class.of().parse(args[2]).ifPresentOrElse(user -> {
-                    if (args[1].equalsIgnoreCase("ignore")) {
-                        if (user.getId() == Util.OWNER_ID) {
-                            source.sendMessage("不允许屏蔽该用户");
-                            return;
-                        }
-                        source.sendMessage("执行操作: 忽略用户 " + user.getId());
-                        IGNORED_LIST.add("User-" + user.getId());
-                        return;
-                    }
-                }, () -> {
-                    source.sendMessage("参数不足，请填入ID");
-                });
-            }
-
-            if (StringUtil.equalsIgnoreCaseOr(args[0], "shutdown", "exit", "stop", "end")) {
-                source.sendMessage("开始重启");
-                MiraiConsole.shutdown();
-                return;
-            }
-
-            source.sendMessage("未知子命令，请执行 #" + label + " 查看帮助");
-        }), "BotManager", "Bot");
+                )
+            , "BotManager", "Bot");
 
         listenEvent(BotInvitedJoinGroupRequestEvent.class, event -> {
             User user = event.getInvitor();

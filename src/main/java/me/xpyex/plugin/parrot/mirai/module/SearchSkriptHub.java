@@ -8,13 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
@@ -39,17 +38,24 @@ public class SearchSkriptHub extends Module {
     @Override
     public void register() throws Throwable {
         runTaskLater(SearchSkriptHub::downloadDocAndSave, 5);  //每次启动Bot时，下载最新版本覆盖
-        registerCommand(Contact.class, (source, sender, label, args) -> {
-            if (!sender.hasPerm(getName() + ".use")) {
-                source.sendMessage("缺少权限节点: " + getName() + ".use");
-                return;
-            }
-            StrParser.class.of().parse(() -> args[0]).ifPresentOrElse(a -> {
-                if ("search".equalsIgnoreCase(a)) {
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    new CommandMenu(nodeArgSelf)
+                        .add("search <Key> [addon:xx,xx2,xx3], [type:effect|expression|...]", "在SkriptHub中搜索")
+                        .send(source);
+                })
+                .executableCheck((source, sender) -> {
+                    if (!sender.hasPerm(getName() + ".use")) {
+                        source.sendMessage("缺少权限节点: " + getName() + ".use");
+                        return false;
+                    }
+                    return true;
+                })
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     ArrayList<String> addon = new ArrayList<>();
                     ArrayList<String> type = new ArrayList<>();
                     String[] key = {""};
-                    for (String s : Arrays.copyOfRange(args, 1, args.length)) {
+                    for (String s : argsLater) {
                         if (StringUtil.startsWithIgnoreCaseOr(s, "addon:")) {
                             addon.addAll(List.of(s.substring(6).split(",")));
                         } else if (StringUtil.startsWithIgnoreCaseOr(s, "type:")) {
@@ -119,12 +125,7 @@ public class SearchSkriptHub extends Module {
                         return;
                     }
                     source.sendMessage(forwardMessage.build());
-                }
-            }, () -> {
-                new CommandMenu(label)
-                    .add("search <Key> [addon:xx,xx2,xx3], [type:effect|expression|...]", "在Skript中搜索")
-                    .send(source);
-            });
-        }, "sk", "skript", "skriptHub");
+                }), "search")
+            , "sk", "skript", "skriptHub");
     }
 }

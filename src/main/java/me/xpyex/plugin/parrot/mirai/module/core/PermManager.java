@@ -9,6 +9,7 @@ import java.util.WeakHashMap;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
@@ -138,7 +139,7 @@ public class PermManager extends CoreModule {
     public void register() {
         reload();
 
-        registerCommand(Contact.class, (source, sender, label, args) -> {
+        registerCommand(Contact.class, CommandNode.of((source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".admin")) {
                 source.sendMessage("你没有权限");
                 return;
@@ -227,7 +228,7 @@ public class PermManager extends CoreModule {
                 reload();
                 source.sendMessage("成功创建组: " + args[1]);
             }
-        }, "permission", "permissions", "perm", "perms");
+        }), "permission", "permissions", "perm", "perms", "permManager");
 
         executeOnce(BotOnlineEvent.class, event -> {
             hasPerm(getBot().getAsFriend(), "test", null);  //初始化Perm类

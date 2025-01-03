@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
-import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.rcon.api.Rcon;
 import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
@@ -39,10 +39,10 @@ public class CraftRCon extends Module {
 
     @Override
     public void register() throws Throwable {
-        registerCommand(Contact.class, (source, sender, label, args) -> {
+        registerCommand(Contact.class, CommandNode.of((source, sender, label, args) -> {
             //#RCon send ServerName Command...
             if (args.length == 0) {
-                new CommandMenu(label).add("add <ServerName> <Host> <Port> <Password>", "添加一个RCon. 请在私聊进行，以面暴露password")
+                new CommandMenu(label).add("add <ServerName> <Host> <Port> <Password>", "添加一个RCon. 请在私聊进行，以免暴露password")
                     .add("send <ServerName> <Cmd...>", "发送一个命令到RCon")
                     .add("remove <ServerName>", "移除一个RCon")
                     .send(source);
@@ -55,7 +55,6 @@ public class CraftRCon extends Module {
                 }
                 if (args.length < 5) {
                     source.sendMessage("参数不足");
-                    CommandBus.dispatchCommand(source, sender, label);
                     return;
                 }
                 File outFile = new File(getDataFolder(), args[1] + ".json");
@@ -69,7 +68,6 @@ public class CraftRCon extends Module {
             } else if ("send".equalsIgnoreCase(args[0])) {
                 if (args.length < 3) {
                     source.sendMessage("参数不足");
-                    CommandBus.dispatchCommand(source, sender, label);
                     return;
                 }
                 if (!sender.hasPerm(getName() + ".sendCmd." + args[1])) {
@@ -95,7 +93,6 @@ public class CraftRCon extends Module {
                 }
                 if (args.length < 2) {
                     source.sendMessage("参数不足");
-                    CommandBus.dispatchCommand(source, sender, label);
                     return;
                 }
                 if (CACHE.containsKey(args[1])) {
@@ -105,7 +102,7 @@ public class CraftRCon extends Module {
                 new File(getDataFolder(), args[1] + ".json").delete();
                 source.sendMessage("已删除RCon " + args[1]);
             }
-        }, "RCon");
+        }), "RCon");
         listenEvent(BotOfflineEvent.class, event -> {
             CACHE.forEach((name, service) -> {
                 service.close();

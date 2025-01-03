@@ -2,6 +2,7 @@ package me.xpyex.plugin.parrot.mirai.module;
 
 import java.util.Arrays;
 import lombok.experimental.ExtensionMethod;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
@@ -14,7 +15,7 @@ import net.mamoe.mirai.contact.NormalMember;
 public class MemberInfo extends Module {
     @Override
     public void register() {
-        registerCommand(Group.class, ((source, sender, label, args) -> {
+        registerCommand(Group.class, CommandNode.of((source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
                 source.sendMessage("你没有权限");
                 return;
@@ -29,7 +30,7 @@ public class MemberInfo extends Module {
             }, () -> source.sendMessage("参数不足"));
         }), "setNameCard", "nameCard");
 
-        registerCommand(Group.class, (source, sender, label, args) -> {
+        registerCommand(Group.class, CommandNode.of((source, sender, label, args) -> {
             if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
                 source.sendMessage("你没有权限");
                 return;
@@ -42,6 +43,6 @@ public class MemberInfo extends Module {
                 member.setSpecialTitle(String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
                 source.sendMessage("已修改");
             }, () -> source.sendMessage("参数不足"));
-        }, "prefix", "groupPrefix");
+        }), "prefix", "groupPrefix");
     }
 }

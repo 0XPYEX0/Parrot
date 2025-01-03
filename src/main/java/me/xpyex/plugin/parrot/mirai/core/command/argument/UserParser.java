@@ -2,6 +2,7 @@ package me.xpyex.plugin.parrot.mirai.core.command.argument;
 
 import java.util.Optional;
 import java.util.WeakHashMap;
+import me.xpyex.plugin.parrot.mirai.api.TryCallable;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
@@ -15,11 +16,18 @@ public class UserParser extends ContactParser {
     private static final WeakHashMap<Long, User> CACHE = new WeakHashMap<>();
 
     @NotNull
+    @Override
     public Optional<User> parse(String arg) {
         String strID = arg.replaceAll("[^0-9]", "");
         if (strID.isEmpty()) return Optional.empty();
         long id = Long.parseLong(strID);
         return parse(id);
+    }
+
+    @NotNull
+    @Override
+    public Optional<User> parse(TryCallable<String> callable) {
+        return parse(callable, User.class);
     }
 
     @NotNull

@@ -7,7 +7,6 @@ import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -17,6 +16,7 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
@@ -47,109 +47,121 @@ public final class ChatGPT extends Module {
 
     @Override
     public void register() throws Throwable {
-        registerCommand(Contact.class, new CommandExecutor<>() {
-            @Override
-            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String label, String[] args) {
-                if (!sender.hasPerm("ChatGPT.use", MemberPermission.ADMINISTRATOR)) {
-                    source.sendMessage("你没有权限");
-                    return;
-                }
-                if ("reset".equalsIgnoreCase(() -> args[0])) {
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    new CommandMenu(nodeArgSelf)
+                        .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
+                        .add("reset", "开启新话题")
+                        .add("reGo", "按照先前的话题重新生成")
+                        .add("groupRule", "设定在某个群的System语句")
+                        .send(source);
+                })
+                .executableCheck((source, sender) -> {
+                    if (!sender.hasPerm("ChatGPT.use", MemberPermission.ADMINISTRATOR)) {
+                        source.sendMessage("你没有权限");
+                        return false;
+                    }
+                    return true;
+                })
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     CHAT_CACHE.remove(sender.getId());
                     source.sendMessage("已清除连续对话记忆");
-                    return;
-                }
-                if ("groupRule".equalsIgnoreCase(() -> args[0])) {
-                    if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage("不理你不理你！");
-                        return;
-                    }
-                    GroupParser.class.of().parse(() -> args[1]).ifPresentOrElse(group -> {
-                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 2, args.length))).ifPresentOrElse(rule -> {
-                            try {
-                                Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
-                                GROUP_RULES.put(group.getId(), rule);
-                                source.sendMessage("已保存规则");
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                }), "reset")
+                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
+                        GroupParser.class.of().parse(() -> args[0]).ifPresentOrElse(group -> {
+                            StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 1, args.length))).ifPresentOrElse(rule -> {
+                                try {
+                                    Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
+                                    GROUP_RULES.put(group.getId(), rule);
+                                    source.sendMessage("已保存规则");
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }, () -> source.sendMessage("未输入具体规则"));
+                        }, () -> source.sendMessage("未输入群号"));
+                    })
+                           .executableCheck((source, sender) -> {
+                               if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
+                                   source.sendMessage("不理你不理你！");
+                                   return false;
+                               }
+                               return true;
+                           }), "groupRule")
+                .child(
+                    CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                            source.sendMessage("你想聊点什么？😊");
+                        })
+                        .executableCheckWithCmdArg((source, sender, args) -> {
+                            boolean is3 = "talk".equalsIgnoreCase(() -> args[args.length - 1]);
+                            if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
+                                source.sendMessage(DENIED_MSG_3);
+                                return false;
                             }
-                        }, () -> source.sendMessage("未输入具体规则"));
-                    }, () -> source.sendMessage("未输入群号"));
-                    return;
-                }
-                if (StringUtil.equalsIgnoreCaseOr(() -> args[0], "talk", "talk4")) {
-                    boolean is3 = "talk".equalsIgnoreCase(args[0]);
-                    if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage(DENIED_MSG_3);
-                        return;
-                    }
-                    if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
-                        source.sendMessage(DENIED_MSG_4);
-                        return;
-                    }
-                    if (args.length == 1) {
-                        source.sendMessage("你想聊点什么？😊");
-                        return;
-                    }
-                    if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
-                        getEvent(source).ifPresent(msgEvent -> {
-                            recall(msgEvent.getSource());
-                        });
-                    }
-                    ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
-                        CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
-                    });
-                    String userMsg = String.join(" ", Arrays.copyOfRange(args, 1, args.length));  //拼接除了talk以外剩下的参数
+                            if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
+                                source.sendMessage(DENIED_MSG_4);
+                                return false;
+                            }
+                            return true;
+                        })
+                        .notMatchedArg(new CommandExecutor<>() {
+                            @Override
+                            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String[] nodeArgSelf, String[] argsLater) throws Throwable {
+                                boolean is3 = "talk".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                                if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
+                                    getEvent(source).ifPresent(msgEvent -> {
+                                        recall(msgEvent.getSource());
+                                    });
+                                }
+                                ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
+                                    CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
+                                });
+                                String userMsg = String.join(" ", argsLater);
 
-                    ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
-                    chatMessage.plus(ChatMessage.Role.USER, userMsg);
+                                ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
+                                chatMessage.plus(ChatMessage.Role.USER, userMsg);
 
-                    ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
-                    for (int i = 1; i < chatMessage.getMessage().size(); i++) {
-                        JSONObject obj = chatMessage.getMessage().getJSONObject(i);
-                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
-                    }
-                    builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
-                    source.sendMessage(builder.build());
-                    return;
-                }
-                if (StringUtil.equalsIgnoreCaseOr(() -> args[0], "reGo", "reGo4")) {  //重新生成
-                    boolean is3 = "reGo".equalsIgnoreCase(args[0]);
-                    if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage(DENIED_MSG_3);
-                        return;
-                    }
-                    if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
-                        source.sendMessage(DENIED_MSG_4);
-                        return;
-                    }
-                    if (!CHAT_CACHE.containsKey(sender.getId())) {
-                        source.sendMessage("抱歉，我已经遗忘了与您的对话...");
-                        return;
-                    }
+                                ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
+                                for (int i = 1; i < chatMessage.getMessage().size(); i++) {
+                                    JSONObject obj = chatMessage.getMessage().getJSONObject(i);
+                                    builder.add("user".equalsIgnoreCase(() -> obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
+                                }
+                                builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
+                                source.sendMessage(builder.build());
+                            }
+                        })
+                    , "talk", "talk4")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    boolean is3 = "reGo".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
                     ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
                     chatMessage.getMessage().remove(chatMessage.getMessage().size() - 1);  //清除最终的缓存
 
                     ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                     for (int i = 1; i < chatMessage.getMessage().size(); i++) {
                         JSONObject obj = chatMessage.getMessage().getJSONObject(i);
-                        builder.add("user".equalsIgnoreCase(obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
+                        builder.add("user".equalsIgnoreCase(() -> obj.getStr("role")) ? sender.getContact() : getBot(), new PlainText(obj.getStr("content")));
                     }
                     builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                     source.sendMessage(builder.build());
-                    return;
-                }
-                new CommandMenu(label)
-                    .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
-                    .add("reset", "开启新话题")
-                    .add("reGo", "按照先前的话题重新生成")
-                    .add("groupRule", "设定在某个群的System语句")
-                    .send(source);
-            }
-        }, "ChatGPT", "GPT", "Chat", "ChatBot");
+                }).executableCheckWithCmdArg((source, sender, nodeArgSelf) -> {
+                    boolean is3 = "reGo".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                    if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
+                        source.sendMessage(DENIED_MSG_3);
+                        return false;
+                    }
+                    if (!is3 && !sender.hasPerm("ChatGPT.use.4")) {  //调用GPT4且无使用权限，则拦截
+                        source.sendMessage(DENIED_MSG_4);
+                        return false;
+                    }
+                    if (!CHAT_CACHE.containsKey(sender.getId())) {
+                        source.sendMessage("抱歉，我已经遗忘了与您的对话...");
+                        return false;
+                    }
+                    return true;
+                }), "reGo", "reGo4")
+        ,"ChatGPT", "GPT", "Chat", "ChatBot");
 
         for (File file : getDataFolder().listFiles()) {
-            GROUP_RULES.put(Long.parseLong(file.getName().split("\\.")[0]), Files.readString(file.toPath(), Charset.defaultCharset()));
+            GROUP_RULES.put(Long.parseLong(file.getName().split("\\.")[0]), Files.readString(file.toPath(), StandardCharsets.UTF_8));
         }
     }
 
@@ -159,7 +171,7 @@ public final class ChatGPT extends Module {
         });
         try {
             JSONObject outBody = new JSONObject()  //主要的Body参数
-                                     .set("temperature", 0.7)
+                                     .set("temperature", 1.65)
                                      .set("top_p", 0.95)
                                      .set("frequency_penalty", 0)
                                      .set("presence_penalty", 0)

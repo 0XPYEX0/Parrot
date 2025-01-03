@@ -21,9 +21,9 @@ import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
@@ -54,91 +54,94 @@ public class GitUpdates extends Module {
 
         reload();
 
-        registerCommand(Contact.class, (source, sender, label, args) -> {
-            if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                source.sendMessage("你没有权限");
-                return;
-            }
-            if (args.length == 0) {
-                new CommandMenu(label)
-                    .add("add <GitHub|Gitee> <Owner/RepoName> <是否需要上传文件(true|false)>", "订阅指定Git平台的仓库，发布releases时推送")
-                    .add("remove <Owner/RepoName>", "解除订阅")
-                    .send(source);
-                return;
-            }
-            if ("checkNow".equalsIgnoreCase(args[0])) {
-                checkUpdate();
-            }
-            if ("add".equalsIgnoreCase(args[0])) {
-                if (args.length < 4) {  //updates add GitHub Owner/RepoName
-                    source.sendMessage("参数不足");
-                    return;
-                }
-                if (!args[2].contains("/")) {
-                    source.sendMessage("需要填入 <用户名/仓库名> 的格式");
-                    return;
-                }
-                Map<Long, Set<GitInfo>> map;
-                if (source.getContact() instanceof Group) {
-                    map = ReleasesUpdate.getInstance().getGroups();
-                } else {
-                    map = ReleasesUpdate.getInstance().getUsers();
-                }
-                if (!map.containsKey(source.getId())) {
-                    map.put(source.getId(), new HashSet<>());
-                }
-                for (GitInfo.SupportedGits value : GitInfo.SupportedGits.values()) {
-                    if (value.toString().equalsIgnoreCase(args[1])) {
-                        map.get(source.getId()).add(new GitInfo()
-                                                        .setType(value)
-                                                        .setRepo(args[2])
-                                                        .setUploadFile("true".equalsIgnoreCase(args[3]))
-                        );
-                        ReleasesUpdate.getInstance().save(urls);
-                        source.sendMessage("已订阅该Repo");
-                        return;
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    new CommandMenu(nodeArgSelf)
+                        .add("add <GitHub|Gitee> <Owner/RepoName> <是否需要上传文件(true|false)>", "订阅指定Git平台的仓库，发布releases时推送")
+                        .add("remove <Owner/RepoName>", "解除订阅")
+                        .send(source);
+                })
+                .executableCheck((source, sender) -> {
+                    if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
+                        source.sendMessage("你没有权限");
+                        return false;
                     }
-                }
-                source.sendMessage("无效的仓库类型");
-            }
-            if ("remove".equalsIgnoreCase(args[0])) {
-                StrParser.class.of().parse(() -> args[1])
-                    .ifPresentOrElse(path -> {
-                        boolean[] result = {false};
-                        ReleasesUpdate.getInstance().getUsers().forEach((ID, info) -> {
-                            if (result[0]) return;
-                            for (GitInfo gitInfo : info) {
-                                if (gitInfo.getRepo().equals(path)) {
-                                    runTaskLater(() -> {
-                                        ReleasesUpdate.getInstance().getUsers().get(ID).remove(gitInfo);
-                                        ReleasesUpdate.getInstance().save(urls);
-                                    }, 1);
-                                    result[0] = true;
-                                    return;
-                                }
-                            }
-                        });
-                        ReleasesUpdate.getInstance().getGroups().forEach((ID, info) -> {
-                            if (result[0]) return;
-                            for (GitInfo gitInfo : info) {
-                                if (gitInfo.getRepo().equals(path)) {
-                                    runTaskLater(() -> {
-                                        ReleasesUpdate.getInstance().getGroups().get(ID).remove(gitInfo);
-                                        ReleasesUpdate.getInstance().save(urls);
-                                    }, 1);
-                                    result[0] = true;
-                                    return;
-                                }
-                            }
-                        });
-                        source.sendMessage(result[0] ? "已解除订阅" : "未订阅该Repo");
-                    }, () -> source.sendMessage("参数不足"));
-            }
-            if ("reload".equalsIgnoreCase(args[0])) {
-                reload();
-                source.sendMessage("重新载入文件");
-            }
-        }, "updates", "gitUpdates", "git", "repo");
+                    return true;
+                })
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    source.sendMessage("手动触发检查");
+                    checkUpdate();
+                }), "checkNow")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {  //git add GitHub Owner/RepoName true/false
+                        source.sendMessage("参数不足");
+                    })
+                           .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
+                               if (!argsLater[1].contains("/")) {
+                                   source.sendMessage("需要填入 <用户名/仓库名> 的格式");
+                                   return;
+                               }
+                               Map<Long, Set<GitInfo>> map;
+                               if (source.getContact() instanceof Group) {
+                                   map = ReleasesUpdate.getInstance().getGroups();
+                               } else {
+                                   map = ReleasesUpdate.getInstance().getUsers();
+                               }
+                               if (!map.containsKey(source.getId())) {
+                                   map.put(source.getId(), new HashSet<>());
+                               }
+                               for (GitInfo.SupportedGits value : GitInfo.SupportedGits.values()) {
+                                   if (value.toString().equalsIgnoreCase(argsLater[0])) {
+                                       map.get(source.getId()).add(new GitInfo()
+                                                                       .setType(value)
+                                                                       .setRepo(argsLater[1])
+                                                                       .setUploadFile("true".equalsIgnoreCase(argsLater[2]))
+                                       );
+                                       ReleasesUpdate.getInstance().save(urls);
+                                       source.sendMessage("已订阅该Repo");
+                                       return;
+                                   }
+                               }
+                               source.sendMessage("无效的仓库类型");
+                           }), "add")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                        source.sendMessage("参数不足");
+                    })
+                           .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
+                               String path = argsLater[0];
+                               boolean[] result = {false};
+                               ReleasesUpdate.getInstance().getUsers().forEach((ID, info) -> {
+                                   if (result[0]) return;
+                                   for (GitInfo gitInfo : info) {
+                                       if (gitInfo.getRepo().equals(path)) {
+                                           runTaskLater(() -> {
+                                               ReleasesUpdate.getInstance().getUsers().get(ID).remove(gitInfo);
+                                               ReleasesUpdate.getInstance().save(urls);
+                                           }, 1);
+                                           result[0] = true;
+                                           return;
+                                       }
+                                   }
+                               });
+                               ReleasesUpdate.getInstance().getGroups().forEach((ID, info) -> {
+                                   if (result[0]) return;
+                                   for (GitInfo gitInfo : info) {
+                                       if (gitInfo.getRepo().equals(path)) {
+                                           runTaskLater(() -> {
+                                               ReleasesUpdate.getInstance().getGroups().get(ID).remove(gitInfo);
+                                               ReleasesUpdate.getInstance().save(urls);
+                                           }, 1);
+                                           result[0] = true;
+                                           return;
+                                       }
+                                   }
+                               });
+                               source.sendMessage(result[0] ? "已解除订阅" : "未订阅该Repo");
+                           }), "remove")
+                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                    reload();
+                    source.sendMessage("重新载入文件");
+                }), "reload")
+            , "updates", "gitUpdates", "git", "repo");
         runTaskTimer(this::checkUpdate, 25 * 60L, 60L);
     }
 

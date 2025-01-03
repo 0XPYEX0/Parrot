@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.Setter;
+import me.xpyex.plugin.parrot.mirai.api.TripleFunction;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -19,6 +20,7 @@ public class CommandNode<C extends Contact> {
     @Getter
     public CommandNode<C> parent = null;
     private BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck = null;
+    private TripleFunction<ParrotContact<C>, ParrotContact<User>, String[], Boolean> tripleCheck = null;
     @Getter
     private CommandExecutor<C> notMatchedArg = null;
 
@@ -36,6 +38,8 @@ public class CommandNode<C extends Contact> {
     }
 
     public CommandNode<C> child(CommandNode<C> executor, String... argAliases) {
+        ValueUtil.notNull("child node不应为null", executor);
+        ValueUtil.notEmpty("aliases为空，要注册什么？", (Object[]) argAliases);
         for (String alias : argAliases) {
             ValueUtil.mustTrue("参数不应为空", () -> !alias.trim().isEmpty());
             children.put(alias.toLowerCase(), executor);
@@ -49,6 +53,11 @@ public class CommandNode<C extends Contact> {
         return this;
     }
 
+    public CommandNode<C> executableCheckWithCmdArg(TripleFunction<ParrotContact<C>, ParrotContact<User>, String[], Boolean> check) {
+        this.tripleCheck = check;
+        return this;
+    }
+
     public CommandNode<C> notMatchedArg(CommandExecutor<C> notMatchedArg) {
         this.notMatchedArg = notMatchedArg;
         return this;
@@ -56,6 +65,7 @@ public class CommandNode<C extends Contact> {
 
     public void execute(ParrotContact<C> source, ParrotContact<User> sender, String[] nodeArgSelf, String... argsLater) throws Throwable {
         if (executableCheck != null && !executableCheck.apply(source, sender)) return;
+        if (tripleCheck != null && !tripleCheck.apply(source, sender, nodeArgSelf)) return;
         if (argsLater != null && argsLater.length != 0) {
             CommandNode<C> commandNode = (CommandNode<C>) children.get(argsLater[0].toLowerCase());
             if (commandNode != null) {
@@ -71,18 +81,5 @@ public class CommandNode<C extends Contact> {
         if (executor != null) {
             executor.execute(source, sender, nodeArgSelf, argsLater);
         }
-//        CommandNode<?> lastCalled = this;
-//        String parentArg = nodeArgSelf;
-//        for (int i = 0; i < argsLater.length; i++) {
-//            CommandNode<?> node = lastCalled.getChildren().get(argsLater[i].toLowerCase());
-//            if (node == null) {
-//                String[] newArgs = Arrays.copyOfRange(argsLater, i, argsLater.length);
-//                CommandExecutor<C> targetExecutor = (CommandExecutor<C>) lastCalled.getExecutor();
-//                if (targetExecutor != null) targetExecutor.execute(source, sender, parentArg, newArgs);
-//                break;
-//            }
-//            lastCalled = node;
-//            parentArg = argsLater[i];
-//        }
     }
 }

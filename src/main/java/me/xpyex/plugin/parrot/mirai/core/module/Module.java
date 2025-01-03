@@ -138,6 +138,7 @@ public abstract class Module {
     public abstract void register() throws Throwable;
 
     public final <C extends Contact> void registerCommand(Class<C> contactType, CommandNode<C> exec, String... aliases) {
+        ValueUtil.notEmpty("参数不应为空", contactType, exec, aliases);
         for (String s : aliases) {
             ValueUtil.notNull("注册命令怎么会混进来一个null？", s);
             ValueUtil.mustTrue("注册的命令不应包含空格，应作为参数判断", !s.contains(" "));
