@@ -64,7 +64,7 @@ public class BotManager extends CoreModule {
                                messager.send(source);
                            }), "list")
                            .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               GroupParser.class.of().parse(() -> argsLater[0], Group.class)
+                               GroupParser.class.of().parse(() -> argsLater[0])
                                    .ifPresentOrElse(group -> {
                                            source.sendMessage("执行操作: 忽略群 " + group.getId());
                                            IGNORED_LIST.add("Group-" + group.getId());
@@ -78,7 +78,7 @@ public class BotManager extends CoreModule {
                                    );
                            }), "quit")
                            .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               GroupParser.class.of().parse(() -> argsLater[0], Group.class)
+                               GroupParser.class.of().parse(() -> argsLater[0])
                                    .ifPresentOrElse(group -> {
                                            source.sendMessage("执行操作: 忽略群 " + group.getId());
                                            IGNORED_LIST.add("Group-" + group.getId());
