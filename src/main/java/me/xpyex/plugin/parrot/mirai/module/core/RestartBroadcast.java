@@ -30,21 +30,21 @@ public class RestartBroadcast extends CoreModule {
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     restartMode = true;
                     source.sendMessage("Mirai将在 10 秒后重启\n使用 #" + nodeArgSelf[0] + " stop 以停止重启");
-                        for (int i = 10; i >= 0; i--) {
-                            if (!restartMode) {
-                                return;
-                            }
-                            if (i <= 3) {
-                                source.sendMessage("倒计时: " + i);
-                            }
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                                return;
-                            }
+                    for (int i = 10; i >= 0; i--) {
+                        if (!restartMode) {
+                            return;
                         }
-                        CommandBus.dispatchCommand(source, sender, "#bot", "shutdown");
+                        if (i <= 3) {
+                            source.sendMessage("倒计时: " + i);
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                    }
+                    CommandBus.dispatchCommand(source, sender, "#bot", "shutdown");
                 }), "start")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                     restartMode = false;

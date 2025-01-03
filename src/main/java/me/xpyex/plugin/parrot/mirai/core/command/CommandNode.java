@@ -13,18 +13,20 @@ import net.mamoe.mirai.contact.User;
 
 public class CommandNode<C extends Contact> {
     @Getter
-    private CommandExecutor<C> executor = null;
-    @Getter
     private final HashMap<String, CommandNode<?>> children = new HashMap<>();
     @Setter
     @Getter
     public CommandNode<C> parent = null;
+    @Getter
+    private CommandExecutor<C> executor = null;
     private BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck = null;
     private TripleFunction<ParrotContact<C>, ParrotContact<User>, String[], Boolean> tripleCheck = null;
     @Getter
     private CommandExecutor<C> notMatchedArg = null;
 
-    public static <C extends Contact> CommandNode<C> of() { return new CommandNode<>(); }
+    public static <C extends Contact> CommandNode<C> of() {
+        return new CommandNode<>();
+    }
 
     public static <C extends Contact> CommandNode<C> of(CommandExecutor<C> executor) {
         CommandNode<C> node = of();

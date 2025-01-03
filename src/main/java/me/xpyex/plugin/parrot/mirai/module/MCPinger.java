@@ -21,10 +21,10 @@ public class MCPinger extends Module {
     public void register() {
         registerCommand(Contact.class,
             CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-            new CommandMenu(nodeArgSelf)
-                .add("<IP>", "获取服务器信息")
-                .send(source);
-        })
+                    new CommandMenu(nodeArgSelf)
+                        .add("<IP>", "获取服务器信息")
+                        .send(source);
+                })
                 .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
                     if (argsLater.length != 1) {
                         source.sendMessage("您这服务器是不是有点多了");

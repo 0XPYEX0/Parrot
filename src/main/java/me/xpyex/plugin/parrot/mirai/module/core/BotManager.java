@@ -107,41 +107,41 @@ public class BotManager extends CoreModule {
                                messager.send(source);
                            }), "list")
                            .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                                   try {
-                                       NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(argsLater[0]));
-                                       if ("accept".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1])) {
-                                           event.accept();
-                                       } else {
-                                           event.reject(false);
-                                       }
-                                       new MessageBuilder()
-                                           .plus("已处理编号为 " + argsLater[0] + " 的好友申请")
-                                           .plus("ID: " + event.getFromId())
-                                           .plus("Nick: " + event.getFromNick())
-                                           .plus("Group: " + event.getFromGroupId())
-                                           .send(source);
-                                       REQUESTS.remove(Integer.parseInt(argsLater[0]));
-                                   } catch (NoSuchElementException |
-                                            NumberFormatException ignored) {
-                                       source.sendMessage("没有这条申请");
+                               try {
+                                   NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(argsLater[0]));
+                                   if ("accept".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1])) {
+                                       event.accept();
+                                   } else {
+                                       event.reject(false);
                                    }
-                               }), "accept", "deny")
+                                   new MessageBuilder()
+                                       .plus("已处理编号为 " + argsLater[0] + " 的好友申请")
+                                       .plus("ID: " + event.getFromId())
+                                       .plus("Nick: " + event.getFromNick())
+                                       .plus("Group: " + event.getFromGroupId())
+                                       .send(source);
+                                   REQUESTS.remove(Integer.parseInt(argsLater[0]));
+                               } catch (NoSuchElementException |
+                                        NumberFormatException ignored) {
+                                   source.sendMessage("没有这条申请");
+                               }
+                           }), "accept", "deny")
                            .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                                   UserParser.class.of().parse(() -> argsLater[0], Friend.class)
-                                       .ifPresentOrElse(friend -> {
-                                           if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
-                                               source.sendMessage("不允许删除该好友");
-                                               return;
-                                           }
-                                           source.sendMessage("执行操作: 删除好友 " + friend.getId());
-                                           friend.delete();
-                                       }, () -> {
-                                           new MessageBuilder("不存在该好友")
-                                               .plus("可能性如下: ")
-                                               .plus("①填入的QQ号非整数")
-                                               .plus("②机器人并非指定QQ的好友，无法操作");
-                                       });
-                               }), "del", "delete")
+                               UserParser.class.of().parse(() -> argsLater[0], Friend.class)
+                                   .ifPresentOrElse(friend -> {
+                                       if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
+                                           source.sendMessage("不允许删除该好友");
+                                           return;
+                                       }
+                                       source.sendMessage("执行操作: 删除好友 " + friend.getId());
+                                       friend.delete();
+                                   }, () -> {
+                                       new MessageBuilder("不存在该好友")
+                                           .plus("可能性如下: ")
+                                           .plus("①填入的QQ号非整数")
+                                           .plus("②机器人并非指定QQ的好友，无法操作");
+                                   });
+                           }), "del", "delete")
                     , "friend")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
                             new CommandMenu(nodeArgSelf, "user")
@@ -149,22 +149,22 @@ public class BotManager extends CoreModule {
                                 .send(source);
                         })
                            .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                                   UserParser.class.of().parse(() -> argsLater[0]).ifPresentOrElse(user -> {
-                                       if (user.getId() == Util.OWNER_ID) {
-                                           source.sendMessage("不允许屏蔽该用户");
-                                           return;
-                                       }
-                                       source.sendMessage("执行操作: 忽略用户 " + user.getId());
-                                       IGNORED_LIST.add("User-" + user.getId());
-                                   }, () -> {
-                                       source.sendMessage("参数不足，请填入ID");
-                                   });
-                               }), "ignore")
+                               UserParser.class.of().parse(() -> argsLater[0]).ifPresentOrElse(user -> {
+                                   if (user.getId() == Util.OWNER_ID) {
+                                       source.sendMessage("不允许屏蔽该用户");
+                                       return;
+                                   }
+                                   source.sendMessage("执行操作: 忽略用户 " + user.getId());
+                                   IGNORED_LIST.add("User-" + user.getId());
+                               }, () -> {
+                                   source.sendMessage("参数不足，请填入ID");
+                               });
+                           }), "ignore")
                     , "user")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                        source.sendMessage("开始重启");
-                        MiraiConsole.shutdown();
-                    }), "shutdown", "exit", "stop", "end")
+                    source.sendMessage("开始重启");
+                    MiraiConsole.shutdown();
+                }), "shutdown", "exit", "stop", "end")
                 .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
 
                 }), "info")
