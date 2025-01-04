@@ -51,11 +51,11 @@ public class RandomCodes extends Module {
                 .child(CommandNode.of((source, sender, arguments) -> {
                     int length = arguments.getIntArg(0, 4);
                     source.sendMessage(getRandomCode(length, 0));
-                }))
+                }), "随机", "random")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     int length = arguments.getIntArg(0, 4);
                     source.sendMessage(getRandomCode(length, 1));
-                }))
+                }), "字母", "letter")
             , "codes");
     }
 }
