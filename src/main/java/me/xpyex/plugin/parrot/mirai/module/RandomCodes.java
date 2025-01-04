@@ -32,28 +32,28 @@ public class RandomCodes extends Module {
     @Override
     public void register() {
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    new CommandMenu(nodeArgSelf)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("劳动 [长度]", "生成当日劳动码")
                         .add("数字 [长度]", "在范围内生成随机数")
                         .add("字母 [长度]", "在长度范围随机生成字母")
                         .add("随机 [长度]", "字母+数字")
                         .send(source);
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    int length = argsLater.length == 0 ? 4 : Integer.parseInt(argsLater[0]);
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    int length = arguments.getIntArg(0, 4);
                     source.sendMessage("今日劳动码: " + FORMATTER.format(new Date()) + "-" + getRandomCode(length, 0));
                 }), "劳动", "LaoDong")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    int length = argsLater.length == 0 ? 4 : Integer.parseInt(argsLater[0]);
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    int length = arguments.getIntArg(0, 4);
                     source.sendMessage(getRandomCode(length, -1));
                 }), "数字", "num", "number")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    int length = argsLater.length == 0 ? 4 : Integer.parseInt(argsLater[0]);
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    int length = arguments.getIntArg(0, 4);
                     source.sendMessage(getRandomCode(length, 0));
                 }))
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    int length = argsLater.length == 0 ? 4 : Integer.parseInt(argsLater[0]);
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    int length = arguments.getIntArg(0, 4);
                     source.sendMessage(getRandomCode(length, 1));
                 }))
             , "codes");

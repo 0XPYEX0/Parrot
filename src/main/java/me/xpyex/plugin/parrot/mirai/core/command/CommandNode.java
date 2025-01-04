@@ -1,10 +1,10 @@
 package me.xpyex.plugin.parrot.mirai.core.command;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.api.TripleFunction;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
@@ -12,16 +12,28 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 
 public class CommandNode<C extends Contact> {
-    @Getter
     private final HashMap<String, CommandNode<?>> children = new HashMap<>();
+
     @Setter
     @Getter
     public CommandNode<C> parent = null;
+
     @Getter
+    @Setter
+    @Accessors(chain = true)
     private CommandExecutor<C> executor = null;
+
+    @Setter
+    @Accessors(fluent = true)
     private BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck = null;
-    private TripleFunction<ParrotContact<C>, ParrotContact<User>, String[], Boolean> tripleCheck = null;
+
+    @Setter
+    @Accessors(fluent = true)
+    private TripleFunction<ParrotContact<C>, ParrotContact<User>, CommandArguments, Boolean> executableCheckWithArg = null;
+
     @Getter
+    @Setter
+    @Accessors(fluent = true)
     private CommandExecutor<C> notMatchedArg = null;
 
     public static <C extends Contact> CommandNode<C> of() {
@@ -30,13 +42,7 @@ public class CommandNode<C extends Contact> {
 
     public static <C extends Contact> CommandNode<C> of(CommandExecutor<C> executor) {
         CommandNode<C> node = of();
-        node.setExecutor(executor);
-        return node;
-    }
-
-    public CommandNode<C> setExecutor(CommandExecutor<C> executor) {
-        this.executor = executor;
-        return this;
+        return node.setExecutor(executor);
     }
 
     public CommandNode<C> child(CommandNode<C> executor, String... argAliases) {
@@ -50,38 +56,21 @@ public class CommandNode<C extends Contact> {
         return this;
     }
 
-    public CommandNode<C> executableCheck(BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> check) {
-        this.executableCheck = check;
-        return this;
-    }
-
-    public CommandNode<C> executableCheckWithCmdArg(TripleFunction<ParrotContact<C>, ParrotContact<User>, String[], Boolean> check) {
-        this.tripleCheck = check;
-        return this;
-    }
-
-    public CommandNode<C> notMatchedArg(CommandExecutor<C> notMatchedArg) {
-        this.notMatchedArg = notMatchedArg;
-        return this;
-    }
-
-    public void execute(ParrotContact<C> source, ParrotContact<User> sender, String[] nodeArgSelf, String... argsLater) throws Throwable {
+    public void execute(ParrotContact<C> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable {
         if (executableCheck != null && !executableCheck.apply(source, sender)) return;
-        if (tripleCheck != null && !tripleCheck.apply(source, sender, nodeArgSelf)) return;
-        if (argsLater != null && argsLater.length != 0) {
-            CommandNode<C> commandNode = (CommandNode<C>) children.get(argsLater[0].toLowerCase());
+        if (executableCheckWithArg != null && !executableCheckWithArg.apply(source, sender, arguments)) return;
+        if (arguments.hasMoreArg()) {
+            CommandNode<C> commandNode = (CommandNode<C>) children.get(arguments.getLabel(0).toLowerCase());
             if (commandNode != null) {
-                String[] label = Arrays.copyOf(nodeArgSelf, nodeArgSelf.length + 1);
-                label[label.length - 1] = argsLater[0];
-                commandNode.execute(source, sender, label, Arrays.copyOfRange(argsLater, 1, argsLater.length));
+                commandNode.execute(source, sender, arguments.next());
                 return;
             } else if (notMatchedArg != null) {
-                notMatchedArg.execute(source, sender, nodeArgSelf, argsLater);
+                notMatchedArg.execute(source, sender, arguments);
                 return;
             }
         }
         if (executor != null) {
-            executor.execute(source, sender, nodeArgSelf, argsLater);
+            executor.execute(source, sender, arguments);
         }
     }
 }

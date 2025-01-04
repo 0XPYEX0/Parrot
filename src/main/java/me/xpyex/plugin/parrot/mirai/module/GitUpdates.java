@@ -22,9 +22,9 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
@@ -55,8 +55,8 @@ public class GitUpdates extends Module {
         reload();
 
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    new CommandMenu(nodeArgSelf)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("add <GitHub|Gitee> <Owner/RepoName> <是否需要上传文件(true|false)>", "订阅指定Git平台的仓库，发布releases时推送")
                         .add("remove <Owner/RepoName>", "解除订阅")
                         .send(source);
@@ -68,15 +68,15 @@ public class GitUpdates extends Module {
                     }
                     return true;
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     source.sendMessage("手动触发检查");
                     checkUpdate();
                 }), "checkNow")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {  //git add GitHub Owner/RepoName true/false
+                .child(CommandNode.of((source, sender, arguments) -> {  //git add GitHub Owner/RepoName true/false
                         source.sendMessage("参数不足");
                     })
-                           .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
-                               if (!argsLater[1].contains("/")) {
+                           .notMatchedArg((source, sender, arguments) -> {
+                               if (!arguments.getArgument(1).contains("/")) {
                                    source.sendMessage("需要填入 <用户名/仓库名> 的格式");
                                    return;
                                }
@@ -90,11 +90,11 @@ public class GitUpdates extends Module {
                                    map.put(source.getId(), new HashSet<>());
                                }
                                for (GitInfo.SupportedGits value : GitInfo.SupportedGits.values()) {
-                                   if (value.toString().equalsIgnoreCase(argsLater[0])) {
+                                   if (value.toString().equalsIgnoreCase(arguments.getArgument(0))) {
                                        map.get(source.getId()).add(new GitInfo()
                                                                        .setType(value)
-                                                                       .setRepo(argsLater[1])
-                                                                       .setUploadFile("true".equalsIgnoreCase(argsLater[2]))
+                                                                       .setRepo(arguments.getArgument(1))
+                                                                       .setUploadFile("true".equalsIgnoreCase(arguments.getArgument(2)))
                                        );
                                        ReleasesUpdate.getInstance().save(urls);
                                        source.sendMessage("已订阅该Repo");
@@ -103,11 +103,11 @@ public class GitUpdates extends Module {
                                }
                                source.sendMessage("无效的仓库类型");
                            }), "add")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                         source.sendMessage("参数不足");
                     })
-                           .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
-                               String path = argsLater[0];
+                           .notMatchedArg((source, sender, arguments) -> {
+                               String path = arguments.getArgument(0);
                                boolean[] result = {false};
                                ReleasesUpdate.getInstance().getUsers().forEach((ID, info) -> {
                                    if (result[0]) return;
@@ -137,7 +137,7 @@ public class GitUpdates extends Module {
                                });
                                source.sendMessage(result[0] ? "已解除订阅" : "未订阅该Repo");
                            }), "remove")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     reload();
                     source.sendMessage("重新载入文件");
                 }), "reload")

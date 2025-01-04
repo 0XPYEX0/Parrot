@@ -13,7 +13,7 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
@@ -39,8 +39,8 @@ public class SearchSkriptHub extends Module {
     public void register() throws Throwable {
         runTaskLater(SearchSkriptHub::downloadDocAndSave, 5);  //每次启动Bot时，下载最新版本覆盖
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    new CommandMenu(nodeArgSelf)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("search <Key> [addon:xx,xx2,xx3], [type:effect|expression|...]", "在SkriptHub中搜索")
                         .send(source);
                 })
@@ -51,11 +51,11 @@ public class SearchSkriptHub extends Module {
                     }
                     return true;
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     ArrayList<String> addon = new ArrayList<>();
                     ArrayList<String> type = new ArrayList<>();
                     String[] key = {""};
-                    for (String s : argsLater) {
+                    for (String s : arguments.getArguments()) {
                         if (StringUtil.startsWithIgnoreCaseOr(s, "addon:")) {
                             addon.addAll(List.of(s.substring(6).split(",")));
                         } else if (StringUtil.startsWithIgnoreCaseOr(s, "type:")) {

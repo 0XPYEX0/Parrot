@@ -39,70 +39,77 @@ public class CraftRCon extends Module {
 
     @Override
     public void register() throws Throwable {
-        registerCommand(Contact.class, CommandNode.of((source, sender, label, args) -> {
-            //#RCon send ServerName Command...
-            if (args.length == 0) {
-                new CommandMenu(label).add("add <ServerName> <Host> <Port> <Password>", "添加一个RCon. 请在私聊进行，以免暴露password")
-                    .add("send <ServerName> <Cmd...>", "发送一个命令到RCon")
-                    .add("remove <ServerName>", "移除一个RCon")
-                    .send(source);
-                return;
-            }
-            if ("add".equalsIgnoreCase(args[0])) {
-                if (!sender.hasPerm(getName() + ".add")) {
-                    source.sendMessage("你机霸谁？不听你的");
-                    return;
-                }
-                if (args.length < 5) {
-                    source.sendMessage("参数不足");
-                    return;
-                }
-                File outFile = new File(getDataFolder(), args[1] + ".json");
-                FileUtil.writeFile(outFile, new JSONObject()
-                                                .set("host", args[2])
-                                                .set("port", Integer.parseInt(args[3]))
-                                                .set("password", args[4])
-                                                .toStringPretty()
-                );
-                source.sendMessage("已添加RCon <" + args[1] + ">: " + args[2] + ":" + args[3]);
-            } else if ("send".equalsIgnoreCase(args[0])) {
-                if (args.length < 3) {
-                    source.sendMessage("参数不足");
-                    return;
-                }
-                if (!sender.hasPerm(getName() + ".sendCmd." + args[1])) {
-                    source.sendMessage("你机霸谁？不听你的");
-                    return;
-                }
-                getService(args[1]).ifPresentOrElse(rcon -> {
-                    String cmd = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-                    source.sendMessage("向 " + args[1] + " 发送命令 /" + cmd);
-                    rcon.send(cmd, s -> {
-                        new MessageBuilder()
-                            .plus("返回: ")
-                            .plus(s)
-                            .send(source);
+        registerCommand(Contact.class,
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
+                        .add("add <ServerName> <Host> <Port> <Password>", "添加一个RCon. 请在私聊进行，以免暴露password")
+                        .add("send <ServerName> <Cmd...>", "发送一个命令到RCon")
+                        .add("remove <ServerName>", "移除一个RCon")
+                        .send(source);
+                })
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    if (arguments.hasEnoughArg(4)) {
+                        source.sendMessage("参数不足");
+                        return;
+                    }
+                    File outFile = new File(getDataFolder(), arguments.getArgument(0) + ".json");
+                    FileUtil.writeFile(outFile, new JSONObject()
+                                                    .set("host", arguments.getArgument(1))
+                                                    .set("port", arguments.getIntArg(2))
+                                                    .set("password", arguments.getArgument(3))
+                                                    .toStringPretty()
+                    );
+                    source.sendMessage("已添加RCon <" + arguments.getArgument(0) + ">: " + arguments.getArgument(1) + ":" + arguments.getArgument(2));
+                }).executableCheck((source, sender) -> {
+                    if (!sender.hasPerm(getName() + ".add")) {
+                        source.sendMessage("你机霸谁？不听你的");
+                        return false;
+                    }
+                    return true;
+                }), "add")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    getService(arguments.getArgument(0)).ifPresentOrElse(rcon -> {
+                        String cmd = String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length));
+                        source.sendMessage("向 " + arguments.getArgument(0) + " 发送命令 /" + cmd);
+                        rcon.send(cmd, s -> {
+                            new MessageBuilder()
+                                .plus("返回: ")
+                                .plus(s)
+                                .send(source);
+                        });
+                    }, () -> {
+                        source.sendMessage("连接失败，或是RCon尚未记录");
                     });
-                }, () -> {
-                    source.sendMessage("连接失败，或是RCon尚未记录");
-                });
-            } else if ("remove".equalsIgnoreCase(args[0])) {
-                if (!sender.hasPerm(getName() + ".remove")) {
-                    source.sendMessage("你机霸谁？不听你的");
-                    return;
-                }
-                if (args.length < 2) {
-                    source.sendMessage("参数不足");
-                    return;
-                }
-                if (CACHE.containsKey(args[1])) {
-                    CACHE.get(args[1]).close();
-                }
-                CACHE.remove(args[1]);
-                new File(getDataFolder(), args[1] + ".json").delete();
-                source.sendMessage("已删除RCon " + args[1]);
-            }
-        }), "RCon");
+                }).executableCheckWithArg((source, sender, arguments) -> {
+                    if (arguments.hasEnoughArg(2)) {
+                        source.sendMessage("参数不足");
+                        return false;
+                    }
+                    if (!sender.hasPerm(getName() + ".sendCmd." + arguments.getArgument(0))) {
+                        source.sendMessage("你机霸谁？不听你的");
+                        return false;
+                    }
+                    return true;
+                }), "send")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    if (CACHE.containsKey(arguments.getArgument(0))) {
+                        CACHE.get(arguments.getArgument(0)).close();
+                    }
+                    CACHE.remove(arguments.getArgument(0));
+                    new File(getDataFolder(), arguments.getArgument(0) + ".json").delete();
+                    source.sendMessage("已删除RCon " + arguments.getArgument(0));
+                }).executableCheckWithArg((source, sender, arguments) -> {
+                    if (!sender.hasPerm(getName() + ".remove")) {
+                        source.sendMessage("你机霸谁？不听你的");
+                        return false;
+                    }
+                    if (!arguments.hasMoreArg()) {
+                        source.sendMessage("参数不足");
+                        return false;
+                    }
+                    return true;
+                }), "remove")
+            , "RCon");
         listenEvent(BotOfflineEvent.class, event -> {
             CACHE.forEach((name, service) -> {
                 service.close();

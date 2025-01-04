@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.core.permission;
 
+import java.util.ArrayList;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -13,4 +14,26 @@ public interface Perms {
     TreeSet<String> getDenyPerms();
 
     void save();
+
+    default boolean deniedPerm(String perm) {
+        ArrayList<String> list = new ArrayList<>();
+        for (String permNode : perm.toLowerCase().split("\\.")) {
+            list.add(permNode);
+            if (getLowerCaseSet(getDenyPerms()).contains(String.join(".", list) + ".*")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    default boolean hasPerm(String perm) {
+        ArrayList<String> list = new ArrayList<>();
+        for (String permNode : perm.toLowerCase().split("\\.")) {
+            list.add(permNode);
+            if (getLowerCaseSet(getPermissions()).contains(String.join(".", list) + ".*")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

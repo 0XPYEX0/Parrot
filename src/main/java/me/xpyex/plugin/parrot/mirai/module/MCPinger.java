@@ -20,18 +20,18 @@ public class MCPinger extends Module {
     @Override
     public void register() {
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    new CommandMenu(nodeArgSelf)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("<IP>", "获取服务器信息")
                         .send(source);
                 })
-                .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
-                    if (argsLater.length != 1) {
+                .notMatchedArg((source, sender, arguments) -> {
+                    if (arguments.getArguments().length != 1) {
                         source.sendMessage("您这服务器是不是有点多了");
                         return;
                     }
                     try {
-                        String ip = argsLater[0].replace("：", ":");  //全角替换半角，可能有傻逼...
+                        String ip = arguments.getArgument(0).replace("：", ":");  //全角替换半角，可能有傻逼...
                         String address;
                         int port = 25565;
                         if (ip.contains(":")) {

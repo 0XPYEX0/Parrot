@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
@@ -47,42 +47,36 @@ public class CommandBus {
     }
 
     public static void callCommands(MessageEvent event, String msg) {
-        String cmd = msg.split(" ")[0];
-        String[] args = msg.substring(cmd.length()).trim().split(" ");
-        if (args.length == 0 || (args.length == 1 && args[0].trim().isEmpty())) {
-            args = new String[0];
-        }
         ParrotContact<Contact> source = ParrotContact.of(event.getSubject());
         CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
-        dispatchCommand(source, ParrotContact.of(event.getSender()), cmd, args);
+        dispatchCommand(source, ParrotContact.of(event.getSender()), CommandArguments.of(msg.split(" ")));
     }
 
     /**
      * 使聊天对象执行命令
      *
-     * @param contact 聊天对象，可以是任意Contact
-     * @param sender  消息发送者，必须为User
-     * @param cmd     执行的命令
-     * @param args    命令参数
+     * @param contact   聊天对象，可以是任意Contact
+     * @param sender    消息发送者，必须为User
+     * @param arguments 执行的命令与命令参数
      */
-    public static void dispatchCommand(ParrotContact<Contact> contact, ParrotContact<User> sender, String cmd, String... args) {
-        if (!StringUtil.startsWithIgnoreCaseOr(cmd, ParrotPlugin.CMD_PREFIX)) {
-            cmd = "#" + cmd;
+    public static void dispatchCommand(ParrotContact<Contact> contact, ParrotContact<User> sender, CommandArguments arguments) {
+        if (!StringUtil.startsWithIgnoreCaseOr(arguments.getLabel(0), ParrotPlugin.CMD_PREFIX)) {
+            arguments.wholeCommand[0] = "#" + arguments.wholeCommand[0];
         }
         for (Tuple commandBus : COMMAND_BUSES) {  //contactType, module, command
             if (ClassUtil.isAssignable(commandBus.get(0), contact.getContact().getClass())) {  //contactType
                 Module module = commandBus.get(1);  //module
                 if (module.isEnabled()) {
-                    if (isCmd(module, cmd.substring(1))) {
+                    if (isCmd(module, arguments.getLabel(0).substring(1))) {
                         Command<Contact> command = commandBus.get(2);  //command
                         ArgParser.setParseObj(sender.getContact());
                         for (String alias : command.aliases()) {
-                            if (alias.equalsIgnoreCase(cmd.substring(1))) {
+                            if (alias.equalsIgnoreCase(arguments.getLabel(0).substring(1))) {
                                 try {
-                                    command.node().execute(contact, sender, new String[]{cmd}, args);
+                                    command.node().execute(contact, sender, arguments);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false, null, module);
-                                    contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + cmd + " 时出现异常，已被捕获: " + e);
+                                    contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + arguments.getLabel(0) + " 时出现异常，已被捕获: " + e);
                                 }
                             }
                         }
@@ -96,13 +90,12 @@ public class CommandBus {
     /**
      * 使聊天对象执行命令
      *
-     * @param contact 聊天对象，可以是任意Contact
-     * @param sender  消息发送者，必须为User
-     * @param cmd     执行的命令
-     * @param args    命令参数
+     * @param contact   聊天对象，可以是任意Contact
+     * @param sender    消息发送者，必须为User
+     * @param arguments 执行的命令与命令参数
      */
-    public static void dispatchCommand(Contact contact, User sender, String cmd, String... args) {
-        dispatchCommand(ParrotContact.of(contact), ParrotContact.of(sender), cmd, args);
+    public static void dispatchCommand(Contact contact, User sender, CommandArguments arguments) {
+        dispatchCommand(ParrotContact.of(contact), ParrotContact.of(sender), arguments);
         //
     }
 }

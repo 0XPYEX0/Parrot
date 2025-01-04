@@ -12,7 +12,7 @@ public interface CommandExecutor<C extends Contact> {
     @SuppressWarnings("all")
     public static final WeakHashMap<Long, MessageEvent> EVENT_POOL = new WeakHashMap<>();
 
-    void execute(ParrotContact<C> source, ParrotContact<User> sender, String[] nodeArgSelf, String[] argsLater) throws Throwable;
+    void execute(ParrotContact<C> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable;
 
     /**
      * 获取触发命令的事件
@@ -20,7 +20,7 @@ public interface CommandExecutor<C extends Contact> {
      * @param contact 需要传入命令的一个ContactTarget，获取其对应的MessageEvent
      * @return 仅当ContactTarget不由MessageEvent生成
      * [如，命令由 {@link CommandBus#dispatchCommand(Contact, User, String, String...)}
-     * 或 {@link CommandBus#dispatchCommand(ParrotContact, ParrotContact, String, String...)} 方法触发]
+     * 或 {@link CommandBus#dispatchCommand(ParrotContact, ParrotContact, CommandArguments)} 方法触发]
      * 时，Optional内部为null，否则均有值
      */
     default Optional<MessageEvent> getEvent(ParrotContact<C> contact) {

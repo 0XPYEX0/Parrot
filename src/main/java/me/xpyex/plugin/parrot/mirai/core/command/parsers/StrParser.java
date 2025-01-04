@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.core.command.argument;
+package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import java.util.Optional;
 import me.xpyex.plugin.parrot.mirai.api.TryCallable;

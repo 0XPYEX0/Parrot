@@ -7,8 +7,8 @@ import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ModuleParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ModuleParser;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
@@ -20,8 +20,8 @@ public class PluginManager extends CoreModule {
     @Override
     public void register() {
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, label, argsLater) -> {
-                    new CommandMenu(label)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("enable <模块>", "启用该模块")
                         .add("disable <模块>", "禁用该模块")
                         .add("list", "查询所有模块")
@@ -35,39 +35,38 @@ public class PluginManager extends CoreModule {
                     }
                     return true;
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
-                    ModuleParser.class.of()
-                        .parse(() -> args[0])
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    arguments.getArgument(0, ModuleParser.class, Module.class)
                         .ifPresentOrElse(module -> {
                             if (module.isCore()) {
                                 source.sendMessage("不允许操作核心模块");
                                 return;
                             }
-                            String mode = "enable".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1]) ? "启用" : "禁用";
-                            if ("enable".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1]) ? module.enable() : module.disable()) {
+                            String mode = "enable".equalsIgnoreCase(arguments.getLabelReverse(0)) ? "启用" : "禁用";
+                            if ("enable".equalsIgnoreCase(arguments.getLabelReverse(0)) ? module.enable() : module.disable()) {
                                 source.sendMessage("已" + mode + " " + module.getName() + " 模块");
                             } else {
                                 source.sendMessage("模块 " + module.getName() + " 已被" + mode + "，无需重复" + mode);
                             }
-                        }, () -> source.sendMessage("模块不存在\n执行 #" + nodeArgSelf[0] + " list 查看所有列表"));
+                        }, () -> source.sendMessage("模块不存在\n执行 #" + arguments.getLabel(0) + " list 查看所有列表"));
                 }), "enable", "disable")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     source.sendMessage("所有模块列表: " +
                                            Module.LOADED_MODELS.values()
                                                .stream()
                                                .map(module -> module.getName() + (module.isDisabled() ? "(未启用)" : ""))
                                                .collect(Collectors.toCollection(TreeSet::new)));
                 }), "list")
-                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
-                    ModuleParser.class.of().parse(() -> args[0])
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    arguments.getArgument(0, ModuleParser.class, Module.class)
                         .ifPresentOrElse(module -> new MessageBuilder("模块 " + module.getName())
                                                        .plus("状态: " + (module.isDisabled() ? "禁用" : "启用"))
                                                        .plus("已注册的命令: " + (CommandBus.getCommands(module).isEmpty() ? "无" : CommandBus.getCommands(module)))
                                                        .plus("监听的事件: " + (EventBus.getEvents(module).isEmpty() ? "无" : EventBus.getEvents(module)))
                                                        .send(source),
-                            () -> source.sendMessage("模块不存在\n执行 #" + nodeArgSelf[0] + " list 查看所有列表"));
+                            () -> source.sendMessage("模块不存在\n执行 #" + arguments.getLabel(0) + " list 查看所有列表"));
                 }), "info")
-                .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
+                .notMatchedArg((source, sender, arguments) -> {
                     source.sendMessage("未知子命令");
                 }), "pl", "plugin", "module");
     }

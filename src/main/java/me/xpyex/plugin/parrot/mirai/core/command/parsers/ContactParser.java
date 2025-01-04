@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.core.command.argument;
+package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import net.mamoe.mirai.contact.Contact;
 

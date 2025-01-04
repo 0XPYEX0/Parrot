@@ -1,8 +1,8 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
 import lombok.experimental.ExtensionMethod;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import net.mamoe.mirai.event.events.GroupMessageEvent;

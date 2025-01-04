@@ -6,9 +6,9 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.UserParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.console.MiraiConsole;
@@ -33,8 +33,8 @@ public class BotManager extends CoreModule {
     @Override
     public void register() {
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, label, args) -> {
-                    new CommandMenu(label)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("group", "群相关操作")
                         .add("friend", "好友相关操作")
                         .add("user", "用户相关操作")
@@ -47,23 +47,21 @@ public class BotManager extends CoreModule {
                     }
                     return true;
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(nodeArgSelf)
+                .child(CommandNode.of((source, sender, arguments) -> {
+                            new CommandMenu(arguments)
                                 .add("quit <ID>", "令机器人退出该群")
                                 .add("ignore <ID>", "忽略该群触发的事件")
                                 .add("list", "列出该机器人加入的所有群")
                                 .send(source);
                         })
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                           .child(CommandNode.of((source, sender, arguments) -> {
                                MessageBuilder messager = new MessageBuilder();
                                messager.plus("机器人加入的群列表: ");
-                               for (Group g : getBot().getGroups()) {
-                                   messager.plus(g.getName() + " (" + g.getId() + ")");
-                               }
+                               getBot().getGroups().forEach(group -> messager.plus(group.getName() + " (" + group.getId() + ")"));
                                messager.send(source);
                            }), "list")
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               GroupParser.class.of().parse(() -> argsLater[0])
+                           .child(CommandNode.of((source, sender, arguments) -> {
+                               arguments.getArgument(0, GroupParser.class, Group.class)
                                    .ifPresentOrElse(group -> {
                                            source.sendMessage("执行操作: 忽略群 " + group.getId());
                                            IGNORED_LIST.add("Group-" + group.getId());
@@ -76,8 +74,8 @@ public class BotManager extends CoreModule {
                                                   .send(source)
                                    );
                            }), "quit")
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               GroupParser.class.of().parse(() -> argsLater[0])
+                           .child(CommandNode.of((source, sender, arguments) -> {
+                               arguments.getArgument(0, GroupParser.class, Group.class)
                                    .ifPresentOrElse(group -> {
                                            source.sendMessage("执行操作: 忽略群 " + group.getId());
                                            IGNORED_LIST.add("Group-" + group.getId());
@@ -91,13 +89,13 @@ public class BotManager extends CoreModule {
                                    );
                            }), "ignore")
                     , "group")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(nodeArgSelf)
+                .child(CommandNode.of((source, sender, arguments) -> {
+                            new CommandMenu(arguments)
                                 .add("delete <ID>", "令机器人删除该好友")
                                 .add("list", "列出该机器人的好友列表")
                                 .send(source);
                         })
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                           .child(CommandNode.of((source, sender, arguments) -> {
                                MessageBuilder messager = new MessageBuilder();
                                messager.plus("机器人的好友列表: ");
                                for (Friend f : getBot().getFriends()) {
@@ -105,28 +103,28 @@ public class BotManager extends CoreModule {
                                }
                                messager.send(source);
                            }), "list")
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                           .child(CommandNode.of((source, sender, arguments) -> {
                                try {
-                                   NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(argsLater[0]));
-                                   if ("accept".equalsIgnoreCase(nodeArgSelf[nodeArgSelf.length - 1])) {
+                                   NewFriendRequestEvent event = REQUESTS.get(Integer.parseInt(arguments.getArgument(0)));
+                                   if ("accept".equalsIgnoreCase(arguments.getLabelReverse(0))) {
                                        event.accept();
                                    } else {
                                        event.reject(false);
                                    }
                                    new MessageBuilder()
-                                       .plus("已处理编号为 " + argsLater[0] + " 的好友申请")
+                                       .plus("已处理编号为 " + arguments.getArgument(0) + " 的好友申请")
                                        .plus("ID: " + event.getFromId())
                                        .plus("Nick: " + event.getFromNick())
                                        .plus("Group: " + event.getFromGroupId())
                                        .send(source);
-                                   REQUESTS.remove(Integer.parseInt(argsLater[0]));
+                                   REQUESTS.remove(Integer.parseInt(arguments.getArgument(0)));
                                } catch (NoSuchElementException |
                                         NumberFormatException ignored) {
                                    source.sendMessage("没有这条申请");
                                }
                            }), "accept", "deny")
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               UserParser.class.of().parse(() -> argsLater[0], Friend.class)
+                           .child(CommandNode.of((source, sender, arguments) -> {
+                               arguments.getArgument(0, UserParser.class, Friend.class)
                                    .ifPresentOrElse(friend -> {
                                        if (PermManager.hasPerm(friend, "BotManager.admin", null)) {
                                            source.sendMessage("不允许删除该好友");
@@ -142,14 +140,14 @@ public class BotManager extends CoreModule {
                                    });
                            }), "del", "delete")
                     , "friend")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                            new CommandMenu(nodeArgSelf)
+                .child(CommandNode.of((source, sender, arguments) -> {
+                            new CommandMenu(arguments)
                                 .add("ignore <ID>", "忽略该用户触发的事件")
                                 .send(source);
                         })
-                           .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                               UserParser.class.of().parse(() -> argsLater[0]).ifPresentOrElse(user -> {
-                                   if (user.getId() == Util.OWNER_ID) {
+                           .child(CommandNode.of((source, sender, arguments) -> {
+                               arguments.getArgument(0, UserParser.class, User.class).ifPresentOrElse(user -> {
+                                   if (PermManager.hasPerm(user, "PermManager.admin", null)) {
                                        source.sendMessage("不允许屏蔽该用户");
                                        return;
                                    }
@@ -160,15 +158,20 @@ public class BotManager extends CoreModule {
                                });
                            }), "ignore")
                     , "user")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     source.sendMessage("开始重启");
                     MiraiConsole.shutdown();
                 }), "shutdown", "exit", "stop", "end")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    new MessageBuilder()
+                        .plus("当前运行环境信息: ")
+                        .plus("系统: " + System.getProperty("os.name"))
+                        .plus("已分配内存: " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB")
+                        .plus("剩余可用内存: " + Runtime.getRuntime().freeMemory() / 1024 / 1024 + "/" + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB")
+                        .send(source);
                 }), "info")
-                .notMatchedArg((source, sender, nodeArgSelf, argsLater) -> {
-                        source.sendMessage("未知子命令，请执行 #" + nodeArgSelf[0] + " 查看帮助");
+                .notMatchedArg((source, sender, arguments) -> {
+                        source.sendMessage("未知子命令，请执行 #" + arguments.getLabel(0) + " 查看帮助");
                     }
                 )
             , "BotManager", "Bot");

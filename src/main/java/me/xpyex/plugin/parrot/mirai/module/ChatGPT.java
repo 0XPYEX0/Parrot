@@ -15,16 +15,18 @@ import java.util.WeakHashMap;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.GroupParser;
-import me.xpyex.plugin.parrot.mirai.core.command.argument.StrParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
@@ -48,8 +50,8 @@ public final class ChatGPT extends Module {
     @Override
     public void register() throws Throwable {
         registerCommand(Contact.class,
-            CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    new CommandMenu(nodeArgSelf)
+            CommandNode.of((source, sender, arguments) -> {
+                    new CommandMenu(arguments)
                         .add("talk <Messages>...", "与ChatGPT对话，每次对话保留 " + MSG_SIZE_LIMIT / 2 + " 回合")
                         .add("reset", "开启新话题")
                         .add("reGo", "按照先前的话题重新生成")
@@ -63,13 +65,13 @@ public final class ChatGPT extends Module {
                     }
                     return true;
                 })
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                     CHAT_CACHE.remove(sender.getId());
                     source.sendMessage("已清除连续对话记忆");
                 }), "reset")
-                .child(CommandNode.of((source, sender, nodeArgSelf, args) -> {
-                    GroupParser.class.of().parse(() -> args[0]).ifPresentOrElse(group -> {
-                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(args, 1, args.length))).ifPresentOrElse(rule -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    arguments.getArgument(0, GroupParser.class, Group.class).ifPresentOrElse(group -> {
+                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length))).ifPresentOrElse(rule -> {
                             try {
                                 Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
                                 GROUP_RULES.put(group.getId(), rule);
@@ -86,10 +88,10 @@ public final class ChatGPT extends Module {
                     }
                     return true;
                 }), "groupRule")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
+                .child(CommandNode.of((source, sender, arguments) -> {
                         source.sendMessage("你想聊点什么？😊");
-                    }).executableCheckWithCmdArg((source, sender, args) -> {
-                        boolean is3 = "talk".equalsIgnoreCase(() -> args[args.length - 1]);
+                    }).executableCheckWithArg((source, sender, args) -> {
+                        boolean is3 = "talk".equalsIgnoreCase(() -> args.getArgumentReverse(0));
                         if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
                             source.sendMessage(DENIED_MSG_3);
                             return false;
@@ -101,8 +103,8 @@ public final class ChatGPT extends Module {
                         return true;
                     }).notMatchedArg(new CommandExecutor<>() {
                         @Override
-                        public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, String[] nodeArgSelf, String[] argsLater) throws Throwable {
-                            boolean is3 = "talk".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                        public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable {
+                            boolean is3 = "talk".equalsIgnoreCase(() -> arguments.getArgumentReverse(0));
                             if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
                                 getEvent(source).ifPresent(msgEvent -> {
                                     recall(msgEvent.getSource());
@@ -111,7 +113,7 @@ public final class ChatGPT extends Module {
                             ValueUtil.ifNull(CHAT_CACHE.get(sender.getId()), () -> {  //若还没有聊过天，则新建缓存
                                 CHAT_CACHE.put(sender.getId(), ChatMessage.of(ChatMessage.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG)));
                             });
-                            String userMsg = String.join(" ", argsLater);
+                            String userMsg = String.join(" ", arguments.getArguments());
 
                             ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
                             chatMessage.plus(ChatMessage.Role.USER, userMsg);
@@ -126,8 +128,8 @@ public final class ChatGPT extends Module {
                         }
                     })
                     , "talk", "talk4")
-                .child(CommandNode.of((source, sender, nodeArgSelf, argsLater) -> {
-                    boolean is3 = "reGo".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    boolean is3 = "reGo".equalsIgnoreCase(() -> arguments.getArgumentReverse(0));
                     ChatMessage chatMessage = CHAT_CACHE.get(sender.getId());  //获取其缓存
                     chatMessage.getMessage().remove(chatMessage.getMessage().size() - 1);  //清除最终的缓存
 
@@ -138,8 +140,8 @@ public final class ChatGPT extends Module {
                     }
                     builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                     source.sendMessage(builder.build());
-                }).executableCheckWithCmdArg((source, sender, nodeArgSelf) -> {
-                    boolean is3 = "reGo".equalsIgnoreCase(() -> nodeArgSelf[nodeArgSelf.length - 1]);
+                }).executableCheckWithArg((source, sender, arguments) -> {
+                    boolean is3 = "reGo".equalsIgnoreCase(() -> arguments.getArgumentReverse(0));
                     if (is3 && !sender.hasPerm("ChatGPT.use.3", MemberPermission.ADMINISTRATOR)) {
                         source.sendMessage(DENIED_MSG_3);
                         return false;

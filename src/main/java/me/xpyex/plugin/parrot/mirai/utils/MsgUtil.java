@@ -46,7 +46,11 @@ public class MsgUtil {
                 return;
             }
         }
-        contact.sendMessage(msg);
+        try {
+            contact.sendMessage(msg);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void sendMsgToOwner(String msg) {
