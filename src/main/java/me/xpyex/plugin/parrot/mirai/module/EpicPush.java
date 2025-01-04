@@ -36,11 +36,6 @@ public class EpicPush extends Module {
     private static ArrayList<String> userList;
     private static ArrayList<String> groupList;
 
-    private EpicPush() {
-        this.DEFAULT_DISABLED = true;
-        //
-    }
-
     public void init() {
         userData = new File(getDataFolder(), "userData.txt");
         groupData = new File(getDataFolder(), "groupData.txt");
@@ -155,6 +150,7 @@ public class EpicPush extends Module {
 
     @Override
     public void register() {
+        this.DEFAULT_DISABLED = true;
         init();
         try {
             Timer timer = new Timer();

@@ -13,12 +13,9 @@ import net.mamoe.mirai.message.data.QuoteReply;
 
 @ExtensionMethod(ArgParser.class)
 public class MuteQuotePlusAt extends Module {
-    public MuteQuotePlusAt() {
-        this.DEFAULT_DISABLED = true;
-    }
-
     @Override
     public void register() throws Throwable {
+        this.DEFAULT_DISABLED = true;
         listenEvent(GroupMessageEvent.class, event -> {
             if (event.getGroup().getBotPermission().getLevel() > event.getPermission().getLevel()) {  //Bot权限高于Sender
                 QuoteReply quote = event.getMessage().get(QuoteReply.Key);
