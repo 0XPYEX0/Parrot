@@ -39,7 +39,7 @@ public class CommandArguments {
     }
 
     public String getLabelReverse(int index) {
-        return getLabel(currentIndex - index);
+        return getLabel(currentIndex - index - 1);
     }
 
     public String[] getLabels() {
