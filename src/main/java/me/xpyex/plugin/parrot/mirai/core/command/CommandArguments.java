@@ -59,6 +59,10 @@ public class CommandArguments {
         return wholeCommand[currentIndex + index];
     }
 
+    public boolean boolArg(int index) {
+        return "true".equalsIgnoreCase(getArgument(index));
+    }
+
     public int getIntArg(int index, int def) {
         try {
             return getIntArg(index);

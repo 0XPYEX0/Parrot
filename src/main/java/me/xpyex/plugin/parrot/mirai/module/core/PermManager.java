@@ -157,7 +157,7 @@ public class PermManager extends CoreModule {
                     return true;
                 })
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    if (arguments.getArguments().length < 4) {
+                    if (arguments.hasEnoughArg(4)) {
                         source.sendMessage("参数不足");
                         return;
                     }
@@ -168,12 +168,12 @@ public class PermManager extends CoreModule {
                         default -> null;
                     };
                     if (type == null) {
-                        source.sendMessage("参数错误: " + arguments.getArgument(1));
+                        source.sendMessage("参数错误: " + arguments.getArgument(0));
                         return;
                     }
-                    String id = arguments.getArgument(2);
-                    String perm = arguments.getArgument(3).toLowerCase();
-                    int state = Integer.parseInt(arguments.getArgument(4));
+                    String id = arguments.getArgument(1);
+                    String perm = arguments.getArgument(2).toLowerCase();
+                    int state = Integer.parseInt(arguments.getArgument(3));
                     Perms permInstance = switch (type) {
                         case "组" -> GROUPS.get(id);
                         case "用户" -> getUserPerm(UserParser.class.of().getParsedId(id));
@@ -203,7 +203,7 @@ public class PermManager extends CoreModule {
                     permInstance.save();
                 }), "set")
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    if (arguments.getArguments().length < 3) {
+                    if (arguments.hasEnoughArg(3)) {
                         source.sendMessage("参数不足");
                         return;
                     }
@@ -232,7 +232,7 @@ public class PermManager extends CoreModule {
                         source.sendMessage("已存在同名权限组: " + arguments.getArgument(0));
                         return;
                     }
-                    FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(new GroupPerm(arguments.getArgument(0)).setDefaultGroup("true".equalsIgnoreCase(arguments.getArgument(1)))));
+                    FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(new GroupPerm(arguments.getArgument(0)).setDefaultGroup(arguments.boolArg(1))));
                     reload();
                     source.sendMessage("成功创建组: " + arguments.getArgument(0));
                 }), "newGroup")
