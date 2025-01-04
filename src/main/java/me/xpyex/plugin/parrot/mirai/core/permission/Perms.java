@@ -17,7 +17,7 @@ public interface Perms {
 
     default boolean deniedPerm(String perm) {
         TreeSet<String> lowerCaseSet = getLowerCaseSet(getDenyPerms());
-        if (lowerCaseSet.contains(perm)) {
+        if (lowerCaseSet.contains(perm.toLowerCase())) {
             return true;
         }
         ArrayList<String> list = new ArrayList<>();
@@ -32,7 +32,7 @@ public interface Perms {
 
     default boolean hasPerm(String perm) {
         TreeSet<String> lowerCaseSet = getLowerCaseSet(getPermissions());
-        if (lowerCaseSet.contains(perm)) {
+        if (lowerCaseSet.contains(perm.toLowerCase())) {
             return true;
         }
         ArrayList<String> list = new ArrayList<>();
