@@ -157,7 +157,7 @@ public class PermManager extends CoreModule {
                     return true;
                 })
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    if (arguments.hasEnoughArg(4)) {
+                    if (!arguments.hasEnoughArg(4)) {
                         source.sendMessage("参数不足");
                         return;
                     }
@@ -203,7 +203,7 @@ public class PermManager extends CoreModule {
                     permInstance.save();
                 }), "set")
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    if (arguments.hasEnoughArg(3)) {
+                    if (!arguments.hasEnoughArg(3)) {
                         source.sendMessage("参数不足");
                         return;
                     }
