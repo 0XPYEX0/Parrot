@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.Optional;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.command.parsers.StrParser;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 
 @ExtensionMethod(ArgParser.class)
 public class CommandArguments {
     protected final String[] wholeCommand;
-    private int currentIndex = 0;
+    private int currentIndex = 1;
 
     private CommandArguments(String... wholeCommand) {
         if (wholeCommand == null || wholeCommand.length == 0) throw new IllegalArgumentException("command is null");
@@ -29,14 +28,14 @@ public class CommandArguments {
 
     public <T> Optional<T> getLabel(int index, Class<? extends ArgParser> useParser, Class<T> parsedType) {
         ValueUtil.notNull("类型不应为null", useParser, parsedType);
-        if (index > this.currentIndex)
-            throw new ArrayIndexOutOfBoundsException("访问的Label超出范围. 你可能正在访问Argument?");
 
-        return useParser.of().parse(() -> wholeCommand[index], parsedType);
+        return useParser.of().parse(() -> getLabel(index), parsedType);
     }
 
     public String getLabel(int index) {
-        return getLabel(index, StrParser.class, String.class).orElse("null");
+        if (index > this.currentIndex)
+            throw new ArrayIndexOutOfBoundsException("访问的Label超出范围. 你可能正在访问Argument?");
+        return wholeCommand[index];
     }
 
     public String getLabelReverse(int index) {
@@ -53,11 +52,11 @@ public class CommandArguments {
 
     public <T> Optional<T> getArgument(int index, Class<? extends ArgParser> useParser, Class<T> parsedType) {
         ValueUtil.notNull("类型不应为null", useParser, parsedType);
-        return useParser.of().parse(() -> wholeCommand[currentIndex + 1 + index], parsedType);
+        return useParser.of().parse(() -> getArgument(index), parsedType);
     }
 
     public String getArgument(int index) {
-        return getArgument(index, StrParser.class, String.class).orElse("null");
+        return wholeCommand[currentIndex + index];
     }
 
     public int getIntArg(int index, int def) {
@@ -82,7 +81,7 @@ public class CommandArguments {
     }
 
     public String[] getArguments() {
-        return Arrays.copyOfRange(wholeCommand, currentIndex + 1, wholeCommand.length);
+        return Arrays.copyOfRange(wholeCommand, currentIndex, wholeCommand.length);
     }
 
     public String buildArguments() {
@@ -94,7 +93,7 @@ public class CommandArguments {
     }
 
     public boolean hasEnoughArg(int count) {
-        return wholeCommand.length - count < currentIndex;
+        return wholeCommand.length + 1 > currentIndex + count;
     }
 
     protected CommandArguments next() {

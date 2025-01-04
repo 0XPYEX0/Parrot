@@ -171,7 +171,7 @@ public class BotManager extends CoreModule {
                         .send(source);
                 }), "info")
                 .notMatchedArg((source, sender, arguments) -> {
-                        source.sendMessage("未知子命令，请执行 #" + arguments.getLabel(0) + " 查看帮助");
+                        source.sendMessage("未知子命令，请执行 " + arguments.getLabel(0) + " 查看帮助");
                     }
                 )
             , "BotManager", "Bot");

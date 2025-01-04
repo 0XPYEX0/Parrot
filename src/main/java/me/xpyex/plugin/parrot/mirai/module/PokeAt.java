@@ -25,6 +25,7 @@ public class PokeAt extends Module {
 
     @Override
     public void register() {
+        this.DEFAULT_DISABLED = true;
         executeOnce(BotOnlineEvent.class, event -> {
             try (ExternalResource image = ExternalResource.create(IMAGE_FILE)) {
                 PokeAt.image = getBot().getAsFriend().uploadImage(image);

@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.api.TripleFunction;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.module.TestMsg;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
@@ -60,7 +62,7 @@ public class CommandNode<C extends Contact> {
         if (executableCheck != null && !executableCheck.apply(source, sender)) return;
         if (executableCheckWithArg != null && !executableCheckWithArg.apply(source, sender, arguments)) return;
         if (arguments.hasMoreArg()) {
-            CommandNode<C> commandNode = (CommandNode<C>) children.get(arguments.getLabel(0).toLowerCase());
+            CommandNode<C> commandNode = (CommandNode<C>) children.get(Module.getModule(TestMsg.class).info(arguments.getArgument(0)).toLowerCase());
             if (commandNode != null) {
                 commandNode.execute(source, sender, arguments.next());
                 return;
