@@ -16,10 +16,14 @@ public interface Perms {
     void save();
 
     default boolean deniedPerm(String perm) {
+        TreeSet<String> lowerCaseSet = getLowerCaseSet(getDenyPerms());
+        if (lowerCaseSet.contains(perm)) {
+            return true;
+        }
         ArrayList<String> list = new ArrayList<>();
         for (String permNode : perm.toLowerCase().split("\\.")) {
             list.add(permNode);
-            if (getLowerCaseSet(getDenyPerms()).contains(String.join(".", list) + ".*")) {
+            if (lowerCaseSet.contains(String.join(".", list) + ".*")) {
                 return true;
             }
         }
@@ -27,10 +31,14 @@ public interface Perms {
     }
 
     default boolean hasPerm(String perm) {
+        TreeSet<String> lowerCaseSet = getLowerCaseSet(getPermissions());
+        if (lowerCaseSet.contains(perm)) {
+            return true;
+        }
         ArrayList<String> list = new ArrayList<>();
         for (String permNode : perm.toLowerCase().split("\\.")) {
             list.add(permNode);
-            if (getLowerCaseSet(getPermissions()).contains(String.join(".", list) + ".*")) {
+            if (lowerCaseSet.contains(String.join(".", list) + ".*")) {
                 return true;
             }
         }
