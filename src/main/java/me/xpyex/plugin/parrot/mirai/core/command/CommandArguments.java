@@ -1,6 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
@@ -8,6 +9,8 @@ import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 
 @ExtensionMethod(ArgParser.class)
 public class CommandArguments {
+    private static final HashMap<Integer, String[]> CACHE_LABELS = new HashMap<>();
+    private static final HashMap<Integer, String[]> CACHE_ARGUMENTS = new HashMap<>();
     protected final String[] wholeCommand;
     private int currentIndex = 1;
 
@@ -43,7 +46,8 @@ public class CommandArguments {
     }
 
     public String[] getLabels() {
-        return Arrays.copyOfRange(wholeCommand, 0, currentIndex);
+        CACHE_LABELS.putIfAbsent(currentIndex, Arrays.copyOfRange(wholeCommand, 0, currentIndex));
+        return CACHE_LABELS.get(currentIndex);
     }
 
     public String buildLabels() {
@@ -85,7 +89,8 @@ public class CommandArguments {
     }
 
     public String[] getArguments() {
-        return Arrays.copyOfRange(wholeCommand, currentIndex, wholeCommand.length);
+        CACHE_ARGUMENTS.putIfAbsent(currentIndex, Arrays.copyOfRange(wholeCommand, currentIndex, wholeCommand.length));
+        return CACHE_ARGUMENTS.get(currentIndex);
     }
 
     public String buildArguments() {
