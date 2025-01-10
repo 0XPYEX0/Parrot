@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'me.xpyex'
-version = '3.5.0'
+version = '3.5.1'
 
 repositories {
     maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
@@ -16,16 +16,23 @@ repositories {
 
 dependencies {
     //compileOnly fileTree(dir:'libs' ,include:['*.jar'])
-    implementation 'cn.hutool:hutool-all:5.8.21'
     compileOnly 'top.mrxiaom.mirai:overflow-core:1.0.0'
     compileOnly 'net.mamoe:mirai-core-all:2.16.0'
     compileOnly 'net.mamoe:mirai-console:2.16.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    //implementation 'com.github.MrGraversen:minecraft-rcon:1.0.0'
-    implementation 'io.netty:netty-all:4.1.72.Final'
+    //compileOnly 'com.github.MrGraversen:minecraft-rcon:1.0.0'
+
+    compileOnly 'cn.hutool:hutool-all:5.8.21'
+    compileOnly 'io.netty:netty-all:4.1.72.Final'
+    compileOnly 'com.kennycason:kumo-core:1.28'
+    compileOnly 'com.kennycason:kumo-tokenizers:1.28'
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
+}
+
+shadowJar {
+    exclude("kotlin/**")
 }
