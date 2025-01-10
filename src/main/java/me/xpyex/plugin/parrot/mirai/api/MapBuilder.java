@@ -3,13 +3,11 @@ package me.xpyex.plugin.parrot.mirai.api;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @Data(staticConstructor = "builder")
-@RequiredArgsConstructor
 public class MapBuilder<K, V> {
     private final Map<K, V> map;
 
@@ -20,6 +18,11 @@ public class MapBuilder<K, V> {
 
     private MapBuilder(Class<K> ignoredC1, Class<V> ignoredC2) {
         this.map = new HashMap<>();
+        //
+    }
+
+    private MapBuilder(Map<K, V> map) {
+        this.map = map;
         //
     }
 

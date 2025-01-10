@@ -1,32 +1,29 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
-import cn.hutool.core.lang.Pair;
-import cn.hutool.cron.CronUtil;
-import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.RectangleBackground;
+import com.kennycason.kumo.font.FontWeight;
+import com.kennycason.kumo.font.KumoFont;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
+import com.kennycason.kumo.nlp.FrequencyAnalyzer;
+import com.kennycason.kumo.nlp.tokenizers.ChineseWordTokenizer;
 import com.kennycason.kumo.palette.ColorPalette;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.BreakIterator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.WeakHashMap;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
@@ -35,40 +32,37 @@ import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.event.events.BotOfflineEvent;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.message.data.Image;
+import net.mamoe.mirai.message.data.MessageContent;
+import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.ExternalResource;
 
 public class WordsRank extends Module {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final HashMap<Long, Pair<File, JSONObject>> WORDS_CACHE = new HashMap<>();
-    private static final JSONObject CONFIG = new JSONObject();  // {"Groups": [123, 456]}
+    private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
+    private static JSONObject CONFIG = new JSONObject();  // {"Groups": [123, 456]}
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
     private static final WordCloud WORD_CLOUD;
+    private File CONFIG_FILE;
 
     static {
         CONFIG.set("Groups", new JSONArray());
 
         Dimension dimension = new Dimension(1920, 1080);
         WORD_CLOUD = new WordCloud(dimension, CollisionMode.RECTANGLE);
-        WORD_CLOUD.setPadding(0);
+        WORD_CLOUD.setPadding(2);
         WORD_CLOUD.setBackground(new RectangleBackground(dimension));
+        WORD_CLOUD.setBackgroundColor(Color.WHITE);
         WORD_CLOUD.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE));
         WORD_CLOUD.setFontScalar(new LinearFontScalar(10, 40));
     }
 
     @Override
     public void register() throws Throwable {
+        CONFIG_FILE = new File(getConfigFolder(), "config.json");
         reload();
-
-        CronUtil.schedule("55 59 23 * * *", (Task) () -> {  //每天23:59:55保存词云，同时清理缓存
-            try {
-                saveWords();
-                WORDS_CACHE.clear();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        });
 
         registerCommand(Group.class,
             CommandNode.<Group>of((source, sender, arguments) -> {
@@ -94,10 +88,9 @@ public class WordsRank extends Module {
                            })
                            .notMatchedArg((source, sender, arguments) -> {
                                try {
-                                   saveWords();
                                    source.sendMessage("正在生成词云...");
                                    Date date = DATE_FORMAT.parse(arguments.getArgument(0));
-                                   source.sendMessage(source.getContact().uploadImage(generateImageToFile(WORDS_CACHE.get(source.getId()).getValue())));
+                                   source.sendMessage(generateImageToFile(source.getContactAsGroup(), date));
                                } catch (ParseException ignored) {
                                    source.sendMessage("日期格式错误，请按照 yyyy-MM-dd 格式填写");
                                }
@@ -106,15 +99,9 @@ public class WordsRank extends Module {
                 .child(CommandNode.<Group>of((source, sender, arguments) -> {
                     arguments.getArgument(0, GroupParser.class, Group.class)
                         .ifPresentOrElse(group -> {
-                            JSONArray groups = CONFIG.getJSONArray("Groups");
                             boolean isEnable = "enable".equalsIgnoreCase(arguments.getLabelReverse(0));
-                            if (isEnable) {
-                                groups.add(group.getId());
-                            } else {
-                                groups.remove(group.getId());
-                            }
-                            CONFIG.set("Groups", groups);
-                            source.sendMessage("已在群 <" + group.getId() + "> " + (isEnable ? "启用" : "禁用") + "词云记录");
+                            boolean result = modifyConfig(group.getId(), isEnable);
+                            source.sendMessage(result ? "已在群 <" + group.getId() + "> " + (isEnable ? "启用" : "禁用") + "词云记录" : "无需重复操作，记录未修改");
                         }, () -> source.sendMessage("请填写正确的群号"));
                 }).executableCheck((source, sender) -> {
                     if (!sender.hasPerm(getName() + ".admin")) {
@@ -123,31 +110,46 @@ public class WordsRank extends Module {
                     }
                     return true;
                 }), "enable", "disable")
-            , "词云", "wordRank", "wordsRank", "wordsCloud", "wordCloud");
+            , "词云", "wordRank", "wordsRank", "wordsCloud", "wordCloud", "words");
 
         listenEvent(GroupMessageEvent.class, event -> {
-            if (!CONFIG.getJSONArray("Groups").contains(event.getGroup().getId())) {
-                return;
+            JSONArray groups = new JSONArray(CONFIG.getJSONArray("Groups"));
+            if (groups.isEmpty()) return;
+            MessageContent plainText = event.getMessage().get(PlainText.Key);
+            if (plainText == null) return;
+
+            if (groups.contains(event.getGroup().getId())) {
+                File todayWordsFile = getGroupWordsFile(event.getGroup(), new Date());
+                Files.write(todayWordsFile.toPath(),
+                    List.of(Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8), plainText.contentToString()),
+                    StandardCharsets.UTF_8);
             }
-            File todayWordsFile = getGroupWordsFile(event.getGroup(), new Date());
-            Pair<File, JSONObject> todayWords = WORDS_CACHE.computeIfAbsent(event.getGroup().getId(), groupId -> {
-                JSONObject words = todayWordsFile.exists() ? JSONUtil.readJSONObject(todayWordsFile, StandardCharsets.UTF_8) : new JSONObject();
-                return Pair.of(todayWordsFile, words);
-            });
-            breakWords(event.getMessage().contentToString())
-                .forEach(word -> todayWords.getValue().set(word, todayWords.getValue().getInt(word, 0) + 1));
-            //"Word": count
         });
 
-        listenEvent(BotOfflineEvent.class, event -> saveWords());
+        executeOnce(BotOnlineEvent.class, event -> {
+            modifyConfig(0L, true);
+            modifyConfig(0L, false);
+        });
+    }
+
+    private boolean modifyConfig(long id, boolean isEnable) {
+        HashSet<Long> groups = new HashSet<>(CONFIG.getJSONArray("Groups").toList(Long.class));
+        boolean result = isEnable ? groups.add(id) : groups.remove(id);
+        CONFIG.set("Groups", new JSONArray(groups));
+        try {
+            Files.writeString(CONFIG_FILE.toPath(), CONFIG.toStringPretty(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 
     private void reload() throws Throwable {
-        File configFile = new File(getConfigFolder(), "config.json");
-        if (!configFile.exists()) {
-            Files.writeString(configFile.toPath(), CONFIG.toStringPretty(), StandardCharsets.UTF_8);
+        if (!CONFIG_FILE.exists()) {
+            Files.writeString(CONFIG_FILE.toPath(), CONFIG.toStringPretty(), StandardCharsets.UTF_8);
         }
-        CONFIG.putAll(JSONUtil.readJSONObject(configFile, StandardCharsets.UTF_8));
+
+        CONFIG = new JSONObject(info(Files.readString(CONFIG_FILE.toPath(), StandardCharsets.UTF_8)));
     }
 
     private File getGroupWordsFile(Group group, Date date) {
@@ -157,43 +159,29 @@ public class WordsRank extends Module {
 
     private File getGroupWordsFile(long id, Date date) {
         ValueUtil.notNull("'date' must not be null", date);
-        return new File(getDataFolder(), "words/" + id + "/" + DATE_FORMAT.format(date) + ".json");
-    }
-
-    private void saveWords() throws Throwable {
-        for (Map.Entry<Long, Pair<File, JSONObject>> entry : WORDS_CACHE.entrySet()) {
-            Long groupId = entry.getKey();
-            JSONObject words = entry.getValue().getValue();
-
-            File wordsFile = getGroupWordsFile(groupId, new Date());
-            if (!wordsFile.getParentFile().exists()) {
-                wordsFile.getParentFile().mkdirs();
+        return TEXT_FILE_CACHE.computeIfAbsent(id, g -> {
+            File file = new File(getDataFolder(), "texts/" + id + "/" + DATE_FORMAT.format(date) + ".txt");
+            if (!file.exists()) {
+                try {
+                    file.getParentFile().mkdirs();
+                    file.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            Files.writeString(wordsFile.toPath(), JSONUtil.toJsonPrettyStr(words));
-        }
+            return file;
+        });
     }
 
-    private List<String> breakWords(String sentence) {
-        ArrayList<String> result = new ArrayList<>();
-        BreakIterator wordIterator = BreakIterator.getWordInstance(Locale.CHINA);
-        wordIterator.setText(sentence);
-        int start = wordIterator.first();
-        for (int end = wordIterator.next(); end != BreakIterator.DONE; start = end, end = wordIterator.next()) {
-            String word = sentence.substring(start, end).trim();
-            if (!word.isEmpty()) {
-                result.add(word);
-            }
-        }
-        return result;
-    }
-
-    private ExternalResource generateImageToFile(JSONObject words) throws Throwable {
-        File cacheImageFile = File.createTempFile("WordsRank-" + TIME_FORMAT.format(new Date()), ".png");
-        List<WordFrequency> wordFrequencies = words.entrySet().stream()
-                                          .map(entry -> new WordFrequency(entry.getKey(), (Integer) entry.getValue()))
-                                          .collect(Collectors.toList());
-        WORD_CLOUD.build(wordFrequencies);
+    private Image generateImageToFile(Group group, Date date) throws Throwable {
+        File cacheImageFile = File.createTempFile("WordsRank-" + TIME_FORMAT.format(new Date()) + "-for[" + DATE_FORMAT.format(date) + "]", ".png");
+        FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
+        frequencyAnalyzer.setCharacterEncoding("UTF-8");
+        frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
+        List<WordFrequency> frequencies = frequencyAnalyzer.load(getGroupWordsFile(group, date));
+        WORD_CLOUD.setKumoFont(new KumoFont("楷体 常规", FontWeight.BOLD));
+        WORD_CLOUD.build(frequencies);
         WORD_CLOUD.writeToStreamAsPNG(Files.newOutputStream(cacheImageFile.toPath()));
-        return ExternalResource.create(cacheImageFile);
+        return group.uploadImage(ExternalResource.create(cacheImageFile));
     }
 }
