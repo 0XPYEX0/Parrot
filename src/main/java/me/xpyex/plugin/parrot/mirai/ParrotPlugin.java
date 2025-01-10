@@ -2,7 +2,6 @@ package me.xpyex.plugin.parrot.mirai;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
-import java.lang.reflect.Constructor;
 import java.util.TreeSet;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
@@ -46,16 +45,14 @@ public class ParrotPlugin extends JavaPlugin {
             if (ClassUtil.isAssignable(Module.class, moduleClass)) {
                 if (!ClassUtil.isNormalClass(moduleClass)) continue;
                 try {
-                    Constructor<?> constructor = moduleClass.getDeclaredConstructor();
-                    boolean accessible = constructor.canAccess(null);
-                    constructor.setAccessible(true);
-                    constructor.newInstance();
-                    constructor.setAccessible(accessible);
+                    moduleClass.getConstructor().newInstance();
                 } catch (Throwable e) {
                     e.printStackTrace();
                     LOGGER.error("加载模块 " + moduleClass.getSimpleName() + " 时出错: " + e);
                     if (e instanceof NoSuchMethodException) {  //缺少Module()构造方法，可能是别的参数的
                         LOGGER.error("该模块的构造方法不标准！Parrot无法构建模块实例");
+                    } else if (e instanceof IllegalAccessException) {
+                        LOGGER.error("该模块的构造方法方法修饰级别非public，不可访问！Parrot无法构建模块实例");
                     }
                 }
             }

@@ -63,7 +63,7 @@ public abstract class Module {
     private final File dataFolder = new File(ParrotPlugin.INSTANCE.getDataFolder(), getName());
     protected boolean DEFAULT_DISABLED = false;
 
-    protected Module() {
+    public Module() {
         getLogger().info("正在加载 " + getName() + " 模块");
 
         ValueUtil.mustTrue("模块名不应为空", !getName().trim().isEmpty());

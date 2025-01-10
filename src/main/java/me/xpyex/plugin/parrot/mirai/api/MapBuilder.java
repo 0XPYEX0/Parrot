@@ -3,11 +3,13 @@ package me.xpyex.plugin.parrot.mirai.api;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @Data(staticConstructor = "builder")
+@RequiredArgsConstructor
 public class MapBuilder<K, V> {
     private final Map<K, V> map;
 
@@ -18,11 +20,6 @@ public class MapBuilder<K, V> {
 
     private MapBuilder(Class<K> ignoredC1, Class<V> ignoredC2) {
         this.map = new HashMap<>();
-        //
-    }
-
-    private MapBuilder(Map<K, V> map) {
-        this.map = map;
         //
     }
 
@@ -40,6 +37,12 @@ public class MapBuilder<K, V> {
         //
     }
 
+    @NotNull
+    @SneakyThrows
+    public static <K, V, M extends Map<K, V>> MapBuilder<K, V> builder(Class<K> keyType, Class<V> valueType, Class<M> mapType) {
+        return new MapBuilder<>(mapType.getConstructor().newInstance());
+    }
+
     public MapBuilder<K, V> put(K key, V value) {
         this.map.put(key, value);
         return this;
@@ -50,17 +53,24 @@ public class MapBuilder<K, V> {
         return this;
     }
 
-    @SneakyThrows
     public MapBuilder<K, V> putIfTrue(boolean condition, TryCallable<K> key, TryCallable<V> value) {
         if (condition)
-            return put(key.call(), value.call());
+            try {
+                return put(key.call(), value.call());
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         return this;
     }
 
     @SneakyThrows
     public MapBuilder<K, V> removeIfTrue(boolean condition, TryCallable<K> key) {
         if (condition)
-            return remove(key.call());
+            try {
+                return remove(key.call());
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         return this;
     }
 

@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module;
+package me.xpyex.plugin.parrot.mirai.module.skripthub;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;

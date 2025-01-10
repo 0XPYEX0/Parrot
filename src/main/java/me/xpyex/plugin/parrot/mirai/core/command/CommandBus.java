@@ -48,8 +48,10 @@ public class CommandBus {
 
     public static void callCommands(MessageEvent event, String msg) {
         ParrotContact<Contact> source = ParrotContact.of(event.getSubject());
+        ParrotContact<User> sender = ParrotContact.of(event.getSender());
         CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
-        dispatchCommand(source, ParrotContact.of(event.getSender()), CommandArguments.of(msg.split(" ")));
+        CommandExecutor.EVENT_POOL.put(sender.getCreatedTime(), event);
+        dispatchCommand(source, sender, CommandArguments.of(msg.split(" ")));
     }
 
     /**
@@ -59,7 +61,7 @@ public class CommandBus {
      * @param sender    消息发送者，必须为User
      * @param arguments 执行的命令与命令参数
      */
-    public static void dispatchCommand(ParrotContact<Contact> contact, ParrotContact<User> sender, CommandArguments arguments) {
+    public static void dispatchCommand(ParrotContact<? extends Contact> contact, ParrotContact<User> sender, CommandArguments arguments) {
         if (!StringUtil.startsWithIgnoreCaseOr(arguments.getLabel(0), ParrotPlugin.CMD_PREFIX)) {
             arguments.wholeCommand[0] = "#" + arguments.wholeCommand[0];
         }
@@ -68,12 +70,12 @@ public class CommandBus {
                 Module module = commandBus.get(1);  //module
                 if (module.isEnabled()) {
                     if (isCmd(module, arguments.getLabel(0).substring(1))) {
-                        Command<Contact> command = commandBus.get(2);  //command
+                        Command<?> command = commandBus.get(2);  //command
                         ArgParser.setParseObj(sender.getContact());
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(arguments.getLabel(0).substring(1))) {
                                 try {
-                                    command.node().execute(contact, sender, arguments);
+                                    command.node().execute(((ParrotContact) contact), sender, arguments);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false, null, module);
                                     contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + arguments.getLabel(0) + " 时出现异常，已被捕获: " + e);
