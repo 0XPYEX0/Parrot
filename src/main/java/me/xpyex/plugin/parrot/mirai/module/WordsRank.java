@@ -44,19 +44,11 @@ public class WordsRank extends Module {
     private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
     private static JSONObject CONFIG = new JSONObject();  // {"Groups": [123, 456]}
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
-    private static final WordCloud WORD_CLOUD;
     private File CONFIG_FILE;
 
     static {
         CONFIG.set("Groups", new JSONArray());
 
-        Dimension dimension = new Dimension(1920, 1080);
-        WORD_CLOUD = new WordCloud(dimension, CollisionMode.RECTANGLE);
-        WORD_CLOUD.setPadding(2);
-        WORD_CLOUD.setBackground(new RectangleBackground(dimension));
-        WORD_CLOUD.setBackgroundColor(Color.WHITE);
-        WORD_CLOUD.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE));
-        WORD_CLOUD.setFontScalar(new LinearFontScalar(10, 40));
     }
 
     @Override
@@ -120,8 +112,8 @@ public class WordsRank extends Module {
 
             if (groups.contains(event.getGroup().getId())) {
                 File todayWordsFile = getGroupWordsFile(event.getGroup(), new Date());
-                Files.write(todayWordsFile.toPath(),
-                    List.of(Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8), plainText.contentToString()),
+                Files.writeString(todayWordsFile.toPath(),
+                    Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8) + System.lineSeparator() + plainText.contentToString(),
                     StandardCharsets.UTF_8);
             }
         });
@@ -179,9 +171,18 @@ public class WordsRank extends Module {
         frequencyAnalyzer.setCharacterEncoding("UTF-8");
         frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
         List<WordFrequency> frequencies = frequencyAnalyzer.load(getGroupWordsFile(group, date));
-        WORD_CLOUD.setKumoFont(new KumoFont("楷体 常规", FontWeight.BOLD));
-        WORD_CLOUD.build(frequencies);
-        WORD_CLOUD.writeToStreamAsPNG(Files.newOutputStream(cacheImageFile.toPath()));
+
+
+        Dimension dimension = new Dimension(1920, 1080);
+        WordCloud wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
+        wordCloud.setPadding(2);
+        wordCloud.setBackground(new RectangleBackground(dimension));
+        wordCloud.setBackgroundColor(Color.WHITE);
+        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE));
+        wordCloud.setFontScalar(new LinearFontScalar(10, 500));
+        wordCloud.setKumoFont(new KumoFont("楷体 常规", FontWeight.BOLD));
+        wordCloud.build(frequencies);
+        wordCloud.writeToStreamAsPNG(Files.newOutputStream(cacheImageFile.toPath()));
         return group.uploadImage(ExternalResource.create(cacheImageFile));
     }
 }
