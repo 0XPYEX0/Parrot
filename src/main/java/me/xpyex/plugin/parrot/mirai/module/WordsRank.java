@@ -10,6 +10,7 @@ import com.kennycason.kumo.font.FontWeight;
 import com.kennycason.kumo.font.KumoFont;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.nlp.FrequencyAnalyzer;
+import com.kennycason.kumo.nlp.filter.Filter;
 import com.kennycason.kumo.nlp.tokenizers.ChineseWordTokenizer;
 import com.kennycason.kumo.palette.ColorPalette;
 import java.awt.Color;
@@ -23,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
@@ -30,6 +32,7 @@ import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
@@ -42,14 +45,11 @@ import net.mamoe.mirai.utils.ExternalResource;
 public class WordsRank extends Module {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
-    private static JSONObject CONFIG = new JSONObject();  // {"Groups": [123, 456]}
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
+    private static final WeakHashMap<Long, Long> GROUP_CDs = new WeakHashMap<>();  //GroupID, System.currentTimeMillis()
+    private static final int COOLDOWN = 300;  // 5分钟
+    private static JSONObject CONFIG = new JSONObject().set("Groups", new JSONArray());  // {"Groups": [123, 456]}
     private File CONFIG_FILE;
-
-    static {
-        CONFIG.set("Groups", new JSONArray());
-
-    }
 
     @Override
     public void register() throws Throwable {
@@ -74,6 +74,10 @@ public class WordsRank extends Module {
                 }), "yesterday")
                 .child(CommandNode.<Group>of((source, sender, arguments) -> source.sendMessage("请填写日期"))
                            .executableCheck((source, sender) -> {
+                               if (GROUP_CDs.getOrDefault(source.getId(), System.currentTimeMillis()) - System.currentTimeMillis() < COOLDOWN * 1000) {
+                                   source.sendMessage("冷却中");
+                                   return false;
+                               }
                                if (CONFIG.getJSONArray("Groups").contains(source.getId())) return true;
                                source.sendMessage("当前群未启用词云记录");
                                return false;
@@ -81,8 +85,9 @@ public class WordsRank extends Module {
                            .notMatchedArg((source, sender, arguments) -> {
                                try {
                                    source.sendMessage("正在生成词云...");
+                                   GROUP_CDs.put(source.getId(), System.currentTimeMillis());
                                    Date date = DATE_FORMAT.parse(arguments.getArgument(0));
-                                   source.sendMessage(generateImageToFile(source.getContactAsGroup(), date));
+                                   source.sendMessage(generateImage(source.getContactAsGroup(), date));
                                } catch (ParseException ignored) {
                                    source.sendMessage("日期格式错误，请按照 yyyy-MM-dd 格式填写");
                                }
@@ -165,11 +170,20 @@ public class WordsRank extends Module {
         });
     }
 
-    private Image generateImageToFile(Group group, Date date) throws Throwable {
+    private Image generateImage(Group group, Date date) throws Throwable {
         File cacheImageFile = File.createTempFile("WordsRank-" + TIME_FORMAT.format(new Date()) + "-for[" + DATE_FORMAT.format(date) + "]", ".png");
         FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
         frequencyAnalyzer.setCharacterEncoding("UTF-8");
         frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
+        frequencyAnalyzer.addFilter(new Filter() {
+            @Override
+            public boolean test(String s) {
+                return !StringUtil.startsWithIgnoreCaseOr(s, "@");
+            }
+        });
+        frequencyAnalyzer.setMinWordLength(2);
+        frequencyAnalyzer.setWordFrequenciesToReturn(500);
+        frequencyAnalyzer.setStopWords(Set.of("[图片]", "[动画表情]"));
         List<WordFrequency> frequencies = frequencyAnalyzer.load(getGroupWordsFile(group, date));
 
 
@@ -178,8 +192,8 @@ public class WordsRank extends Module {
         wordCloud.setPadding(2);
         wordCloud.setBackground(new RectangleBackground(dimension));
         wordCloud.setBackgroundColor(Color.WHITE);
-        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE));
-        wordCloud.setFontScalar(new LinearFontScalar(10, 500));
+        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.ORANGE, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.BLUE, Color.DARK_GRAY, Color.GRAY));
+        wordCloud.setFontScalar(new LinearFontScalar(5, 300));
         wordCloud.setKumoFont(new KumoFont("楷体 常规", FontWeight.BOLD));
         wordCloud.build(frequencies);
         wordCloud.writeToStreamAsPNG(Files.newOutputStream(cacheImageFile.toPath()));

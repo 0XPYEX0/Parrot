@@ -34,6 +34,10 @@ public class SkriptDocBuilder {
         stringJoiner = new StringJoiner("", "<!DOCTYPE html><html lang=\"zh\"><head><title>Skript Hub - Documentation</title><style>*{margin:0;font-family:\"Lucida Console\",monospace}body{background-color:#e3e3e3}h3{display:inline-block;font-size:32px;padding:7px;font-family:Arial,Helvetica,sans-serif;font-weight:400}.card{margin:20px;border-left:16px solid;background-color:#f9f9f9;box-shadow:rgba(0,0,0,.16) 10px 10px 10px 0}.code-body{padding:7px;background-color:#1e1e1e;color:#dcdcdc;font-size:14px}.card-footer{padding:20px 7px;color:#707070}.card-example{background-color:#fff}.title{color:#000}.addon{float:right;color:#707070}.event{border-color:#a763ff}.condition{border-color:#ff3d3d}.effect{border-color:#0178ff}.expression{border-color:#0de505}.type{border-color:#f39c12}.function{border-color:#b4b4b4}.section{border-color:#1abc9c}.structure{border-color:#e056fd}</style></head>", "</html>");
     }
 
+    public static SkriptDocBuilder builder() {
+        return new SkriptDocBuilder();
+    }
+
     public SkriptDocBuilder syntax(JSONObject jsonObject) {
         syntaxList.add(jsonObject);
         return this;
@@ -106,10 +110,6 @@ public class SkriptDocBuilder {
         } catch (IOException | SAXException | TransformerException | ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public static SkriptDocBuilder builder() {
-        return new SkriptDocBuilder();
     }
 
 }

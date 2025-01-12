@@ -2,7 +2,6 @@ package me.xpyex.plugin.parrot.mirai.core.command;
 
 import java.util.HashMap;
 import java.util.function.BiFunction;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.api.TripleFunction;
@@ -13,25 +12,17 @@ import net.mamoe.mirai.contact.User;
 
 public class CommandNode<C extends Contact> {
     private final HashMap<String, CommandNode<?>> children = new HashMap<>();
-
     @Setter
-    @Getter
     public CommandNode<C> parent = null;
-
-    @Getter
+    private String permission = null;
+    private String permMessage = "你没有权限执行此命令";
     @Setter
     @Accessors(chain = true)
     private CommandExecutor<C> executor = null;
-
-    @Setter
-    @Accessors(fluent = true)
     private BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck = null;
-
     @Setter
     @Accessors(fluent = true)
     private TripleFunction<ParrotContact<C>, ParrotContact<User>, CommandArguments, Boolean> executableCheckWithArg = null;
-
-    @Getter
     @Setter
     @Accessors(fluent = true)
     private CommandExecutor<C> notMatchedArg = null;
@@ -43,6 +34,21 @@ public class CommandNode<C extends Contact> {
     public static <C extends Contact> CommandNode<C> of(CommandExecutor<C> executor) {
         CommandNode<C> node = of();
         return node.setExecutor(executor);
+    }
+
+    public CommandNode<C> executableCheck(BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck) {
+        this.executableCheck = executableCheck;
+        return this;
+    }
+
+    public CommandNode<C> executableCheck(String permission) {
+        return executableCheck(permission, null);
+    }
+
+    public CommandNode<C> executableCheck(String permission, String permMessage) {
+        this.permission = permission;
+        this.permMessage = permMessage == null ? this.permMessage : permMessage;
+        return this;
     }
 
     public CommandNode<C> child(CommandNode<C> executor, String... argAliases) {
@@ -59,6 +65,11 @@ public class CommandNode<C extends Contact> {
     public void execute(ParrotContact<C> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable {
         if (executableCheck != null && !executableCheck.apply(source, sender)) return;
         if (executableCheckWithArg != null && !executableCheckWithArg.apply(source, sender, arguments)) return;
+        if (permission != null && !sender.hasPerm(permission)) {
+            sender.sendMessage(permMessage);
+            return;
+        }
+
         if (arguments.hasMoreArg()) {
             CommandNode<C> commandNode = (CommandNode<C>) children.get(arguments.getArgument(0).toLowerCase());
             if (commandNode != null) {
