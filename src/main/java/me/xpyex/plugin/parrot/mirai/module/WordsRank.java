@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
+import cn.hutool.core.img.ColorUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.kennycason.kumo.CollisionMode;
@@ -21,11 +22,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
@@ -38,7 +41,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.Image;
-import net.mamoe.mirai.message.data.MessageContent;
+import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.ExternalResource;
 
@@ -74,7 +77,7 @@ public class WordsRank extends Module {
                 }), "yesterday")
                 .child(CommandNode.<Group>of((source, sender, arguments) -> source.sendMessage("请填写日期"))
                            .executableCheck((source, sender) -> {
-                               if (GROUP_CDs.getOrDefault(source.getId(), System.currentTimeMillis()) - System.currentTimeMillis() < COOLDOWN * 1000) {
+                               if (Math.abs(GROUP_CDs.getOrDefault(source.getId(), 0L) - System.currentTimeMillis()) < COOLDOWN * 1000) {
                                    source.sendMessage("冷却中");
                                    return false;
                                }
@@ -112,13 +115,14 @@ public class WordsRank extends Module {
         listenEvent(GroupMessageEvent.class, event -> {
             JSONArray groups = new JSONArray(CONFIG.getJSONArray("Groups"));
             if (groups.isEmpty()) return;
-            MessageContent plainText = event.getMessage().get(PlainText.Key);
-            if (plainText == null) return;
 
             if (groups.contains(event.getGroup().getId())) {
                 File todayWordsFile = getGroupWordsFile(event.getGroup(), new Date());
                 Files.writeString(todayWordsFile.toPath(),
-                    Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8) + System.lineSeparator() + plainText.contentToString(),
+                    Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8) + System.lineSeparator() + event.getMessage().stream()
+                        .filter(singleMessage -> singleMessage instanceof PlainText)
+                        .map(Message::contentToString)
+                        .collect(Collectors.joining(".")),
                     StandardCharsets.UTF_8);
             }
         });
@@ -175,15 +179,22 @@ public class WordsRank extends Module {
         FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
         frequencyAnalyzer.setCharacterEncoding("UTF-8");
         frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
+        frequencyAnalyzer.setStopWords(
+            Set.of("[图片]", "[动画表情]", "什么", "为什么", "可以", "不可以", "因为", "所以", "虽然", "但是", "然后",
+                "就是", "这个", "那个", "这样", "那样", "这么", "那么", "这里", "那里", "这种", "那种", "这时", "那时", "这些", "那些",
+                "不但", "而且", "不过", "于是", "何况", "乃至", "至于", "比如", "就像", "然而", "并且", "只是", "况且", "此外", "原来",
+                "本来", "不是", "因此", "就得", "假如", "要是", "似乎", "好像", "不如", "怎么", "谭明", "不能", "没有", "一样", "哪个",
+                "应该", "可能", "以为", "现在", "还是", "主要", "还有", "啊啊", "了了", "哈哈", "一个", "一下")
+        );
         frequencyAnalyzer.addFilter(new Filter() {
             @Override
             public boolean test(String s) {
-                return !StringUtil.startsWithIgnoreCaseOr(s, "@");
+                if (StringUtil.containsIgnoreCaseOr(s, "你", "我", "他", "她", "它")) return false;
+                return !StringUtil.startsWithIgnoreCaseOr(s.trim(), "@");
             }
         });
         frequencyAnalyzer.setMinWordLength(2);
-        frequencyAnalyzer.setWordFrequenciesToReturn(500);
-        frequencyAnalyzer.setStopWords(Set.of("[图片]", "[动画表情]"));
+        frequencyAnalyzer.setWordFrequenciesToReturn(1000);
         List<WordFrequency> frequencies = frequencyAnalyzer.load(getGroupWordsFile(group, date));
 
 
@@ -191,12 +202,27 @@ public class WordsRank extends Module {
         WordCloud wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
         wordCloud.setPadding(2);
         wordCloud.setBackground(new RectangleBackground(dimension));
-        wordCloud.setBackgroundColor(Color.WHITE);
-        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.GREEN, Color.ORANGE, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.BLUE, Color.DARK_GRAY, Color.GRAY));
-        wordCloud.setFontScalar(new LinearFontScalar(5, 300));
+        wordCloud.setColorPalette(new ColorPalette(parseHEX(
+            "#908724", "#8E3158", "#00FFFF", "C800FF", "00FF00", "404040", "808080", "#8B01B5", "#1D31C8", "#54A12E", "#949EEF",
+            "#4C5EE5", "#C0B430", "#30A070", "#74CB48", "#70C000"
+        )));
+        wordCloud.setFontScalar(new LinearFontScalar(5, 250));
         wordCloud.setKumoFont(new KumoFont("楷体 常规", FontWeight.BOLD));
         wordCloud.build(frequencies);
         wordCloud.writeToStreamAsPNG(Files.newOutputStream(cacheImageFile.toPath()));
-        return group.uploadImage(ExternalResource.create(cacheImageFile));
+        try (ExternalResource resource = ExternalResource.create(cacheImageFile)) {
+            return group.uploadImage(resource);
+        }
+    }
+
+    private static Color[] parseHEX(String... hex) {
+        return Arrays.stream(hex)
+                   .map(s -> {
+                       if (s.length() != 6 && s.length() != 7)
+                           throw new IllegalArgumentException("HEX参数错误");
+                       return ColorUtil.hexToColor(s);
+                   })
+                   .toList()
+                   .toArray(new Color[0]);
     }
 }
