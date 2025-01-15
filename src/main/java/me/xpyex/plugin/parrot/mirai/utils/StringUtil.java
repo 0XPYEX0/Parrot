@@ -17,9 +17,12 @@ public class StringUtil {
         return false;
     }
 
-    public static boolean containsIgnoreCase(String _string, String _key) {
+    public static boolean containsIgnoreCaseOr(String _string, String... _key) {
         if (_string == null || _key == null) return false;
-        return _string.toLowerCase().contains(_key.toLowerCase());
+        for (String s : _key) {
+            if (_string.toLowerCase().contains(s.toLowerCase())) return true;
+        }
+        return false;
     }
 
     public static boolean equalsIgnoreCaseOr(String target, String... contents) {
