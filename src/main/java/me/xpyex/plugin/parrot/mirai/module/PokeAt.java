@@ -36,9 +36,6 @@ public class PokeAt extends Module {
                 return;
             }
             long now = System.currentTimeMillis();
-            try (ExternalResource image = ExternalResource.create(IMAGE_FILE)) {
-                PokeAt.image = event.getSubject().uploadImage(image);
-            }
 
             long differenceGlobal = now - LAST_NUDGE_GLOBAL;
             if (differenceGlobal < GLOBAL_COOLDOWN * 1000 && !PermManager.hasPerm(event.getFrom().getId(), "Nudge.noCooldown"))
@@ -46,6 +43,9 @@ public class PokeAt extends Module {
 
             long difference = now - LAST_NUDGE.getOrDefault(event.getFrom().getId(), now);
             if (difference == 0 || difference >= COOLDOWN * 1000 || PermManager.hasPerm(event.getFrom().getId(), "Nudge.noCooldown")) {  //个人冷却结束
+                try (ExternalResource image = ExternalResource.create(IMAGE_FILE)) {
+                    PokeAt.image = event.getSubject().uploadImage(image);
+                }
                 MessageChain msg = new PlainText("检测到未知的外部撞击").plus("");
                 msg.plus(image);
                 event.getSubject().sendMsg(msg);

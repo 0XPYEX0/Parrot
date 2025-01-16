@@ -83,7 +83,7 @@ public class CommandNode<C extends Contact> {
 
     public CommandNode<C> child(CommandNode<C> executor, String... argAliases) {
         ValueUtil.notNull("child node不应为null", executor);
-        ValueUtil.notEmpty("aliases为空，要注册什么？", (Object[]) argAliases);
+        ValueUtil.notEmpty("aliases为空，要注册什么？", argAliases, ".");
         for (String alias : argAliases) {
             ValueUtil.mustTrue("参数不应为空", () -> !alias.trim().isEmpty());
             children.put(alias.toLowerCase(), argAliases[0].toLowerCase());
@@ -139,7 +139,7 @@ public class CommandNode<C extends Contact> {
 
     @SuppressWarnings("unchecked")
     private CommandNode<C> getChildren(String key) {
-        Object nodeOrPointer = children.get(key);
+        Object nodeOrPointer = children.get(key.toLowerCase());
         if (nodeOrPointer instanceof CommandNode<?> node) return (CommandNode<C>) node;
         return getChildren(nodeOrPointer + "");
     }
