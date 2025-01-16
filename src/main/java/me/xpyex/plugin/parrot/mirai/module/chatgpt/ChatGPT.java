@@ -56,13 +56,7 @@ public final class ChatGPT extends Module {
                         .add("groupRule", "设定在某个群的System语句")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm("ChatGPT.use", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission("ChatGPT.use", MemberPermission.ADMINISTRATOR)
                 .child(CommandNode.of((source, sender, arguments) -> {
                     CHAT_CACHE.remove(sender.getId());
                     source.sendMessage("已清除连续对话记忆");
@@ -79,13 +73,8 @@ public final class ChatGPT extends Module {
                             }
                         }, () -> source.sendMessage("未输入具体规则"));
                     }, () -> source.sendMessage("未输入群号"));
-                }).executableCheck((source, sender) -> {
-                    if (!sender.hasPerm("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage("不理你不理你！");
-                        return false;
-                    }
-                    return true;
-                }), "groupRule")
+                }).permission("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR, "不理你不理你！"),
+                    "groupRule")
                 .child(CommandNode.of((source, sender, arguments) -> {
                         source.sendMessage("你想聊点什么？😊");
                     }).executableCheckWithArg((source, sender, args) -> {

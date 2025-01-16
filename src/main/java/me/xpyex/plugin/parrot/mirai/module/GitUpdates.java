@@ -61,13 +61,7 @@ public class GitUpdates extends Module {
                         .add("remove <Owner/RepoName>", "解除订阅")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission(getName() + ".use", MemberPermission.ADMINISTRATOR)
                 .child(CommandNode.of((source, sender, arguments) -> {
                     source.sendMessage("手动触发检查");
                     checkUpdate();

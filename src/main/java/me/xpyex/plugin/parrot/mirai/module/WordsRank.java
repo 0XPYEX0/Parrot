@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ColorUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -47,12 +48,22 @@ import net.mamoe.mirai.utils.ExternalResource;
 
 public class WordsRank extends Module {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
-    private static final WeakHashMap<Long, Long> GROUP_CDs = new WeakHashMap<>();  //GroupID, System.currentTimeMillis()
+    private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
     private static final int COOLDOWN = 300;  // 5分钟
     private static JSONObject CONFIG = new JSONObject().set("Groups", new JSONArray());  // {"Groups": [123, 456]}
     private File CONFIG_FILE;
+
+    private static Color[] parseHEX(String... hex) {
+        return Arrays.stream(hex)
+                   .map(s -> {
+                       if (s.length() != 6 && s.length() != 7)
+                           throw new IllegalArgumentException("HEX参数错误");
+                       return ColorUtil.hexToColor(s);
+                   })
+                   .toList()
+                   .toArray(new Color[0]);
+    }
 
     @Override
     public void register() throws Throwable {
@@ -73,14 +84,12 @@ public class WordsRank extends Module {
                     CommandBus.dispatchCommand(source, sender, CommandArguments.of(arguments.getLabel(0), "date", DATE_FORMAT.format(new Date())));
                 }), "today")
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    CommandBus.dispatchCommand(source, sender, CommandArguments.of(arguments.getLabel(0), "date", DATE_FORMAT.format(new Date(System.currentTimeMillis() - 86400000))));
+                    Date yesterday = DateUtil.yesterday().toJdkDate();
+                    CommandBus.dispatchCommand(source, sender, CommandArguments.of(arguments.getLabel(0), "date", DATE_FORMAT.format(yesterday)));
                 }), "yesterday")
                 .child(CommandNode.<Group>of((source, sender, arguments) -> source.sendMessage("请填写日期"))
+                           .cooldown(COOLDOWN)
                            .executableCheck((source, sender) -> {
-                               if (Math.abs(GROUP_CDs.getOrDefault(source.getId(), 0L) - System.currentTimeMillis()) < COOLDOWN * 1000) {
-                                   source.sendMessage("冷却中");
-                                   return false;
-                               }
                                if (CONFIG.getJSONArray("Groups").contains(source.getId())) return true;
                                source.sendMessage("当前群未启用词云记录");
                                return false;
@@ -88,28 +97,22 @@ public class WordsRank extends Module {
                            .notMatchedArg((source, sender, arguments) -> {
                                try {
                                    source.sendMessage("正在生成词云...");
-                                   GROUP_CDs.put(source.getId(), System.currentTimeMillis());
                                    Date date = DATE_FORMAT.parse(arguments.getArgument(0));
-                                   source.sendMessage(generateImage(source.getContactAsGroup(), date));
+                                   source.sendMessage(ValueUtil.getOrDefault(generateImage(source.getContactAsGroup(), date), new PlainText("该日期未记录词云")));
                                } catch (ParseException ignored) {
                                    source.sendMessage("日期格式错误，请按照 yyyy-MM-dd 格式填写");
                                }
                            })
                     , "date")
                 .child(CommandNode.<Group>of((source, sender, arguments) -> {
-                    arguments.getArgument(0, GroupParser.class, Group.class)
-                        .ifPresentOrElse(group -> {
-                            boolean isEnable = "enable".equalsIgnoreCase(arguments.getLabelReverse(0));
-                            boolean result = modifyConfig(group.getId(), isEnable);
-                            source.sendMessage(result ? "已在群 <" + group.getId() + "> " + (isEnable ? "启用" : "禁用") + "词云记录" : "无需重复操作，记录未修改");
-                        }, () -> source.sendMessage("请填写正确的群号"));
-                }).executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".admin")) {
-                        source.sendMessage("缺少权限节点: " + getName() + ".admin");
-                        return false;
-                    }
-                    return true;
-                }), "enable", "disable")
+                        arguments.getArgument(0, GroupParser.class, Group.class)
+                            .ifPresentOrElse(group -> {
+                                boolean isEnable = "enable".equalsIgnoreCase(arguments.getLabelReverse(0));
+                                boolean result = modifyConfig(group.getId(), isEnable);
+                                source.sendMessage(result ? "已在群 <" + group.getId() + "> " + (isEnable ? "启用" : "禁用") + "词云记录" : "无需重复操作，记录未修改");
+                            }, () -> source.sendMessage("请填写正确的群号"));
+                    }).permission(getName() + ".admin", "缺少权限节点: " + getName() + ".admin"),
+                    "enable", "disable")
             , "词云", "wordRank", "wordsRank", "wordsCloud", "wordCloud", "words");
 
         listenEvent(GroupMessageEvent.class, event -> {
@@ -120,9 +123,9 @@ public class WordsRank extends Module {
                 File todayWordsFile = getGroupWordsFile(event.getGroup(), new Date());
                 Files.writeString(todayWordsFile.toPath(),
                     Files.readString(todayWordsFile.toPath(), StandardCharsets.UTF_8) + System.lineSeparator() + event.getMessage().stream()
-                        .filter(singleMessage -> singleMessage instanceof PlainText)
-                        .map(Message::contentToString)
-                        .collect(Collectors.joining(".")),
+                                                                                                                     .filter(singleMessage -> singleMessage instanceof PlainText)
+                                                                                                                     .map(Message::contentToString)
+                                                                                                                     .collect(Collectors.joining(".")),
                     StandardCharsets.UTF_8);
             }
         });
@@ -213,16 +216,5 @@ public class WordsRank extends Module {
         try (ExternalResource resource = ExternalResource.create(cacheImageFile)) {
             return group.uploadImage(resource);
         }
-    }
-
-    private static Color[] parseHEX(String... hex) {
-        return Arrays.stream(hex)
-                   .map(s -> {
-                       if (s.length() != 6 && s.length() != 7)
-                           throw new IllegalArgumentException("HEX参数错误");
-                       return ColorUtil.hexToColor(s);
-                   })
-                   .toList()
-                   .toArray(new Color[0]);
     }
 }

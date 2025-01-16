@@ -33,13 +33,9 @@ public class StaffTeam extends Module {
                 source.sendMessage("Bot非群主，无法执行此操作");
                 return false;
             }
-            if (!sender.hasPerm(getName() + ".use")) {
-                source.sendMessage("你没有权限");
-                return false;
-            }
             return true;
         }).notMatchedArg((source, sender, arguments) -> {
             source.sendMessage("未知子命令: " + arguments.buildArguments());
-        }), "staff", "StaffTeam", "admin", "administrator");
+        }).permission(getName() + ".use"), "staff", "StaffTeam", "admin", "administrator");
     }
 }

@@ -40,13 +40,7 @@ public class BotManager extends CoreModule {
                         .add("user", "用户相关操作")
                         .add("end|exit|shutdown|stop", "关闭Bot，自动重启")
                         .send(source);
-                }).executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".use")) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                }).permission(getName() + ".use")
                 .child(CommandNode.of((source, sender, arguments) -> {
                             new CommandMenu(arguments)
                                 .add("quit <ID>", "令机器人退出该群")

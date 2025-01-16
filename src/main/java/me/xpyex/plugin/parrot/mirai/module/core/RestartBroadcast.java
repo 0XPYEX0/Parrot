@@ -21,13 +21,7 @@ public class RestartBroadcast extends CoreModule {
                         .add("exit", "退出机器人，不重启")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".use")) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission(getName() + ".use")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     restartMode = true;
                     source.sendMessage("Mirai将在 10 秒后重启\n使用 #" + arguments.getLabel(0) + " stop 以停止重启");

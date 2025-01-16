@@ -28,13 +28,7 @@ public class PluginManager extends CoreModule {
                         .add("info <模块>", "查看单个模块的信息")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".use")) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission(getName() + ".use")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     arguments.getArgument(0, ModuleParser.class, Module.class)
                         .ifPresentOrElse(module -> {

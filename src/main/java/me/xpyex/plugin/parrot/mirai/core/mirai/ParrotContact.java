@@ -45,18 +45,19 @@ public class ParrotContact<C extends Contact> {
         //
     }
 
-    public String getName() {
-        if (getContact() instanceof Group group) return group.getName();
-        if (getContact() instanceof Member member) return (member.getNameCard() == null || member.getNameCard().trim().isEmpty()) ? member.getNick() : member.getNameCard();
-        if (getContact() instanceof User user) return user.getNick();
-        throw new RuntimeException("There is no 'name' for this contact");
-    }
-
     @NotNull
     @Contract("_ -> new")
     public static <C extends Contact> ParrotContact<C> of(C contact) {
         return new ParrotContact<>(contact);
         //
+    }
+
+    public String getName() {
+        if (getContact() instanceof Group group) return group.getName();
+        if (getContact() instanceof Member member)
+            return (member.getNameCard() == null || member.getNameCard().trim().isEmpty()) ? member.getNick() : member.getNameCard();
+        if (getContact() instanceof User user) return user.getNick();
+        throw new RuntimeException("There is no 'name' for this contact");
     }
 
     public void sendMessage(String message) {

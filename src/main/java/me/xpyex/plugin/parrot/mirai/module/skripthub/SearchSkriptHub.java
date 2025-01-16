@@ -18,6 +18,7 @@ import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.StringUtil;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
 
 @ExtensionMethod(ArgParser.class)
@@ -126,6 +127,11 @@ public class SearchSkriptHub extends Module {
                     }
                     source.sendMessage(forwardMessage.build());
                 }), "search")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    source.sendMessage("重新同步SkriptHub Doc中");
+                    downloadDocAndSave();
+                    source.sendMessage("已完成");
+                }).permission(getName() + ".update", MemberPermission.ADMINISTRATOR), "update")
             , "sk", "skript", "skriptHub");
     }
 }

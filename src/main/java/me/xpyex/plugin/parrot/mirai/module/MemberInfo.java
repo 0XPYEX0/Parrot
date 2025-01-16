@@ -15,11 +15,7 @@ import net.mamoe.mirai.contact.NormalMember;
 public class MemberInfo extends Module {
     @Override
     public void register() {
-        registerCommand(Group.class, CommandNode.of((source, sender, arguments) -> {
-            if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                source.sendMessage("你没有权限");
-                return;
-            }
+        registerCommand(Group.class, CommandNode.<Group>of((source, sender, arguments) -> {
             arguments.getArgument(0, UserParser.class, NormalMember.class).ifPresentOrElse(member -> {
                 if (member.getId() != source.getContact().getBot().getId() /* 不是修改Bot本身 */ && source.getContact().getBotPermission().getLevel() < MemberPermission.ADMINISTRATOR.getLevel()) {
                     source.sendMessage("Bot群内权限不足");
@@ -28,13 +24,9 @@ public class MemberInfo extends Module {
                 member.setNameCard(String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length)));
                 source.sendMessage("已修改");
             }, () -> source.sendMessage("参数不足"));
-        }), "setNameCard", "nameCard");
+        }).permission(getName() + ".use", MemberPermission.ADMINISTRATOR), "setNameCard", "nameCard");
 
-        registerCommand(Group.class, CommandNode.of((source, sender, arguments) -> {
-            if (!sender.hasPerm(getName() + ".use", MemberPermission.ADMINISTRATOR)) {
-                source.sendMessage("你没有权限");
-                return;
-            }
+        registerCommand(Group.class, CommandNode.<Group>of((source, sender, arguments) -> {
             arguments.getArgument(0, UserParser.class, NormalMember.class).ifPresentOrElse(member -> {
                 if (member.getId() != source.getContact().getBot().getId() /* 不是修改Bot本身 */ && source.getContact().getBotPermission() != MemberPermission.OWNER  /* 头衔要群主才能改 */) {
                     source.sendMessage("Bot群内权限不足");
@@ -43,6 +35,6 @@ public class MemberInfo extends Module {
                 member.setSpecialTitle(String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length)));
                 source.sendMessage("已修改");
             }, () -> source.sendMessage("参数不足"));
-        }), "prefix", "groupPrefix");
+        }).permission(getName() + ".use", MemberPermission.ADMINISTRATOR), "prefix", "groupPrefix");
     }
 }

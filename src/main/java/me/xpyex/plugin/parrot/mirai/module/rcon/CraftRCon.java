@@ -60,13 +60,7 @@ public class CraftRCon extends Module {
                                                     .toStringPretty()
                     );
                     source.sendMessage("已添加RCon <" + arguments.getArgument(0) + ">: " + arguments.getArgument(1) + ":" + arguments.getArgument(2));
-                }).executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".add")) {
-                        source.sendMessage("你机霸谁？不听你的");
-                        return false;
-                    }
-                    return true;
-                }), "add")
+                }).permission(getName() + ".add", "你机霸谁？不听你的"), "add")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     getService(arguments.getArgument(0)).ifPresentOrElse(rcon -> {
                         String cmd = String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length));

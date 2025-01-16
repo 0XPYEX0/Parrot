@@ -67,7 +67,7 @@ public class TestMsg extends Module {
         registerCommand(Contact.class, CommandNode.of((source, sender, arguments) -> {
             System.gc();
             source.sendMessage("已执行");
-        }).executableCheck("BotManager.gc"), "gc");
+        }).permission("BotManager.gc"), "gc");
         executeOnce(BotOnlineEvent.class, event -> {
             MsgUtil.sendMsgToOwner("已启动");
         });

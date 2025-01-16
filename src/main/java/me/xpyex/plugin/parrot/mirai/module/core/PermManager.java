@@ -149,13 +149,7 @@ public class PermManager extends CoreModule {
                         .add("setAll <UserID> <true/false>", "给予用户所有权限")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".admin")) {
-                        source.sendMessage("你没有权限");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission(getName() + ".admin")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     if (!arguments.hasEnoughArg(4)) {
                         source.sendMessage("参数不足");
