@@ -1,6 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.utils;
 
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 
 public class StringUtil {
     public static String getStrBetweenKeywords(String _string, String _key1, String _key2) {

@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
 import java.util.UUID;
-import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;

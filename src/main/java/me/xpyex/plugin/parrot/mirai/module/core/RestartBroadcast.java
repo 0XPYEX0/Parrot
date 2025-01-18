@@ -1,6 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module.core;
 
-import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;

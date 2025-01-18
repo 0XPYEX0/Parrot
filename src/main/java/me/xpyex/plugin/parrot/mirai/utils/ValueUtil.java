@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
-import me.xpyex.plugin.parrot.mirai.api.TryRunnable;
+import me.xpyex.plugin.parrot.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

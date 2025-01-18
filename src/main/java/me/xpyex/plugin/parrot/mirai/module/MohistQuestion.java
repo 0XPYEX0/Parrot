@@ -1,6 +1,6 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
-import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import net.mamoe.mirai.contact.Group;

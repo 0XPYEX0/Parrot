@@ -3,7 +3,7 @@ package me.xpyex.plugin.parrot.mirai.module;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import net.mamoe.mirai.contact.Contact;

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
-import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;

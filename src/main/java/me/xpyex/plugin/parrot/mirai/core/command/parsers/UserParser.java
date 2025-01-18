@@ -2,7 +2,7 @@ package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import java.util.Optional;
 import java.util.WeakHashMap;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;

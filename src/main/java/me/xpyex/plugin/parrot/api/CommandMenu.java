@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.api;
+package me.xpyex.plugin.parrot.api;
 
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;

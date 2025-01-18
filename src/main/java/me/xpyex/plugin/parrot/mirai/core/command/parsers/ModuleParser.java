@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import java.util.Optional;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import org.jetbrains.annotations.NotNull;
 

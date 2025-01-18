@@ -6,7 +6,7 @@ import cn.hutool.core.util.ClassUtil;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import me.xpyex.plugin.parrot.mirai.api.TryConsumer;
+import me.xpyex.plugin.parrot.api.TryConsumer;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;

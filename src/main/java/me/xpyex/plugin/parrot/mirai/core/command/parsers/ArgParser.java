@@ -3,7 +3,7 @@ package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 import net.mamoe.mirai.contact.Contact;
 import org.jetbrains.annotations.NotNull;
 

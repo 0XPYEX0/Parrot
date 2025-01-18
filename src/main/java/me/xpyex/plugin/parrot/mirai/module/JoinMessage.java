@@ -3,7 +3,7 @@ package me.xpyex.plugin.parrot.mirai.module;
 import java.io.File;
 import java.util.Random;
 import lombok.experimental.ExtensionMethod;
-import me.xpyex.plugin.parrot.mirai.api.MessageBuilder;
+import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.event.events.MemberJoinEvent;

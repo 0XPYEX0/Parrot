@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.api;
+package me.xpyex.plugin.parrot.api;
 
 import java.util.ArrayList;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;

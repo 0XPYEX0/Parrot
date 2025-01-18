@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import java.util.Optional;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 import org.jetbrains.annotations.NotNull;
 
 public class StrParser extends ArgParser {

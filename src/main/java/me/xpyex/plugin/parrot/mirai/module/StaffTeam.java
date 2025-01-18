@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.module;
 
 import lombok.experimental.ExtensionMethod;
-import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;

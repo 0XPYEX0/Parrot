@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command.parsers;
 
 import java.util.Optional;
-import me.xpyex.plugin.parrot.mirai.api.TryCallable;
+import me.xpyex.plugin.parrot.api.TryCallable;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;

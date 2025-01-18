@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import java.util.WeakHashMap;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
-import me.xpyex.plugin.parrot.mirai.api.CommandMenu;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;

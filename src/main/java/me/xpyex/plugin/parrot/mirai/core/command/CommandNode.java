@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.parrot.mirai.api.TripleFunction;
+import me.xpyex.plugin.parrot.api.TripleFunction;
 import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
