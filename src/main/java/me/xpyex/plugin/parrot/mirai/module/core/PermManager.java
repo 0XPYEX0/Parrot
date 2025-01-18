@@ -2,6 +2,8 @@ package me.xpyex.plugin.parrot.mirai.module.core;
 
 import cn.hutool.json.JSONUtil;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -18,7 +20,6 @@ import me.xpyex.plugin.parrot.mirai.core.permission.GroupPerm;
 import me.xpyex.plugin.parrot.mirai.core.permission.Perms;
 import me.xpyex.plugin.parrot.mirai.core.permission.QGroupPerm;
 import me.xpyex.plugin.parrot.mirai.core.permission.UserPerm;
-import me.xpyex.plugin.parrot.utils.FileUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -96,7 +97,7 @@ public class PermManager extends CoreModule {
             if (!userFile.exists()) {
                 USERS.put(id, new UserPerm(id));
             } else {
-                USERS.put(id, JSONUtil.toBean(FileUtil.readFile(userFile), UserPerm.class));
+                USERS.put(id, JSONUtil.toBean(Files.readString(userFile.toPath()), UserPerm.class));
             }
         }
         return USERS.get(id);
@@ -109,7 +110,7 @@ public class PermManager extends CoreModule {
             if (!qGroupFile.exists()) {
                 QQ_GROUPS.put(id, new QGroupPerm(id));
             } else {
-                QQ_GROUPS.put(id, JSONUtil.toBean(FileUtil.readFile(qGroupFile), QGroupPerm.class));
+                QQ_GROUPS.put(id, JSONUtil.toBean(Files.readString(qGroupFile.toPath()), QGroupPerm.class));
             }
         }
         return QQ_GROUPS.get(id);
@@ -131,7 +132,7 @@ public class PermManager extends CoreModule {
         for (File file : GROUPS_FOLDER.listFiles()) {
             if (file.getName().endsWith(".json")) {
                 String groupName = file.getName().substring(0, file.getName().lastIndexOf(".json"));
-                GROUPS.put(groupName, JSONUtil.toBean(FileUtil.readFile(file), GroupPerm.class));
+                GROUPS.put(groupName, JSONUtil.toBean(Files.readString(file.toPath()), GroupPerm.class));
             }
         }
     }
@@ -226,7 +227,8 @@ public class PermManager extends CoreModule {
                         source.sendMessage("已存在同名权限组: " + arguments.getArgument(0));
                         return;
                     }
-                    FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(new GroupPerm(arguments.getArgument(0)).setDefaultGroup(arguments.boolArg(1))));
+                    String content = JSONUtil.toJsonPrettyStr(new GroupPerm(arguments.getArgument(0)).setDefaultGroup(arguments.boolArg(1)));
+                    Files.writeString(f.toPath(), content, StandardCharsets.UTF_8);
                     reload();
                     source.sendMessage("成功创建组: " + arguments.getArgument(0));
                 }), "newGroup")

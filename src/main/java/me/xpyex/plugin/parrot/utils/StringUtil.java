@@ -45,11 +45,6 @@ public class StringUtil {
     }
 
     public static boolean equalsIgnoreCase(String target, TryCallable<String> another) {
-        try {
-            return target.equalsIgnoreCase(another.call());
-        } catch (Throwable e) {
-            return false;
-        }
-        //
+        return equalsIgnoreCaseOr(another, target);
     }
 }

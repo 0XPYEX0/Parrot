@@ -3,6 +3,7 @@ package me.xpyex.plugin.parrot.mirai.module.rcon;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
@@ -12,7 +13,6 @@ import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.rcon.api.Rcon;
-import me.xpyex.plugin.parrot.utils.FileUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 
@@ -53,12 +53,12 @@ public class CraftRCon extends Module {
                         return;
                     }
                     File outFile = new File(getDataFolder(), arguments.getArgument(0) + ".json");
-                    FileUtil.writeFile(outFile, new JSONObject()
+                    String content = new JSONObject()
                                                     .set("host", arguments.getArgument(1))
                                                     .set("port", arguments.getIntArg(2))
                                                     .set("password", arguments.getArgument(3))
-                                                    .toStringPretty()
-                    );
+                                                    .toStringPretty();
+                    Files.writeString(outFile.toPath(), content, StandardCharsets.UTF_8);
                     source.sendMessage("已添加RCon <" + arguments.getArgument(0) + ">: " + arguments.getArgument(1) + ":" + arguments.getArgument(2));
                 }).permission(getName() + ".add", "你机霸谁？不听你的"), "add")
                 .child(CommandNode.of((source, sender, arguments) -> {

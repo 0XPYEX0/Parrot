@@ -2,13 +2,14 @@ package me.xpyex.plugin.parrot.mirai.core.permission;
 
 import cn.hutool.json.JSONUtil;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.TreeSet;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
-import me.xpyex.plugin.parrot.utils.FileUtil;
 
 @Data
 @Accessors(chain = true)
@@ -31,6 +32,7 @@ public class QGroupPerm implements Perms {
     @SneakyThrows
     public void save() {
         File f = new File(Module.getModule(PermManager.class).getDataFolder(), "QQGroups/" + groupID + ".json");
-        FileUtil.writeFile(f, JSONUtil.toJsonPrettyStr(this));
+        String content = JSONUtil.toJsonPrettyStr(this);
+        Files.writeString(f.toPath(), content, StandardCharsets.UTF_8);
     }
 }

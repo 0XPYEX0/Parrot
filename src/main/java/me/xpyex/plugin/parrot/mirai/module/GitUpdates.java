@@ -5,6 +5,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,7 +29,6 @@ import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
 import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.utils.FileUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -41,7 +42,7 @@ public class GitUpdates extends Module {
 
     @SneakyThrows
     private void reload() {
-        ReleasesUpdate.setInstance(JSONUtil.toBean(FileUtil.readFile(urls), ReleasesUpdate.class));
+        ReleasesUpdate.setInstance(JSONUtil.toBean(Files.readString(urls.toPath()), ReleasesUpdate.class));
     }
 
     @Override
@@ -304,7 +305,8 @@ public class GitUpdates extends Module {
 
         @SneakyThrows
         public void save(File file) {
-            FileUtil.writeFile(file, JSONUtil.toJsonPrettyStr(this));
+            String content = JSONUtil.toJsonPrettyStr(this);
+            Files.writeString(file.toPath(), content, StandardCharsets.UTF_8);
             //
         }
     }
