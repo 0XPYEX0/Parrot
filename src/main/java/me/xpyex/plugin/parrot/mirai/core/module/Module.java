@@ -15,7 +15,7 @@ import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
-import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
+import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Contact;

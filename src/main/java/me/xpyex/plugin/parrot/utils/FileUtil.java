@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.utils;
+package me.xpyex.plugin.parrot.utils;
 
 import java.io.File;
 import java.io.IOException;

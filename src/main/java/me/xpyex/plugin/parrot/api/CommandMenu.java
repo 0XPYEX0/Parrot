@@ -3,7 +3,7 @@ package me.xpyex.plugin.parrot.api;
 import cn.hutool.core.lang.Pair;
 import java.util.ArrayList;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 

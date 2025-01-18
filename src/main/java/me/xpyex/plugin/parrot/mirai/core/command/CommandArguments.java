@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
-import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
+import me.xpyex.plugin.parrot.utils.ValueUtil;
 
 @ExtensionMethod(ArgParser.class)
 public class CommandArguments {

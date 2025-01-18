@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.utils;
+package me.xpyex.plugin.parrot.utils;
 
 import java.lang.reflect.Array;
 import java.util.Collection;

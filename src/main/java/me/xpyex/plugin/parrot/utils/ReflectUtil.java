@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.utils;
+package me.xpyex.plugin.parrot.utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class ReflectUtil {

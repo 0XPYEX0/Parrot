@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
-import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
+import me.xpyex.plugin.parrot.utils.ValueUtil;
 
 /**
  * Rcon包处理程序

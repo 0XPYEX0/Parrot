@@ -2,7 +2,7 @@ package me.xpyex.plugin.parrot.mirai.core.command;
 
 import java.util.Optional;
 import java.util.WeakHashMap;
-import me.xpyex.plugin.parrot.mirai.core.mirai.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;

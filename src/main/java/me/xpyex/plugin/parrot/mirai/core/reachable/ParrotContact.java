@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.core.mirai;
+package me.xpyex.plugin.parrot.mirai.core.reachable;
 
 import cn.evolvefield.onebot.sdk.enums.ActionPathEnum;
 import cn.hutool.json.JSONArray;
@@ -14,7 +14,7 @@ import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
-import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
+import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;

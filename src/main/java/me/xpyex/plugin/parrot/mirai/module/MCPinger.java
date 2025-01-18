@@ -13,7 +13,7 @@ import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
-import me.xpyex.plugin.parrot.mirai.utils.ValueUtil;
+import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 
 public class MCPinger extends Module {

@@ -18,7 +18,7 @@ import me.xpyex.plugin.parrot.mirai.core.permission.GroupPerm;
 import me.xpyex.plugin.parrot.mirai.core.permission.Perms;
 import me.xpyex.plugin.parrot.mirai.core.permission.QGroupPerm;
 import me.xpyex.plugin.parrot.mirai.core.permission.UserPerm;
-import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
+import me.xpyex.plugin.parrot.utils.FileUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.MemberPermission;

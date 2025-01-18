@@ -12,7 +12,7 @@ import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.rcon.api.Rcon;
-import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
+import me.xpyex.plugin.parrot.utils.FileUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 

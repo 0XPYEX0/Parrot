@@ -8,7 +8,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
-import me.xpyex.plugin.parrot.mirai.utils.FileUtil;
+import me.xpyex.plugin.parrot.utils.FileUtil;
 
 @Accessors(chain = true)
 @Data
