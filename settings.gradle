@@ -1,3 +1,2 @@
-rootProject.name = "Parrot"
+rootProject.name = "Parrot-Mirai"
 include 'ToBuildLibs'
-
