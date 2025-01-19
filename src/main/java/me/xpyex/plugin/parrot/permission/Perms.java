@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.core.permission;
+package me.xpyex.plugin.parrot.permission;
 
 import java.util.ArrayList;
 import java.util.TreeSet;

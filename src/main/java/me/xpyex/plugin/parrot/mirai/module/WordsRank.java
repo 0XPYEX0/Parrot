@@ -85,10 +85,10 @@ public class WordsRank extends Module {
                 }), "today")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     Date yesterday = DateUtil.yesterday().toJdkDate();
-                    CommandBus.dispatchCommand(source, sender, CommandArguments.of(arguments.getLabel(0), "date", DATE_FORMAT.format(yesterday)));
+                    CommandBus.dispatchCommand(source, sender, CommandArguments.of(arguments.getLabel(0), "date", info(DATE_FORMAT.format(yesterday))));
                 }), "yesterday")
                 .child(CommandNode.<Group>of((source, sender, arguments) -> source.sendMessage("请填写日期"))
-                           .cooldown(COOLDOWN)
+                           .subjectCooldown(COOLDOWN)
                            .executableCheck((source, sender) -> {
                                if (CONFIG.getJSONArray("Groups").contains(source.getId())) return true;
                                source.sendMessage("当前群未启用词云记录");
@@ -97,7 +97,7 @@ public class WordsRank extends Module {
                            .notMatchedArg((source, sender, arguments) -> {
                                try {
                                    source.sendMessage("正在生成词云...");
-                                   Date date = DATE_FORMAT.parse(arguments.getArgument(0));
+                                   Date date = info(DATE_FORMAT.parse(arguments.getArgument(0)));
                                    source.sendMessage(ValueUtil.getOrDefault(generateImage(source.getContactAsGroup(), date), new PlainText("该日期未记录词云")));
                                } catch (ParseException ignored) {
                                    source.sendMessage("日期格式错误，请按照 yyyy-MM-dd 格式填写");

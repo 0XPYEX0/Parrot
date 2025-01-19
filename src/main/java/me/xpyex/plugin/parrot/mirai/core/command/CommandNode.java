@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.command;
 
+import cn.hutool.cache.impl.FIFOCache;
 import java.util.HashMap;
-import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import lombok.Setter;
@@ -15,7 +15,6 @@ import net.mamoe.mirai.contact.User;
 
 public class CommandNode<C extends Contact> {
     private final HashMap<String, Object> children = new HashMap<>();
-    private final WeakHashMap<Long, Long> cacheCooldown = new WeakHashMap<>();  //ID, time
     @Setter
     public CommandNode<C> parent = null;
     @Setter
@@ -40,9 +39,18 @@ public class CommandNode<C extends Contact> {
     //Executable check
 
 
-    private Integer cooldown = null;
-    private BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction = null;
-    //Cooldown check
+    private final FIFOCache<Long, Long> cacheUserCooldown = new FIFOCache<>(75);  //ID, time
+    private Integer userCooldown = null;
+    private BiConsumer<ParrotContact<C>, ParrotContact<User>> userCooldownAction = null;
+    //User Cooldown check
+
+
+    private final FIFOCache<Long, Long> cacheSubjectCooldown = new FIFOCache<>(75);  //ID, time
+    private Integer subjectCooldown = null;
+    private BiConsumer<ParrotContact<C>, ParrotContact<User>> subjectCooldownAction = null;
+    //User Cooldown check
+
+
 
     public static <C extends Contact> CommandNode<C> of() {
         return new CommandNode<>();
@@ -101,14 +109,25 @@ public class CommandNode<C extends Contact> {
             permAction.accept(source, sender);
             return;
         }
-        if (cooldown != null && cooldownAction != null) {  //是否在冷却
+        if (subjectCooldown != null && subjectCooldownAction != null) {  //语境层冷却
             long now = System.currentTimeMillis();
-            long last = cacheCooldown.getOrDefault(sender.getId(), 0L);
-            if (Math.abs(now - last) < cooldown * 1000) {
-                cooldownAction.accept(source, sender);
+            long last = cacheSubjectCooldown.get(source.getId(), () -> now);
+            long difference = now - last;
+            if (difference != 0 && difference < subjectCooldown * 1000) {
+                subjectCooldownAction.accept(source, sender);
                 return;
             }
-            cacheCooldown.put(sender.getId(), now);
+            cacheSubjectCooldown.put(source.getId(), now);
+        }
+        if (userCooldown != null && userCooldownAction != null) {  //是否在用户层冷却
+            long now = System.currentTimeMillis();
+            long last = cacheUserCooldown.get(sender.getId(), () -> now);
+            long difference = now - last;
+            if (difference != 0 && difference < userCooldown * 1000) {
+                userCooldownAction.accept(source, sender);
+                return;
+            }
+            cacheUserCooldown.put(sender.getId(), now);
         }
 
         //真正进入命令判断
@@ -127,20 +146,30 @@ public class CommandNode<C extends Contact> {
         }
     }
 
-    public CommandNode<C> cooldown(int seconds) {
-        return cooldown(seconds, (source, sender) -> source.sendMessage("冷却中，请稍后再试"));
+    public CommandNode<C> userCooldown(int seconds) {
+        return userCooldown(seconds, (source, sender) -> source.sendMessage("冷却中，请稍后再试"));
     }
 
-    public CommandNode<C> cooldown(int seconds, BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction) {
-        this.cooldown = seconds;
-        this.cooldownAction = cooldownAction;
+    public CommandNode<C> userCooldown(int seconds, BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction) {
+        this.userCooldown = seconds;
+        this.userCooldownAction = cooldownAction;
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    public CommandNode<C> subjectCooldown(int seconds) {
+        return subjectCooldown(seconds, (source, sender) -> source.sendMessage("冷却中，请稍后再试"));
+    }
+
+    public CommandNode<C> subjectCooldown(int seconds, BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction) {
+        this.subjectCooldown = seconds;
+        this.subjectCooldownAction = cooldownAction;
+        return this;
+    }
+
+    @SuppressWarnings({"unchecked"})
     private CommandNode<C> getChildren(String key) {
         Object nodeOrPointer = children.get(key.toLowerCase());
-        if (nodeOrPointer instanceof CommandNode<?> node) return (CommandNode<C>) node;
-        return getChildren(nodeOrPointer + "");
+        if (nodeOrPointer instanceof String) return getChildren(nodeOrPointer + "");  //指向
+        return (CommandNode<C>) nodeOrPointer;  //node 或 null
     }
 }

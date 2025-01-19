@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
+import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -122,10 +123,12 @@ public class ParrotContact<C extends Contact> {
         ValueUtil.notNull("参数name不应为null", name);  //无需判空file，上方可catch NullPointerException
         if (isGroup()) {
             if (folder != null && !folder.trim().isEmpty()) {
-                JSONArray folders = JSONUtil.parseObj(bot.executeAction(ActionPathEnum.GET_GROUP_ROOT_FILES.getPath(),
-                    new JSONObject()
-                        .set("group_id", getId())
-                        .toString()
+                JSONArray folders = JSONUtil.parseObj(Module.getModule("TestMsg").info(
+                    bot.executeAction(ActionPathEnum.GET_GROUP_ROOT_FILES.getPath(),
+                        new JSONObject()
+                            .set("group_id", getId())
+                            .toString()
+                    )
                 )).getJSONArray("folders");
 
                 if (!folders.contains(folder)) {

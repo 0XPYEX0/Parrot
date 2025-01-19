@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.core.permission;
+package me.xpyex.plugin.parrot.permission;
 
 import cn.hutool.json.JSONUtil;
 import java.io.File;
@@ -13,15 +13,14 @@ import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 
 @Data
 @Accessors(chain = true)
-public class UserPerm implements Perms {
-    private long id;
-    private TreeSet<String> extendsGroups = new TreeSet<>();
+public class QGroupPerm implements Perms {
+    private long groupID;
     private TreeSet<String> permissions = new TreeSet<>();
     private TreeSet<String> denyPerms = new TreeSet<>();
-    private boolean hasAllPerms = false;
+    private TreeSet<String> extendsGroups = new TreeSet<>();  //内容是GroupPerm
 
-    public UserPerm(long id) {
-        this.id = id;
+    public QGroupPerm(long groupID) {
+        this.groupID = groupID;
         for (GroupPerm groupPerm : PermManager.GROUPS.values()) {
             if (groupPerm.isDefaultGroup()) {
                 extendsGroups.add(groupPerm.getName());
@@ -29,21 +28,10 @@ public class UserPerm implements Perms {
         }
     }
 
-    public boolean hasAllPerms() {
-        return hasAllPerms;
-        //
-    }
-
-    private boolean getHasAllPerms() {
-        return hasAllPerms();
-        // For JavaBean
-        // private for hasAllPerms()
-    }
-
     @Override
     @SneakyThrows
     public void save() {
-        File f = new File(Module.getModule(PermManager.class).getDataFolder(), "Users/" + getId() + ".json");
+        File f = new File(Module.getModule(PermManager.class).getDataFolder(), "QQGroups/" + groupID + ".json");
         String content = JSONUtil.toJsonPrettyStr(this);
         Files.writeString(f.toPath(), content, StandardCharsets.UTF_8);
     }
