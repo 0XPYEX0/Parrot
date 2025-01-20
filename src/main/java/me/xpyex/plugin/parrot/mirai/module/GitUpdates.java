@@ -27,7 +27,7 @@ import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -246,7 +246,7 @@ public class GitUpdates extends Module {
                                     String type = splitName[splitName.length - 1];
                                     fileName = name + "-" + (verName.contains("v") ? "" : "v") + verName + "." + type;
                                 }
-                                ParrotContact.of(contact).uploadFile(got.getJSONArray("assets").getJSONObject(0).getStr("browser_download_url"), fileName, "RepoUpdates");
+                                MiraiContact.of(contact).uploadFile(got.getJSONArray("assets").getJSONObject(0).getStr("browser_download_url"), fileName, "RepoUpdates");
                             }
                         } catch (Exception e) {
                             contact.sendMessage("更新文件上传失败: " + e);

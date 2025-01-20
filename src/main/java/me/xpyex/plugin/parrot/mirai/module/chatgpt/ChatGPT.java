@@ -21,7 +21,7 @@ import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.StrParser;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
@@ -90,7 +90,7 @@ public final class ChatGPT extends Module {
                         return true;
                     }).notMatchedArg(new CommandExecutor<>() {
                         @Override
-                        public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable {
+                        public void execute(MiraiContact<Contact> source, MiraiContact<User> sender, CommandArguments arguments) throws Throwable {
                             boolean is3 = "talk".equalsIgnoreCase(() -> arguments.getLabelReverse(0));
                             if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
                                 getEvent(source).ifPresent(msgEvent -> {

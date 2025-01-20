@@ -5,7 +5,7 @@ import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
@@ -73,7 +73,7 @@ public class TestMsg extends Module {
         });
         registerCommand(Contact.class, CommandNode.of(new CommandExecutor<>() {
             @Override
-            public void execute(ParrotContact<Contact> source, ParrotContact<User> sender, CommandArguments arguments) {
+            public void execute(MiraiContact<Contact> source, MiraiContact<User> sender, CommandArguments arguments) {
                 if (source.isGroup()) {
                     if (source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
                         getEvent(source).ifPresent(event -> {

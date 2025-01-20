@@ -1,7 +1,7 @@
 package me.xpyex.plugin.parrot.api;
 
 import java.util.ArrayList;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -64,7 +64,7 @@ public class MessageBuilder {
         //
     }
 
-    public void send(ParrotContact<?> target) {
+    public void send(MiraiContact<?> target) {
         send(target.getContact());
         //
     }

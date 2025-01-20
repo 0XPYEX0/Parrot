@@ -7,13 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.event.events.MessageEvent;
 
 public class CommandBus {
     private static final ArrayList<Tuple> COMMAND_BUSES = new ArrayList<>();
@@ -46,14 +45,6 @@ public class CommandBus {
         COMMAND_BUSES.add(new Tuple(contactType, module, new Command<>(executor, aliases)));
     }
 
-    public static void callCommands(MessageEvent event, String msg) {
-        ParrotContact<Contact> source = ParrotContact.of(event.getSubject());
-        ParrotContact<User> sender = ParrotContact.of(event.getSender());
-        CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), event);
-        CommandExecutor.EVENT_POOL.put(sender.getCreatedTime(), event);
-        dispatchCommand(source, sender, CommandArguments.of(msg.split(" ")));
-    }
-
     /**
      * 使聊天对象执行命令
      *
@@ -61,7 +52,7 @@ public class CommandBus {
      * @param sender    消息发送者，必须为User
      * @param arguments 执行的命令与命令参数
      */
-    public static void dispatchCommand(ParrotContact<? extends Contact> contact, ParrotContact<User> sender, CommandArguments arguments) {
+    public static void dispatchCommand(MiraiContact<? extends Contact> contact, MiraiContact<User> sender, CommandArguments arguments) {
         if (!StringUtil.startsWithIgnoreCaseOr(arguments.getLabel(0), ParrotPlugin.CMD_PREFIX)) {
             arguments.wholeCommand[0] = "#" + arguments.wholeCommand[0];
         }
@@ -75,7 +66,7 @@ public class CommandBus {
                         for (String alias : command.aliases()) {
                             if (alias.equalsIgnoreCase(arguments.getLabel(0).substring(1))) {
                                 try {
-                                    command.node().execute(((ParrotContact) contact), sender, arguments);
+                                    command.node().execute(((MiraiContact) contact), sender, arguments);
                                 } catch (Throwable e) {
                                     ExceptionUtil.handleException(e, false, null, module);
                                     contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + arguments.getLabel(0) + " 时出现异常，已被捕获: " + e);
@@ -97,7 +88,7 @@ public class CommandBus {
      * @param arguments 执行的命令与命令参数
      */
     public static void dispatchCommand(Contact contact, User sender, CommandArguments arguments) {
-        dispatchCommand(ParrotContact.of(contact), ParrotContact.of(sender), arguments);
+        dispatchCommand(MiraiContact.of(contact), MiraiContact.of(sender), arguments);
         //
     }
 }

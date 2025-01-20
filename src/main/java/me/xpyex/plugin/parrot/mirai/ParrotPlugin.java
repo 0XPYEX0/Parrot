@@ -3,14 +3,19 @@ package me.xpyex.plugin.parrot.mirai;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.cron.CronUtil;
 import java.util.TreeSet;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.utils.ReflectUtil;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
+import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
@@ -67,10 +72,17 @@ public class ParrotPlugin extends JavaPlugin {
                     return;  //该事件已被CoreModule拦截不允许下发处理
                 }
 
-                if (event instanceof MessageEvent msgEvent && StringUtil.startsWithIgnoreCaseOr(MsgUtil.getPlainText(msgEvent.getMessage()), CMD_PREFIX)) {
-                    if (CommandBus.isCmd(MsgUtil.getPlainText(msgEvent.getMessage()).split(" ")[0].substring(1))) {
-                        CommandBus.callCommands(msgEvent, MsgUtil.getPlainText(msgEvent.getMessage()));
-                        return;
+                if (event instanceof MessageEvent msgEvent) {
+                    String plainText = MsgUtil.getPlainText(msgEvent.getMessage());
+                    if (StringUtil.startsWithIgnoreCaseOr(plainText, CMD_PREFIX)) {
+                        if (CommandBus.isCmd(plainText.split(" ")[0].substring(1))) {
+                            MiraiContact<Contact> source = MiraiContact.of(msgEvent.getSubject());
+                            MiraiContact<User> sender = MiraiContact.of(msgEvent.getSender());
+                            CommandExecutor.EVENT_POOL.put(source.getCreatedTime(), msgEvent);
+                            CommandExecutor.EVENT_POOL.put(sender.getCreatedTime(), msgEvent);
+                            CommandBus.dispatchCommand(source, sender, CommandArguments.of(plainText.split(" ")));
+                            return;
+                        }
                     }
                 }
                 EventBus.callEvents(event, Module.class);

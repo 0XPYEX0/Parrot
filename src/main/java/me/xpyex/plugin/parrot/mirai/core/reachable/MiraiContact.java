@@ -11,10 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
-import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.core.PermManager;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
+import me.xpyex.plugin.parrot.reachable.ParrotReachable;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -29,7 +29,7 @@ import top.mrxiaom.overflow.contact.RemoteBot;
 
 @Getter
 @ExtensionMethod({MsgUtil.class, PermManager.class})
-public class ParrotContact<C extends Contact> {
+public class MiraiContact<C extends Contact> extends ParrotReachable<C> {
     private static final File FILE_CACHE_FOLDER = new File("cache/file");
 
     static {
@@ -38,18 +38,15 @@ public class ParrotContact<C extends Contact> {
         }
     }
 
-    private final C contact;
-    private final long createdTime = System.currentTimeMillis();
-
-    private ParrotContact(C contact) {
-        this.contact = contact;
+    private MiraiContact(C contact) {
+        super(contact, contact.getId());
         //
     }
 
     @NotNull
     @Contract("_ -> new")
-    public static <C extends Contact> ParrotContact<C> of(C contact) {
-        return new ParrotContact<>(contact);
+    public static <C extends Contact> MiraiContact<C> of(C contact) {
+        return new MiraiContact<>(contact);
         //
     }
 
@@ -76,14 +73,13 @@ public class ParrotContact<C extends Contact> {
         //
     }
 
+    public C getContact() {
+        return getHandle();
+    }
+
     public boolean hasPerm(String perm, MemberPermission adminPass) {
         perm = perm.toLowerCase();
         return getContactAsUser().hasPerm(perm, adminPass);
-    }
-
-    public long getId() {
-        return getContact().getId();
-        //
     }
 
     public boolean isGroup() {
@@ -123,7 +119,7 @@ public class ParrotContact<C extends Contact> {
         ValueUtil.notNull("参数name不应为null", name);  //无需判空file，上方可catch NullPointerException
         if (isGroup()) {
             if (folder != null && !folder.trim().isEmpty()) {
-                JSONArray folders = JSONUtil.parseObj(Module.getModule("TestMsg").info(
+                JSONArray folders = JSONUtil.parseObj(debug(
                     bot.executeAction(ActionPathEnum.GET_GROUP_ROOT_FILES.getPath(),
                         new JSONObject()
                             .set("group_id", getId())

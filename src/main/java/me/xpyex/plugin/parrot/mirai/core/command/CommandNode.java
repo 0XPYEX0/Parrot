@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.api.TripleFunction;
-import me.xpyex.plugin.parrot.mirai.core.reachable.ParrotContact;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -28,26 +28,26 @@ public class CommandNode<C extends Contact> {
 
     private String permission = null;
     private MemberPermission passLevel = null;
-    private BiConsumer<ParrotContact<C>, ParrotContact<User>> permAction = null;
+    private BiConsumer<MiraiContact<C>, MiraiContact<User>> permAction = null;
     //Permissions check
 
 
-    private BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck = null;
+    private BiFunction<MiraiContact<C>, MiraiContact<User>, Boolean> executableCheck = null;
     @Setter
     @Accessors(fluent = true)
-    private TripleFunction<ParrotContact<C>, ParrotContact<User>, CommandArguments, Boolean> executableCheckWithArg = null;
+    private TripleFunction<MiraiContact<C>, MiraiContact<User>, CommandArguments, Boolean> executableCheckWithArg = null;
     //Executable check
 
 
     private final FIFOCache<Long, Long> cacheUserCooldown = new FIFOCache<>(75);  //ID, time
     private Integer userCooldown = null;
-    private BiConsumer<ParrotContact<C>, ParrotContact<User>> userCooldownAction = null;
+    private BiConsumer<MiraiContact<C>, MiraiContact<User>> userCooldownAction = null;
     //User Cooldown check
 
 
     private final FIFOCache<Long, Long> cacheSubjectCooldown = new FIFOCache<>(75);  //ID, time
     private Integer subjectCooldown = null;
-    private BiConsumer<ParrotContact<C>, ParrotContact<User>> subjectCooldownAction = null;
+    private BiConsumer<MiraiContact<C>, MiraiContact<User>> subjectCooldownAction = null;
     //User Cooldown check
 
 
@@ -61,7 +61,7 @@ public class CommandNode<C extends Contact> {
         return node.setExecutor(executor);
     }
 
-    public CommandNode<C> executableCheck(BiFunction<ParrotContact<C>, ParrotContact<User>, Boolean> executableCheck) {
+    public CommandNode<C> executableCheck(BiFunction<MiraiContact<C>, MiraiContact<User>, Boolean> executableCheck) {
         this.executableCheck = executableCheck;
         return this;
     }
@@ -82,7 +82,7 @@ public class CommandNode<C extends Contact> {
         return permission(permission, passLevel, (source, sender) -> source.sendMessage(permMessage));
     }
 
-    public CommandNode<C> permission(String permission, MemberPermission passLevel, BiConsumer<ParrotContact<C>, ParrotContact<User>> action) {
+    public CommandNode<C> permission(String permission, MemberPermission passLevel, BiConsumer<MiraiContact<C>, MiraiContact<User>> action) {
         this.permission = permission;
         this.passLevel = passLevel;
         this.permAction = action;
@@ -101,7 +101,7 @@ public class CommandNode<C extends Contact> {
         return this;
     }
 
-    public void execute(ParrotContact<C> source, ParrotContact<User> sender, CommandArguments arguments) throws Throwable {
+    public void execute(MiraiContact<C> source, MiraiContact<User> sender, CommandArguments arguments) throws Throwable {
         if (executableCheck != null && !executableCheck.apply(source, sender)) return;  //是否可执行
         if (executableCheckWithArg != null && !executableCheckWithArg.apply(source, sender, arguments))
             return;  //检查参数本身是否可执行
@@ -150,7 +150,7 @@ public class CommandNode<C extends Contact> {
         return userCooldown(seconds, (source, sender) -> source.sendMessage("冷却中，请稍后再试"));
     }
 
-    public CommandNode<C> userCooldown(int seconds, BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction) {
+    public CommandNode<C> userCooldown(int seconds, BiConsumer<MiraiContact<C>, MiraiContact<User>> cooldownAction) {
         this.userCooldown = seconds;
         this.userCooldownAction = cooldownAction;
         return this;
@@ -160,7 +160,7 @@ public class CommandNode<C extends Contact> {
         return subjectCooldown(seconds, (source, sender) -> source.sendMessage("冷却中，请稍后再试"));
     }
 
-    public CommandNode<C> subjectCooldown(int seconds, BiConsumer<ParrotContact<C>, ParrotContact<User>> cooldownAction) {
+    public CommandNode<C> subjectCooldown(int seconds, BiConsumer<MiraiContact<C>, MiraiContact<User>> cooldownAction) {
         this.subjectCooldown = seconds;
         this.subjectCooldownAction = cooldownAction;
         return this;
