@@ -25,7 +25,7 @@ public class EventBus {
 
     public static boolean callToCoreModule(Event event) {  //先将事件发送到CoreModule审核，看是否需要取消
         callEvents(event, CoreModule.class);  //正常的listenEvent()
-        for (Module module : Module.LOADED_MODELS.values()) {
+        for (Module module : Module.LOADED_MODULES.values()) {
             if (module.isCore()) {
                 if (!((CoreModule) module).acceptEvent(event)) return false;  //如果返回 false， 说明事件被拦截，则此处返回false
             }

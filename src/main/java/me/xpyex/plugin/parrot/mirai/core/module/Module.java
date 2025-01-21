@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.api.TryConsumer;
@@ -56,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
  */
 
 public abstract class Module {
-    public static final HashMap<String, Module> LOADED_MODELS = new HashMap<>();
+    public static final HashMap<String, Module> LOADED_MODULES = new HashMap<>();
     private static final HashSet<Module> DISABLED_MODULES = new HashSet<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
     private static final HashMap<Module, HashSet<UUID>> TASKS = new HashMap<>();  //使用HashSet是为了避免重复.ArrayList可出现重复值
     private final File configFolder = new File(ParrotPlugin.INSTANCE.getConfigFolder(), getName());
@@ -67,12 +68,12 @@ public abstract class Module {
         getLogger().info("正在加载 " + getName() + " 模块");
 
         ValueUtil.mustTrue("模块名不应为空", !getName().trim().isEmpty());
-        ValueUtil.mustTrue("已存在使用该名称的模块，不允许重复注册", LOADED_MODELS.get(getName()) == null);
+        ValueUtil.mustTrue("已存在使用该名称的模块，不允许重复注册", LOADED_MODULES.get(getName()) == null);
 
         TASKS.put(this, new HashSet<>());
         try {
             register();
-            LOADED_MODELS.put(getName(), this);
+            LOADED_MODULES.put(getName(), this);
         } catch (Throwable e) {
             e.printStackTrace();
             getLogger().error("加载模块 " + getName() + " 时出错: " + e);
@@ -95,12 +96,13 @@ public abstract class Module {
     public static <M extends Module> M getModule(String name) {
         if (ValueUtil.isEmpty(name)) return null;
 
-        if (LOADED_MODELS.containsKey(name)) return (M) LOADED_MODELS.get(name);
+        if (LOADED_MODULES.containsKey(name)) return (M) LOADED_MODULES.get(name);
 
-        for (String s : LOADED_MODELS.keySet()) {
-            if (s.equalsIgnoreCase(name)) return (M) LOADED_MODELS.get(s);
-        }
-        return null;
+        return (M) LOADED_MODULES.entrySet().stream()
+                       .filter(entry -> entry.getKey().equalsIgnoreCase(name))
+                       .findAny()
+                       .map(Map.Entry::getValue)
+                       .orElse(null);
     }
 
     @NotNull
@@ -279,7 +281,7 @@ public abstract class Module {
     }
 
     public final boolean isEnabled() {
-        return LOADED_MODELS.containsKey(getName()) && !DISABLED_MODULES.contains(this);
+        return LOADED_MODULES.containsKey(getName()) && !DISABLED_MODULES.contains(this);
         //
     }
 

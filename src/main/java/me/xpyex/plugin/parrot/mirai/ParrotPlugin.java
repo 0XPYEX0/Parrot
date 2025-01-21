@@ -62,7 +62,7 @@ public class ParrotPlugin extends JavaPlugin {
                 }
             }
         }
-        LOGGER.info("已注册的所有模块: " + new TreeSet<>(Module.LOADED_MODELS.values().stream().map(Module::getName).toList()));
+        LOGGER.info("已注册的所有模块: " + new TreeSet<>(Module.LOADED_MODULES.values().stream().map(Module::getName).toList()));
 
         GlobalEventChannel.INSTANCE.registerListenerHost(new SimpleListenerHost(INSTANCE.getCoroutineContext()) {
             @EventHandler

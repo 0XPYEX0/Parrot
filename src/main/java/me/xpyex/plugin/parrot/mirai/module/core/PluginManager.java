@@ -46,7 +46,7 @@ public class PluginManager extends CoreModule {
                 }), "enable", "disable")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     source.sendMessage("所有模块列表: " +
-                                           Module.LOADED_MODELS.values()
+                                           Module.LOADED_MODULES.values()
                                                .stream()
                                                .map(module -> module.getName() + (module.isDisabled() ? "(未启用)" : ""))
                                                .collect(Collectors.toCollection(TreeSet::new)));
