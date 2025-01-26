@@ -9,17 +9,17 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.api.CommandMenu;
-import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.utils.StringUtil;
-import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
+import net.mamoe.mirai.utils.ExternalResource;
 
 @ExtensionMethod(ArgParser.class)
 public class SearchSkriptHub extends Module {
@@ -103,23 +103,15 @@ public class SearchSkriptHub extends Module {
                         return true;
                     }).forEach(json -> {
                         JSONObject obj = (JSONObject) json;
-                        forwardMessage.add(getBot(),
-                            new MessageBuilder()
-                                .plus("查找结果: " + obj.getStr("title"))
-                                .plus("该条描述: " + obj.getStr("description"))
-                                .plus("该条类型: " + obj.getStr("syntax_type"))
-                                .plus("语法: " + obj.getStr("syntax_pattern"))
-                                .plus(" ")
-                                .plus("需要本体|附属: " + obj.getJSONObject("addon").getStr("name") + "-v" + obj.getStr("compatible_addon_version"))
-                                .plus("附属下载链接: " + obj.getJSONObject("addon").getStr("link_to_addon"))
-                                .plus(!obj.getJSONArray("required_plugins").isEmpty(), "需要插件: " + obj.getJSONArray("required_plugins").toString())
-                                .plus(!ValueUtil.isEmpty(obj.getStr("compatible_minecraft_version")), "限制MC版本: " + obj.getStr("compatible_minecraft_version"))
-                                .plus(" ")
-                                .plus("返回类型: " + obj.getStr("return_type"))
-                                .plus("event".equalsIgnoreCase(obj.getStr("syntax_type")), "Event-Values: " + obj.getStr("event_values"))
-                                .plus("event".equalsIgnoreCase(obj.getStr("syntax_type")), "可否取消: " + (obj.getBool("event_cancellable") ? "可取消" : "不可取消"))
-                                .toMessage()
-                        );
+                        try {
+                            File tmpFile = File.createTempFile("SkriptHub/" + obj.getStr("title"), ".png");
+                            ImageIO.write(new AwtSkriptDocBuilder().syntax(obj).build(), "png", tmpFile);
+                            ExternalResource resource = ExternalResource.create(tmpFile);
+                            forwardMessage.add(getBot(), source.getContact().uploadImage(resource));
+                            resource.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     });
                     if (forwardMessage.isEmpty()) {
                         source.sendMessage("未找到任何结果");
