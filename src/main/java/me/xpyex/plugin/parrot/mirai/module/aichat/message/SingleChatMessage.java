@@ -10,12 +10,18 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class SingleChatMessage {
-    private ChatMessages.Role role;
+    private Role role;
     private String content;
     private String reasoning_content;
     private List<JSONObject> tool_calls;
 
-    public static SingleChatMessage of(ChatMessages.Role role, String content) {
+    public static SingleChatMessage of(Role role, String content) {
         return new SingleChatMessage().setRole(role).setContent(content);
+    }
+
+    public enum Role {
+        system,
+        user,
+        assistant
     }
 }

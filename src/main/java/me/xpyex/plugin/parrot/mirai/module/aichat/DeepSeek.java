@@ -1,6 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.module.aichat;
 
 import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import java.io.File;
@@ -43,12 +44,12 @@ public class DeepSeek extends Module {
         registerCommand(Contact.class,
             CommandNode.of(arguments ->
                                new CommandMenu(arguments)
-                        .add("chat <Content...>", "和DeepSeek-Chat-v3模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
-                        .add("reasoner <Content...>", "和DeepSeek-Reasoner模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
-                        .add("reset", "开启新话题")
-                        .add("reChat", "按照先前的话题，指定DeepSeek-Chat-v3模型重新生成")
-                        .add("reReasoner", "按照先前的话题，指定DeepSeek-Reasoner模型重新生成")
-                        .add("groupRule", "设定在某个群的System语句")
+                                   .add("chat <Content...>", "和DeepSeek-Chat-v3模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
+                                   .add("reasoner <Content...>", "和DeepSeek-Reasoner模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
+                                   .add("reset", "开启新话题")
+                                   .add("reChat", "按照先前的话题，指定DeepSeek-Chat-v3模型重新生成")
+                                   .add("reReasoner", "按照先前的话题，指定DeepSeek-Reasoner模型重新生成")
+                                   .add("groupRule", "设定在某个群的System语句")
                 )
                 .child(CommandNode.of((source, sender, arguments) -> source.sendMessage("你想聊些什么？😊"))
                            .notMatchedArg(new CommandExecutor<>() {
@@ -60,18 +61,21 @@ public class DeepSeek extends Module {
                                        });
                                    }
                                    //若还没有聊过天，则新建缓存
-                                   CHAT_CACHE.putIfAbsent(sender.getId(), ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG).replace("<USER_NAME>", sender.getName())));
+                                   CHAT_CACHE.putIfAbsent(sender.getId(), ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG).replace("<USER_NAME>", sender.getName())));
                                    String userMsg = String.join(" ", arguments.getArguments());
 
                                    ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
-                                   chatMessages.plus(ChatMessages.Role.USER, userMsg);
+                                   chatMessages.plus(SingleChatMessage.Role.user, userMsg);
 
                                    ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                                    for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                                        SingleChatMessage obj = chatMessages.getMessage().get(i);
-                                       builder.add(ChatMessages.Role.USER == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
+                                       builder.add(SingleChatMessage.Role.user == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
                                    }
-                                   builder.add(getBot(), new PlainText(talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase())));
+                                   Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
+                                   builder.add(getBot(), new PlainText(response.getKey()));
+                                   if (response.getValue() != null)
+                                       builder.add(getBot(), new PlainText("思绪:\n" + response.getValue()));
                                    source.sendMessage(builder.build());
                                }
                            })
@@ -82,7 +86,7 @@ public class DeepSeek extends Module {
                                }
                                return true;
                            })
-                           , "chat", "reasoner")
+                    , "chat", "reasoner")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     CHAT_CACHE.remove(sender.getId());
                     source.sendMessage("已清除连续对话记忆");
@@ -108,9 +112,12 @@ public class DeepSeek extends Module {
                     ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                     for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                         SingleChatMessage message = chatMessages.getMessage().get(i);
-                        builder.add(ChatMessages.Role.USER == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
+                        builder.add(SingleChatMessage.Role.user == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
                     }
-                    builder.add(getBot(), new PlainText(talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase())));
+                    Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
+                    builder.add(getBot(), new PlainText(response.getKey()));
+                    if (response.getValue() != null)
+                        builder.add(getBot(), new PlainText("思绪:\n" + response.getValue()));
                     source.sendMessage(builder.build());
                 }).executableCheckWithArg((source, sender, arguments) -> {
                     if (!sender.hasPerm(getName() + ".use." + arguments.getLabelReverse(0).substring(2), MemberPermission.ADMINISTRATOR)) {
@@ -130,9 +137,9 @@ public class DeepSeek extends Module {
         }
     }
 
-    private String talkToDS(long id, String model) {
+    private Pair<String, String> talkToDS(long id, String model) {  //答复，思考链
         //若还没有聊过天，则新建缓存
-        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
+        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
         try {
             ChatMessages chatMessages = CHAT_CACHE.get(id);  //获取其缓存
 
@@ -144,25 +151,28 @@ public class DeepSeek extends Module {
                                 .contentType("application/json")
                                 .auth("Bearer " + API_KEY)
                                 .body(info(JSONUtil.toJsonPrettyStr(
-                                    AIRequest.of().setTemperature(1.65f)
-                                        .setTop_p(0.95f)
-                                        .setMessages(chatMessages))))
+                                        AIRequest.of()
+                                            .setMessages(chatMessages)
+                                            .setTemperature(1.65f)
+                                            .setModel(model)
+                                            .setTop_p(0.95f)
+                                        )
+                                    )
+                                )
                                 .execute()
                                 .body();
-            AIResponse response = JSONUtil.toBean(result, AIResponse.class);
-            String gptSaid = response.getChoices()
-                                 .get(0)
-                                 .getMessage()
-                                 .getContent();
+            AIResponse response = JSONUtil.toBean(info(result.trim()), AIResponse.class);
+            SingleChatMessage firstChoice = response.getChoices().get(0).getMessage();
+            String gptSaid = firstChoice.getContent();
             if (gptSaid.trim().endsWith("<STOP_HERE>")) {
                 CHAT_CACHE.remove(id);
-                return gptSaid.replace("<STOP_HERE>", "\n\n我想我们需要换个新话题了\n先前的对话记录已清除");
+                return Pair.of(gptSaid.replace("<STOP_HERE>", "\n\n我想我们需要换个新话题了\n先前的对话记录已清除"), null);
             }
-            chatMessages.plus(ChatMessages.Role.ASSISTANT, gptSaid);
-            return gptSaid;
+            chatMessages.plus(SingleChatMessage.Role.assistant, gptSaid);
+            return Pair.of(gptSaid, firstChoice.getReasoning_content());
         } catch (IORuntimeException e) {
             handleException(e, true, null);
-            return "网络异常，访问失败: " + e;
+            return Pair.of("网络异常，访问失败: " + e, null);
         }
     }
 }

@@ -34,12 +34,6 @@ import net.mamoe.mirai.message.data.PlainText;
 
 @ExtensionMethod(ArgParser.class)
 public final class ChatGPT extends Module {
-    private static final WeakHashMap<Long, ChatMessage> CHAT_CACHE = new WeakHashMap<>();
-    private static final String DEFAULT_MSG = "";
-    private static final String API_VER3 = "";
-    private static final String API_KEY3 = "";
-    private static final String API_VER4 = "";
-    private static final String API_KEY4 = "";
     private static final WeakHashMap<Long, ChatMessages> CHAT_CACHE = new WeakHashMap<>();
     private static final String DENIED_MSG_3 = "你没有使用 ChatGPT 3.5 模型的权限";
     private static final String DENIED_MSG_4 = "你没有使用 ChatGPT 4 模型的权限";
@@ -99,16 +93,16 @@ public final class ChatGPT extends Module {
                                 });
                             }
                             //若还没有聊过天，则新建缓存
-                            CHAT_CACHE.putIfAbsent(sender.getId(), ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG).replace("<USER_NAME>", sender.getName())));
+                            CHAT_CACHE.putIfAbsent(sender.getId(), ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG).replace("<USER_NAME>", sender.getName())));
                             String userMsg = String.join(" ", arguments.getArguments());
 
                             ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
-                            chatMessages.plus(ChatMessages.Role.USER, userMsg);
+                            chatMessages.plus(SingleChatMessage.Role.user, userMsg);
 
                             ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                             for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                                 SingleChatMessage obj = chatMessages.getMessage().get(i);
-                                builder.add(ChatMessages.Role.USER == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
+                                builder.add(SingleChatMessage.Role.user == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
                             }
                             builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                             source.sendMessage(builder.build());
@@ -123,7 +117,7 @@ public final class ChatGPT extends Module {
                     ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                     for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                         SingleChatMessage message = chatMessages.getMessage().get(i);
-                        builder.add(ChatMessages.Role.USER == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
+                        builder.add(SingleChatMessage.Role.user == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
                     }
                     builder.add(getBot(), new PlainText(talkToGPT(sender.getId(), is3 ? API_VER3 : API_VER4, is3 ? API_KEY3 : API_KEY4)));
                     source.sendMessage(builder.build());
@@ -152,7 +146,7 @@ public final class ChatGPT extends Module {
 
     private String talkToGPT(long id, String apiHost, String apiKey) {
         //若还没有聊过天，则新建缓存
-        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
+        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
         try {
             ChatMessages chatMessages = CHAT_CACHE.get(id);  //获取其缓存
 
@@ -189,7 +183,7 @@ public final class ChatGPT extends Module {
                 CHAT_CACHE.remove(id);
                 return gptSaid.replace("<STOP_HERE>", "\n\n我想我们需要换个新话题了\n先前的对话记录已清除");
             }
-            chatMessages.plus(ChatMessages.Role.ASSISTANT, gptSaid);
+            chatMessages.plus(SingleChatMessage.Role.assistant, gptSaid);
             return gptSaid;
         } catch (IORuntimeException e) {
             handleException(e, true, null);

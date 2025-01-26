@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.module.aichat.message.ChatMessages;
+import me.xpyex.plugin.parrot.mirai.module.aichat.message.SingleChatMessage;
 import me.xpyex.plugin.parrot.mirai.module.aichat.tool.Tool;
 
 @Getter
 @Setter
 @Accessors(chain = true)
 public class AIRequest {
-    private ChatMessages messages;
+    private List<SingleChatMessage> messages;
     private String model;
     private float frequency_penalty = 0;
     private int max_tokens = 4096;
@@ -26,6 +27,15 @@ public class AIRequest {
 
     public static AIRequest of() {
         return new AIRequest();
+    }
+
+    public AIRequest setMessages(ChatMessages messages) {
+        return setMessages(messages.getMessage());
+    }
+
+    public AIRequest setMessages(List<SingleChatMessage> messages) {
+        this.messages = messages;
+        return this;
     }
 
     public enum ToolChoice {

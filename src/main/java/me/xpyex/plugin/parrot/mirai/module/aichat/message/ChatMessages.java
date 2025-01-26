@@ -16,13 +16,13 @@ public class ChatMessages {
 
     @NotNull
     @Contract("_, _ -> new")
-    public static ChatMessages of(Role role, String msg) {
+    public static ChatMessages of(SingleChatMessage.Role role, String msg) {
         return of().plus(role, msg);
         //
     }
 
     @NotNull
-    public ChatMessages plus(Role role, String msg) {
+    public ChatMessages plus(SingleChatMessage.Role role, String msg) {
         getMessage().add(SingleChatMessage.of(role, msg));
         return this;
     }
@@ -32,9 +32,4 @@ public class ChatMessages {
         //
     }
 
-    public enum Role {
-        SYSTEM,
-        USER,
-        ASSISTANT
-    }
 }
