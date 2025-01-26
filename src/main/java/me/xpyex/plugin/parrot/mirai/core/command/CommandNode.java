@@ -4,8 +4,10 @@ import cn.hutool.cache.impl.FIFOCache;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.api.TripleFunction;
 import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
@@ -59,6 +61,10 @@ public class CommandNode<C extends Contact> {
     public static <C extends Contact> CommandNode<C> of(CommandExecutor<C> executor) {
         CommandNode<C> node = of();
         return node.setExecutor(executor);
+    }
+
+    public static <C extends Contact> CommandNode<C> of(Function<CommandArguments, CommandMenu> function) {
+        return of((source, sender, arguments) -> function.apply(arguments).send(source));
     }
 
     public CommandNode<C> executableCheck(BiFunction<MiraiContact<C>, MiraiContact<User>, Boolean> executableCheck) {
