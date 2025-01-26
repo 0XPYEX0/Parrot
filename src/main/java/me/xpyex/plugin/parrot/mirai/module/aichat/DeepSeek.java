@@ -1,0 +1,168 @@
+package me.xpyex.plugin.parrot.mirai.module.aichat;
+
+import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.WeakHashMap;
+import lombok.experimental.ExtensionMethod;
+import me.xpyex.plugin.parrot.api.CommandMenu;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandExecutor;
+import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.GroupParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.StrParser;
+import me.xpyex.plugin.parrot.mirai.core.command.parsers.UserParser;
+import me.xpyex.plugin.parrot.mirai.core.module.Module;
+import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
+import me.xpyex.plugin.parrot.mirai.module.aichat.message.ChatMessages;
+import me.xpyex.plugin.parrot.mirai.module.aichat.message.SingleChatMessage;
+import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.MemberPermission;
+import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.message.data.ForwardMessageBuilder;
+import net.mamoe.mirai.message.data.PlainText;
+
+@ExtensionMethod(ArgParser.class)
+public class DeepSeek extends Module {
+    private static final String DEFAULT_MSG = "";
+    private static final String API_KEY = "";
+    private static final HashMap<Long, String> GROUP_RULES = new HashMap<>();
+    private static final WeakHashMap<Long, ChatMessages> CHAT_CACHE = new WeakHashMap<>();
+    private static final int MAX_TALK_COUNT = 60;
+
+    @Override
+    public void register() throws Throwable {
+        registerCommand(Contact.class,
+            CommandNode.of(arguments ->
+                               new CommandMenu(arguments)
+                        .add("chat <Content...>", "和DeepSeek-Chat-v3模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
+                        .add("reasoner <Content...>", "和DeepSeek-Reasoner模型对话，每次对话保留" + MAX_TALK_COUNT / 2 + " 回合")
+                        .add("reset", "开启新话题")
+                        .add("reChat", "按照先前的话题，指定DeepSeek-Chat-v3模型重新生成")
+                        .add("reReasoner", "按照先前的话题，指定DeepSeek-Reasoner模型重新生成")
+                        .add("groupRule", "设定在某个群的System语句")
+                )
+                .child(CommandNode.of((source, sender, arguments) -> source.sendMessage("你想聊些什么？😊"))
+                           .notMatchedArg(new CommandExecutor<>() {
+                               @Override
+                               public void execute(MiraiContact<Contact> source, MiraiContact<User> sender, CommandArguments arguments) throws Throwable {
+                                   if (source.isGroup() && source.getContactAsGroup().getBotPermission().getLevel() > sender.getContactAsMember().getPermission().getLevel()) {
+                                       getEvent(source).ifPresent(msgEvent -> {
+                                           recall(msgEvent.getSource());
+                                       });
+                                   }
+                                   //若还没有聊过天，则新建缓存
+                                   CHAT_CACHE.putIfAbsent(sender.getId(), ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(source.getId(), DEFAULT_MSG).replace("<USER_NAME>", sender.getName())));
+                                   String userMsg = String.join(" ", arguments.getArguments());
+
+                                   ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
+                                   chatMessages.plus(ChatMessages.Role.USER, userMsg);
+
+                                   ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
+                                   for (int i = 1; i < chatMessages.getMessage().size(); i++) {
+                                       SingleChatMessage obj = chatMessages.getMessage().get(i);
+                                       builder.add(ChatMessages.Role.USER == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
+                                   }
+                                   builder.add(getBot(), new PlainText(talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase())));
+                                   source.sendMessage(builder.build());
+                               }
+                           })
+                           .executableCheckWithArg((source, sender, args) -> {
+                               if (!sender.hasPerm(getName() + ".use." + args.getLabelReverse(0), MemberPermission.ADMINISTRATOR)) {
+                                   source.sendMessage("你没有使用DeepSeek-" + args.getLabelReverse(0) + "模型的权限");
+                                   return false;
+                               }
+                               return true;
+                           })
+                           , "chat", "reasoner")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    CHAT_CACHE.remove(sender.getId());
+                    source.sendMessage("已清除连续对话记忆");
+                }), "reset")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    arguments.getArgument(0, GroupParser.class, Group.class).ifPresentOrElse(group -> {
+                        StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length))).ifPresentOrElse(rule -> {
+                            try {
+                                Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
+                                GROUP_RULES.put(group.getId(), rule);
+                                source.sendMessage("已保存规则");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }, () -> source.sendMessage("未输入具体规则"));
+                    }, () -> source.sendMessage("未输入群号"));
+                }).permission(getName() + ".setGroupRule", MemberPermission.ADMINISTRATOR, "不理你不理你！"), "groupRule")
+                .child(CommandNode.of((source, sender, arguments) -> {
+                    boolean is3 = "reGo".equalsIgnoreCase(arguments.getLabelReverse(0));
+                    ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
+                    chatMessages.getMessage().remove(chatMessages.getMessage().size() - 1);  //清除最终的缓存
+
+                    ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
+                    for (int i = 1; i < chatMessages.getMessage().size(); i++) {
+                        SingleChatMessage message = chatMessages.getMessage().get(i);
+                        builder.add(ChatMessages.Role.USER == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
+                    }
+                    builder.add(getBot(), new PlainText(talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase())));
+                    source.sendMessage(builder.build());
+                }).executableCheckWithArg((source, sender, arguments) -> {
+                    if (!sender.hasPerm(getName() + ".use." + arguments.getLabelReverse(0).substring(2), MemberPermission.ADMINISTRATOR)) {
+                        source.sendMessage("你没有使用DeepSeek-" + arguments.getLabelReverse(0) + "模型的权限");
+                        return false;
+                    }
+                    if (!CHAT_CACHE.containsKey(sender.getId())) {
+                        source.sendMessage("抱歉，我已经遗忘了与您的对话...");
+                        return false;
+                    }
+                    return true;
+                }), "reChat", "reReasoner")
+            , "deepSeek", "DS", "深度搜索");
+
+        for (File file : getDataFolder().listFiles()) {
+            GROUP_RULES.put(Long.parseLong(file.getName().split("\\.")[0]), Files.readString(file.toPath(), StandardCharsets.UTF_8));
+        }
+    }
+
+    private String talkToDS(long id, String model) {
+        //若还没有聊过天，则新建缓存
+        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(ChatMessages.Role.SYSTEM, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
+        try {
+            ChatMessages chatMessages = CHAT_CACHE.get(id);  //获取其缓存
+
+            while (chatMessages.getMessage().size() >= MAX_TALK_COUNT + 1) {  //只保留指定回合的对话，第一条为System
+                chatMessages.getMessage().remove(1);  //0是System语句，无需移除。从1开始是对话语句
+            }
+
+            String result = HttpUtil.createPost("https://api.deepseek.com/chat/completions")
+                                .contentType("application/json")
+                                .auth("Bearer " + API_KEY)
+                                .body(info(JSONUtil.toJsonPrettyStr(
+                                    AIRequest.of().setTemperature(1.65f)
+                                        .setTop_p(0.95f)
+                                        .setMessages(chatMessages))))
+                                .execute()
+                                .body();
+            AIResponse response = JSONUtil.toBean(result, AIResponse.class);
+            String gptSaid = response.getChoices()
+                                 .get(0)
+                                 .getMessage()
+                                 .getContent();
+            if (gptSaid.trim().endsWith("<STOP_HERE>")) {
+                CHAT_CACHE.remove(id);
+                return gptSaid.replace("<STOP_HERE>", "\n\n我想我们需要换个新话题了\n先前的对话记录已清除");
+            }
+            chatMessages.plus(ChatMessages.Role.ASSISTANT, gptSaid);
+            return gptSaid;
+        } catch (IORuntimeException e) {
+            handleException(e, true, null);
+            return "网络异常，访问失败: " + e;
+        }
+    }
+}
