@@ -9,8 +9,8 @@ import me.xpyex.plugin.parrot.utils.ValueUtil;
 
 @ExtensionMethod(ArgParser.class)
 public class CommandArguments {
-    private static final HashMap<Integer, String[]> CACHE_LABELS = new HashMap<>();
-    private static final HashMap<Integer, String[]> CACHE_ARGUMENTS = new HashMap<>();
+    private final HashMap<Integer, String[]> CACHE_LABELS = new HashMap<>();
+    private final HashMap<Integer, String[]> CACHE_ARGUMENTS = new HashMap<>();
     protected final String[] wholeCommand;
     private int currentIndex = 1;
 
