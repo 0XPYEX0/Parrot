@@ -8,7 +8,7 @@ public class StrParser extends ArgParser {
     @NotNull
     @Override
     public Optional<String> parse(String arg) {
-        return Optional.ofNullable(arg);
+        return arg != null && !arg.isEmpty() ? Optional.of(arg) : Optional.empty();
         //
     }
 
