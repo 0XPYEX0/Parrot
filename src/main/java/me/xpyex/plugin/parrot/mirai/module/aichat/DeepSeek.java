@@ -93,15 +93,20 @@ public class DeepSeek extends Module {
                 }), "reset")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     arguments.getArgument(0, GroupParser.class, Group.class).ifPresentOrElse(group -> {
+                        File ruleFile = new File(getDataFolder(), group.getId() + ".txt");
                         StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length))).ifPresentOrElse(rule -> {
                             try {
-                                Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
+                                Files.writeString(ruleFile.toPath(), rule, StandardCharsets.UTF_8);
                                 GROUP_RULES.put(group.getId(), rule);
                                 source.sendMessage("已保存规则");
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                        }, () -> source.sendMessage("未输入具体规则"));
+                        }, () -> {
+                            source.sendMessage("未输入具体规则，默认执行清空");
+                            GROUP_RULES.remove(group.getId());
+                            ruleFile.delete();
+                        });
                     }, () -> source.sendMessage("未输入群号"));
                 }).permission(getName() + ".setGroupRule", MemberPermission.ADMINISTRATOR, "不理你不理你！"), "groupRule")
                 .child(CommandNode.of((source, sender, arguments) -> {
@@ -137,7 +142,7 @@ public class DeepSeek extends Module {
         }
     }
 
-    private Pair<String, String> talkToDS(long id, String model) {  //答复，思考链
+    private Pair<String, String> talkToDS(long id, String model) {  //答复, 思考链
         //若还没有聊过天，则新建缓存
         CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
         try {

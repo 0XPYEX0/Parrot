@@ -58,15 +58,20 @@ public final class ChatGPT extends Module {
                 }), "reset")
                 .child(CommandNode.of((source, sender, arguments) -> {
                         arguments.getArgument(0, GroupParser.class, Group.class).ifPresentOrElse(group -> {
+                            File ruleFile = new File(getDataFolder(), group.getId() + ".txt");
                             StrParser.class.of().parse(() -> String.join(" ", Arrays.copyOfRange(arguments.getArguments(), 1, arguments.getArguments().length))).ifPresentOrElse(rule -> {
                                 try {
-                                    Files.writeString(new File(getDataFolder(), group.getId() + ".txt").toPath(), rule, StandardCharsets.UTF_8);
+                                    Files.writeString(ruleFile.toPath(), rule, StandardCharsets.UTF_8);
                                     GROUP_RULES.put(group.getId(), rule);
                                     source.sendMessage("已保存规则");
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                            }, () -> source.sendMessage("未输入具体规则"));
+                            }, () -> {
+                                source.sendMessage("未输入具体规则，默认执行清空");
+                                GROUP_RULES.remove(group.getId());
+                                ruleFile.delete();
+                            });
                         }, () -> source.sendMessage("未输入群号"));
                     }).permission("ChatGPT.setGroupRule", MemberPermission.ADMINISTRATOR, "不理你不理你！"),
                     "groupRule")
