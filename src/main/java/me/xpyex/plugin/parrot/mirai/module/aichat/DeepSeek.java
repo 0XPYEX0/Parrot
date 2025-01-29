@@ -152,6 +152,10 @@ public class DeepSeek extends Module {
                 chatMessages.getMessage().remove(1);  //0是System语句，无需移除。从1开始是对话语句
             }
 
+            while (chatMessages.getMessage().size() >= 2 && chatMessages.getMessage().get(chatMessages.getMessage().size() - 1).getRole() == chatMessages.getMessage().get(chatMessages.getMessage().size() - 2).getRole()) {
+                chatMessages.getMessage().remove(chatMessages.getMessage().size() - 1);  //清除连续的同一角色对话
+            }
+
             String result = HttpUtil.createPost("https://api.deepseek.com/chat/completions")
                                 .contentType("application/json")
                                 .auth("Bearer " + API_KEY)
