@@ -179,7 +179,7 @@ public final class ChatGPT extends Module {
                            .plus("你的上一个提问已被清除")
                            .toString();
             }
-            AIResponse response = JSONUtil.toBean(jsonResult, AIResponse.class);
+            AIResponse response = JSONUtil.toBean(result, AIResponse.class);
             String gptSaid = response.getChoices()
                                  .get(0)
                                  .getMessage()

@@ -1,5 +1,6 @@
 package me.xpyex.plugin.parrot.utils;
 
+import java.util.Collection;
 import me.xpyex.plugin.parrot.api.TryCallable;
 
 public class StringUtil {
@@ -23,6 +24,10 @@ public class StringUtil {
             if (_string.toLowerCase().contains(s.toLowerCase())) return true;
         }
         return false;
+    }
+
+    public static boolean containsIgnoreCaseOr(String str, Collection<String> collection) {
+        return containsIgnoreCaseOr(str, collection.toArray(new String[0]));
     }
 
     public static boolean equalsIgnoreCaseOr(String target, String... contents) {

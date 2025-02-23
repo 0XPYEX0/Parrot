@@ -1,9 +1,7 @@
 package me.xpyex.plugin.parrot.mirai.core.reachable;
 
 import cn.evolvefield.onebot.sdk.enums.ActionPathEnum;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
@@ -119,23 +117,23 @@ public class MiraiContact<C extends Contact> extends ParrotReachable<C> {
         ValueUtil.notNull("参数name不应为null", name);  //无需判空file，上方可catch NullPointerException
         if (isGroup()) {
             if (folder != null && !folder.trim().isEmpty()) {
-                JSONArray folders = JSONUtil.parseObj(debug(
-                    bot.executeAction(ActionPathEnum.GET_GROUP_ROOT_FILES.getPath(),
-                        new JSONObject()
-                            .set("group_id", getId())
-                            .toString()
-                    )
-                )).getJSONArray("folders");
-
-                if (!folders.contains(folder)) {
-                    bot.executeAction(debug(ActionPathEnum.CREATE_GROUP_FILE_FOLDER.getPath()),
-                        debug(new JSONObject()
-                                  .set("group_id", getId())
-                                  .set("name", folder)
-                                  .set("parent_id", "/")
-                                  .toString())
-                    );
-                }
+//                JSONArray folders = JSONUtil.parseObj(debug(
+//                    bot.executeAction(ActionPathEnum.GET_GROUP_ROOT_FILES.getPath(),
+//                        new JSONObject()
+//                            .set("group_id", getId())
+//                            .toString()
+//                    )
+//                )).getJSONArray("folders");
+//
+//                if (!folders.contains(folder)) {
+                bot.executeAction(debug(ActionPathEnum.CREATE_GROUP_FILE_FOLDER.getPath()),
+                    debug(new JSONObject()
+                              .set("group_id", getId())
+                              .set("name", folder)
+                              .set("parent_id", "/")
+                              .toString())
+                );
+//                }
             }
             bot.executeAction(debug(ActionPathEnum.UPLOAD_GROUP_FILE.getPath()),
                 debug(new JSONObject()

@@ -1,10 +1,10 @@
 package me.xpyex.plugin.parrot.mirai.module.aichat.message;
 
-import cn.hutool.json.JSONObject;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import me.xpyex.plugin.parrot.mirai.module.aichat.tool.ResponseTool;
 
 @Getter
 @Setter
@@ -13,13 +13,16 @@ public class SingleChatMessage {
     private Role role;
     private String content;
     private String reasoning_content;
-    private List<JSONObject> tool_calls;
+
+    private List<ResponseTool> tool_calls;
+    private String tool_call_id;
 
     public static SingleChatMessage of(Role role, String content) {
         return new SingleChatMessage().setRole(role).setContent(content);
     }
 
     public enum Role {
+        tool,
         system,
         user,
         assistant

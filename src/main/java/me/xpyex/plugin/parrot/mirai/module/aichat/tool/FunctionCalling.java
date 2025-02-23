@@ -11,4 +11,8 @@ public class FunctionCalling {
     private String name;
     private String description;
     private Parameters parameters;
+
+    public static FunctionCalling of() {
+        return new FunctionCalling();
+    }
 }

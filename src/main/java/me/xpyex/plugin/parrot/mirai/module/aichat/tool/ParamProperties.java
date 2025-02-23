@@ -10,4 +10,8 @@ import lombok.experimental.Accessors;
 public class ParamProperties {
     private String type = "string";
     private String description = "参数描述";
+
+    public static ParamProperties of() {
+        return new ParamProperties();
+    }
 }

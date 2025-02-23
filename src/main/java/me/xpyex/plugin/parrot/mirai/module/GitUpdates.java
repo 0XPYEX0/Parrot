@@ -103,34 +103,32 @@ public class GitUpdates extends Module {
                     })
                            .notMatchedArg((source, sender, arguments) -> {
                                String path = arguments.getArgument(0);
-                               boolean[] result = {false};
-                               ReleasesUpdate.getInstance().getUsers().forEach((ID, info) -> {
-                                   if (result[0]) return;
-                                   for (GitInfo gitInfo : info) {
+                               boolean result = false;
+                               root : for (Map.Entry<Long, Set<GitInfo>> entry : ReleasesUpdate.getInstance().getUsers().entrySet()) {
+                                   for (GitInfo gitInfo : entry.getValue()) {
                                        if (gitInfo.getRepo().equals(path)) {
                                            runTaskLater(() -> {
-                                               ReleasesUpdate.getInstance().getUsers().get(ID).remove(gitInfo);
+                                               ReleasesUpdate.getInstance().getUsers().get(entry.getKey()).remove(gitInfo);
                                                ReleasesUpdate.getInstance().save(urls);
                                            }, 1);
-                                           result[0] = true;
-                                           return;
+                                           result = true;
+                                           break root;
                                        }
                                    }
-                               });
-                               ReleasesUpdate.getInstance().getGroups().forEach((ID, info) -> {
-                                   if (result[0]) return;
-                                   for (GitInfo gitInfo : info) {
+                               }
+                               root : for (Map.Entry<Long, Set<GitInfo>> entry : ReleasesUpdate.getInstance().getGroups().entrySet()) {
+                                   for (GitInfo gitInfo : entry.getValue()) {
                                        if (gitInfo.getRepo().equals(path)) {
                                            runTaskLater(() -> {
-                                               ReleasesUpdate.getInstance().getGroups().get(ID).remove(gitInfo);
+                                               ReleasesUpdate.getInstance().getGroups().get(entry.getKey()).remove(gitInfo);
                                                ReleasesUpdate.getInstance().save(urls);
                                            }, 1);
-                                           result[0] = true;
-                                           return;
+                                           result = true;
+                                           break root;
                                        }
                                    }
-                               });
-                               source.sendMessage(result[0] ? "已解除订阅" : "未订阅该Repo");
+                               }
+                               source.sendMessage(result ? "已解除订阅" : "未订阅该Repo");
                            }), "remove")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     reload();

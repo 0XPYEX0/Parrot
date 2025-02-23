@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandArguments;
@@ -49,7 +48,6 @@ import net.mamoe.mirai.utils.ExternalResource;
 public class WordsRank extends Module {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
-    private static final WeakHashMap<Long, File> TEXT_FILE_CACHE = new WeakHashMap<>();
     private static final int COOLDOWN = 300;  // 5分钟
     private static JSONObject CONFIG = new JSONObject().set("Groups", new JSONArray());  // {"Groups": [123, 456]}
     private File CONFIG_FILE;
@@ -163,18 +161,16 @@ public class WordsRank extends Module {
 
     private File getGroupWordsFile(long id, Date date) {
         ValueUtil.notNull("'date' must not be null", date);
-        return TEXT_FILE_CACHE.computeIfAbsent(id, g -> {
-            File file = new File(getDataFolder(), "texts/" + id + "/" + DATE_FORMAT.format(date) + ".txt");
-            if (!file.exists()) {
-                try {
-                    file.getParentFile().mkdirs();
-                    file.createNewFile();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+        File file = new File(getDataFolder(), "texts/" + id + "/" + DATE_FORMAT.format(date) + ".txt");
+        if (!file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            return file;
-        });
+        }
+        return file;
     }
 
     private Image generateImage(Group group, Date date) throws Throwable {

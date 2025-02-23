@@ -2,13 +2,13 @@ package me.xpyex.plugin.parrot.mirai.module.aichat;
 
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Pair;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 import lombok.experimental.ExtensionMethod;
@@ -24,6 +24,10 @@ import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.module.aichat.message.ChatMessages;
 import me.xpyex.plugin.parrot.mirai.module.aichat.message.SingleChatMessage;
+import me.xpyex.plugin.parrot.mirai.module.aichat.tool.FunctionCalling;
+import me.xpyex.plugin.parrot.mirai.module.aichat.tool.ParamProperties;
+import me.xpyex.plugin.parrot.mirai.module.aichat.tool.Parameters;
+import me.xpyex.plugin.parrot.mirai.module.aichat.tool.RequestTool;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -35,12 +39,14 @@ import net.mamoe.mirai.message.data.PlainText;
 public class DeepSeek extends Module {
     private static final String DEFAULT_MSG = "";
     private static final String API_KEY = "";
+    private static final SimpleDateFormat SECOND_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final HashMap<Long, String> GROUP_RULES = new HashMap<>();
     private static final WeakHashMap<Long, ChatMessages> CHAT_CACHE = new WeakHashMap<>();
     private static final int MAX_TALK_COUNT = 60;
 
     @Override
     public void register() throws Throwable {
+        AIRequest.getFunctions().put("getCurrentTime", json -> SECOND_FORMAT.format(new Date()));
         registerCommand(Contact.class,
             CommandNode.of(arguments ->
                                new CommandMenu(arguments)
@@ -67,13 +73,15 @@ public class DeepSeek extends Module {
                                    ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
                                    chatMessages.plus(SingleChatMessage.Role.user, userMsg);
 
+                                   Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
+
                                    ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                                    for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                                        SingleChatMessage obj = chatMessages.getMessage().get(i);
+                                       if (obj.getRole() == SingleChatMessage.Role.tool) continue;
+                                       if (obj.getContent().trim().isEmpty()) continue;
                                        builder.add(SingleChatMessage.Role.user == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
                                    }
-                                   Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
-                                   builder.add(getBot(), new PlainText(response.getKey()));
                                    if (response.getValue() != null)
                                        builder.add(getBot(), new PlainText("思绪:\n" + response.getValue()));
                                    source.sendMessage(builder.build());
@@ -110,7 +118,6 @@ public class DeepSeek extends Module {
                     }, () -> source.sendMessage("未输入群号"));
                 }).permission(getName() + ".setGroupRule", MemberPermission.ADMINISTRATOR, "不理你不理你！"), "groupRule")
                 .child(CommandNode.of((source, sender, arguments) -> {
-                    boolean is3 = "reGo".equalsIgnoreCase(arguments.getLabelReverse(0));
                     ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
                     chatMessages.getMessage().remove(chatMessages.getMessage().size() - 1);  //清除最终的缓存
 
@@ -119,7 +126,7 @@ public class DeepSeek extends Module {
                         SingleChatMessage message = chatMessages.getMessage().get(i);
                         builder.add(SingleChatMessage.Role.user == message.getRole() ? sender.getContact() : getBot(), new PlainText(message.getContent()));
                     }
-                    Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
+                    Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0).substring(2)).toLowerCase());
                     builder.add(getBot(), new PlainText(response.getKey()));
                     if (response.getValue() != null)
                         builder.add(getBot(), new PlainText("思绪:\n" + response.getValue()));
@@ -144,7 +151,9 @@ public class DeepSeek extends Module {
 
     private Pair<String, String> talkToDS(long id, String model) {  //答复, 思考链
         //若还没有聊过天，则新建缓存
-        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG).replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))));
+        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG)
+                                                                                      .replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))
+        ));
         try {
             ChatMessages chatMessages = CHAT_CACHE.get(id);  //获取其缓存
 
@@ -156,21 +165,35 @@ public class DeepSeek extends Module {
                 chatMessages.getMessage().remove(chatMessages.getMessage().size() - 1);  //清除连续的同一角色对话
             }
 
-            String result = HttpUtil.createPost("https://api.deepseek.com/chat/completions")
-                                .contentType("application/json")
-                                .auth("Bearer " + API_KEY)
-                                .body(info(JSONUtil.toJsonPrettyStr(
-                                        AIRequest.of()
-                                            .setMessages(chatMessages)
-                                            .setTemperature(1.65f)
-                                            .setModel(model)
-                                            .setTop_p(0.95f)
-                                        )
+            AIResponse response =
+                AIRequest.of()
+                    .setMessages(chatMessages)
+                    .setTemperature(1.65f)
+                    .setModel(model)
+                    .setTop_p(0.95f)
+                    .addTool(
+                        RequestTool.of()
+                            .setFunction(
+                                FunctionCalling.of()
+                                    .setName("searchSkriptHub")
+                                    .setDescription("在SkriptHub中搜索Skript语法。仅当用户让你编写Skript脚本时，你不清楚语法的情况下调用。该方法返回一个JSONArray")
+                                    .setParameters(
+                                        Parameters.of()
+                                            .addProperty("keyWords", ParamProperties.of().setType("array").setDescription("搜索的关键词，应当为String[]数组。不可为null，不可为长度为0的数组"))
+                                            .addProperty("type", ParamProperties.of().setType("array").setDescription("限制搜索结果的语句类型，应当为String[]数组，允许的类型有[expression, effect, type, condition, event, section, function, structure]。不允许为null，但可以是长度为0的数组"))
+                                            .addProperty("addon", ParamProperties.of().setType("array").setDescription("限制搜索结果的Skript附属插件，应当为String[]数组。不可为null，但可以为长度为0的数组"))
                                     )
-                                )
-                                .execute()
-                                .body();
-            AIResponse response = JSONUtil.toBean(info(result.trim()), AIResponse.class);
+                            )
+                    )
+                    .addTool(
+                        RequestTool.of()
+                            .setFunction(
+                                FunctionCalling.of()
+                                    .setName("getCurrentTime")
+                                    .setDescription("获取当前的时间，时区为中国(东八区，UTC+8)")
+                            )
+                    )
+                    .getResponse("https://api.deepseek.com/chat/completions", "Bearer " + API_KEY);
             SingleChatMessage firstChoice = response.getChoices().get(0).getMessage();
             String gptSaid = firstChoice.getContent();
             if (gptSaid.trim().endsWith("<STOP_HERE>")) {
