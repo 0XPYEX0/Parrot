@@ -81,7 +81,9 @@ public class AIRequest implements Cloneable {
 
     @Override
     public String toString() {
-        return JSONUtil.toJsonStr(this);
+        JSONObject out = JSONUtil.parseObj(this);
+        if ("DeepSeek-Reasoner".equalsIgnoreCase(getModel())) out.remove("tools");
+        return out.toString();
     }
 
     public String toStringPretty() {
