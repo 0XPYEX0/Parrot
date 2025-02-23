@@ -35,6 +35,11 @@ import net.mamoe.mirai.message.data.PlainText;
 @ExtensionMethod(ArgParser.class)
 public final class ChatGPT extends Module {
     private static final WeakHashMap<Long, ChatMessages> CHAT_CACHE = new WeakHashMap<>();
+    private static final String DEFAULT_MSG = "";
+    private static final String API_VER3 = "";
+    private static final String API_KEY3 = "";
+    private static final String API_VER4 = "";
+    private static final String API_KEY4 = "";
     private static final String DENIED_MSG_3 = "你没有使用 ChatGPT 3.5 模型的权限";
     private static final String DENIED_MSG_4 = "你没有使用 ChatGPT 4 模型的权限";
     private static final HashMap<Long, String> GROUP_RULES = new HashMap<>();
