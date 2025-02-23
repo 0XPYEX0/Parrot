@@ -107,7 +107,7 @@ public class AIRequest implements Cloneable {
 
     public AIRequest addTool(RequestTool tool) {
         if (getTools() == null) setTools(new HashSet<>());
-        if (model != null && model.equalsIgnoreCase("reasoner")) return this;  //reasoner不允许调用方法
+        if (model != null && "DeepSeek-Reasoner".equalsIgnoreCase(getModel())) return this;  //reasoner不允许调用方法
 
         getTools().add(tool);
         return this;
