@@ -36,7 +36,7 @@ public class AIRequest implements Cloneable {
     private float temperature = 1;
     private float top_p = 1;
     private Set<RequestTool> tools;
-    private ToolChoice tool_choice;
+    private ToolChoice tool_choice = null;
 
     public static AIRequest of() {
         return new AIRequest();
@@ -67,6 +67,7 @@ public class AIRequest implements Cloneable {
                 Object funcOut = functions.get(tool.getFunction().getName()).apply(tool.getFunction().parseArguments());
                 newRequest.getMessages().add(SingleChatMessage.of(SingleChatMessage.Role.tool, funcOut + "").setTool_call_id(toolId));
             });
+        newRequest.setTool_choice(ToolChoice.none);
         return newRequest.getResponse(url, apiKey);
     }
 
