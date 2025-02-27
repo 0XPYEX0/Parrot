@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat;
+package me.xpyex.plugin.parrot.aichat;
 
 import lombok.Getter;
 import lombok.Setter;

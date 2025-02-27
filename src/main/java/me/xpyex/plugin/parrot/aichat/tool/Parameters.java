@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat.tool;
+package me.xpyex.plugin.parrot.aichat.tool;
 
 import java.util.HashMap;
 import java.util.Map;

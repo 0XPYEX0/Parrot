@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat;
+package me.xpyex.plugin.parrot.aichat;
 
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
@@ -15,10 +15,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.module.aichat.message.ChatMessages;
-import me.xpyex.plugin.parrot.mirai.module.aichat.message.SingleChatMessage;
-import me.xpyex.plugin.parrot.mirai.module.aichat.tool.RequestTool;
-import me.xpyex.plugin.parrot.mirai.module.aichat.tool.ResponseTool;
+import me.xpyex.plugin.parrot.aichat.message.ChatMessages;
+import me.xpyex.plugin.parrot.aichat.message.SingleChatMessage;
+import me.xpyex.plugin.parrot.aichat.tool.RequestTool;
+import me.xpyex.plugin.parrot.aichat.tool.ResponseTool;
+import me.xpyex.plugin.parrot.mirai.module.aichat.DeepSeek;
 
 @Getter
 @Setter

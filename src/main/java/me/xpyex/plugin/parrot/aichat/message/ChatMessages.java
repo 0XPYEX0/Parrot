@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat.message;
+package me.xpyex.plugin.parrot.aichat.message;
 
 import java.util.ArrayList;
 import org.jetbrains.annotations.Contract;

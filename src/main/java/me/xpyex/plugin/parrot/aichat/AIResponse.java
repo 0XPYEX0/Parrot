@@ -1,4 +1,4 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat;
+package me.xpyex.plugin.parrot.aichat;
 
 import cn.hutool.json.JSONUtil;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.parrot.mirai.module.aichat.message.ResponseChoice;
+import me.xpyex.plugin.parrot.aichat.message.ResponseChoice;
 
 @Getter
 @Setter

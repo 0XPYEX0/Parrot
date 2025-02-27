@@ -1,10 +1,10 @@
-package me.xpyex.plugin.parrot.mirai.module.aichat.message;
+package me.xpyex.plugin.parrot.aichat.message;
 
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.parrot.mirai.module.aichat.tool.ResponseTool;
+import me.xpyex.plugin.parrot.aichat.tool.ResponseTool;
 
 @Getter
 @Setter

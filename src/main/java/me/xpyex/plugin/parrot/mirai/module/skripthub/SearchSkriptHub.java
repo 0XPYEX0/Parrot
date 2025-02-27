@@ -17,7 +17,7 @@ import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.module.aichat.AIRequest;
+import me.xpyex.plugin.parrot.aichat.AIRequest;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
