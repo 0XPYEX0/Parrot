@@ -73,22 +73,25 @@ public class DeepSeek extends Module {
                                    ChatMessages chatMessages = CHAT_CACHE.get(sender.getId());  //获取其缓存
                                    chatMessages.plus(SingleChatMessage.Role.user, userMsg);
 
-                                   Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
-
                                    ForwardMessageBuilder builder = new ForwardMessageBuilder(source.getContact());
                                    for (int i = 1; i < chatMessages.getMessage().size(); i++) {
                                        SingleChatMessage obj = chatMessages.getMessage().get(i);
                                        if (obj.getRole() == SingleChatMessage.Role.tool) continue;
-                                       if (obj.getContent().trim().isEmpty()) continue;
-                                       builder.add(SingleChatMessage.Role.user == obj.getRole() ? sender.getContact() : getBot(), new PlainText(obj.getContent()));
+                                       builder.add(
+                                           SingleChatMessage.Role.user == obj.getRole() ? sender.getContact() : getBot(),
+                                           new PlainText(obj.getContent().isEmpty() ? " " : obj.getContent())
+                                       );
                                    }
+
+                                   Pair<String, String> response = talkToDS(sender.getId(), ("DeepSeek-" + arguments.getLabelReverse(0)).toLowerCase());
+                                   builder.add(getBot(), new PlainText(response.getKey().isEmpty() ? " " : response.getKey()));
                                    if (response.getValue() != null)
                                        builder.add(getBot(), new PlainText("思绪:\n" + response.getValue()));
                                    source.sendMessage(builder.build());
                                }
                            })
                            .executableCheckWithArg((source, sender, args) -> {
-                               if (!sender.hasPerm(getName() + ".use." + args.getLabelReverse(0), MemberPermission.ADMINISTRATOR)) {
+                               if (!sender.hasPerm(getName() + ".use." + args.getLabelReverse(0), args.getLabelReverse(0).equalsIgnoreCase("reasoner") ? null : MemberPermission.ADMINISTRATOR)) {
                                    source.sendMessage("你没有使用DeepSeek-" + args.getLabelReverse(0) + "模型的权限");
                                    return false;
                                }
@@ -151,8 +154,9 @@ public class DeepSeek extends Module {
 
     private Pair<String, String> talkToDS(long id, String model) {  //答复, 思考链
         //若还没有聊过天，则新建缓存
-        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system, GROUP_RULES.getOrDefault(id, DEFAULT_MSG)
-                                                                                      .replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))
+        CHAT_CACHE.putIfAbsent(id, ChatMessages.of(SingleChatMessage.Role.system,
+            GROUP_RULES.getOrDefault(id, DEFAULT_MSG)
+                .replace("<USER_NAME>", UserParser.class.of().parse(id).map(User::getNick).orElse("null"))
         ));
         try {
             ChatMessages chatMessages = CHAT_CACHE.get(id);  //获取其缓存
