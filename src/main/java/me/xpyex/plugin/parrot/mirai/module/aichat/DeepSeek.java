@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.WeakHashMap;
 import lombok.experimental.ExtensionMethod;
 import me.xpyex.plugin.parrot.aichat.AIRequest;
@@ -30,6 +31,7 @@ import me.xpyex.plugin.parrot.aichat.tool.FunctionCalling;
 import me.xpyex.plugin.parrot.aichat.tool.ParamProperties;
 import me.xpyex.plugin.parrot.aichat.tool.Parameters;
 import me.xpyex.plugin.parrot.aichat.tool.RequestTool;
+import me.xpyex.plugin.parrot.mirai.module.skripthub.SearchSkriptHub;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -48,7 +50,6 @@ public class DeepSeek extends Module {
 
     @Override
     public void register() throws Throwable {
-        AIRequest.getFunctions().put("getCurrentTime", json -> SECOND_FORMAT.format(new Date()));
         registerCommand(Contact.class,
             CommandNode.of(arguments ->
                                new CommandMenu(arguments)
@@ -189,7 +190,13 @@ public class DeepSeek extends Module {
                                             .addProperty("type", ParamProperties.of().setType("array").setDescription("限制搜索结果的语句类型，应当为String[]数组，允许的类型有[expression, effect, type, condition, event, section, function, structure]。不允许为null，但可以是长度为0的数组"))
                                             .addProperty("addon", ParamProperties.of().setType("array").setDescription("限制搜索结果的Skript附属插件，应当为String[]数组。不可为null，但可以为长度为0的数组"))
                                     )
-                            )
+                            ),
+                        json -> {
+                            List<String> keyWord = json.getJSONArray("keyWords").toList(String.class);
+                            List<String> addon = json.getJSONArray("addon").toList(String.class);
+                            List<String> type = json.getJSONArray("type").toList(String.class);
+                            return SearchSkriptHub.searchDoc(keyWord, type, addon);
+                        }
                     )
                     .addTool(
                         RequestTool.of()
@@ -197,7 +204,7 @@ public class DeepSeek extends Module {
                                 FunctionCalling.of()
                                     .setName("getCurrentTime")
                                     .setDescription("获取当前的时间，时区为中国(东八区，UTC+8)")
-                            )
+                            ), json -> SECOND_FORMAT.format(new Date())
                     )
                     .getResponse("https://api.deepseek.com/chat/completions", "Bearer " + API_KEY);
             SingleChatMessage firstChoice = response.getChoices().get(0).getMessage();

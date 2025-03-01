@@ -14,11 +14,11 @@ import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.aichat.message.ChatMessages;
 import me.xpyex.plugin.parrot.aichat.message.SingleChatMessage;
 import me.xpyex.plugin.parrot.aichat.tool.RequestTool;
 import me.xpyex.plugin.parrot.aichat.tool.ResponseTool;
+import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.mirai.module.aichat.DeepSeek;
 
 @Getter
@@ -109,11 +109,12 @@ public class AIRequest implements Cloneable {
         required
     }
 
-    public AIRequest addTool(RequestTool tool) {
+    public AIRequest addTool(RequestTool tool, Function<JSONObject, Object> function) {
         if (getTools() == null) setTools(new HashSet<>());
         if (model != null && "DeepSeek-Reasoner".equalsIgnoreCase(getModel())) return this;  //reasoner不允许调用方法
 
         getTools().add(tool);
+        functions.put(tool.getFunction().getName(), function);
         return this;
     }
 }

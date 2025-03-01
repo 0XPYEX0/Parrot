@@ -17,7 +17,6 @@ import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.aichat.AIRequest;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
@@ -28,15 +27,6 @@ import org.jetbrains.annotations.NotNull;
 @ExtensionMethod(ArgParser.class)
 public class SearchSkriptHub extends Module {
     private static JSONArray syntaxList;
-
-    static {
-        AIRequest.getFunctions().put("searchSkriptHub", json -> {
-            List<String> keyWord = json.getJSONArray("keyWords").toList(String.class);
-            List<String> addon = json.getJSONArray("addon").toList(String.class);
-            List<String> type = json.getJSONArray("type").toList(String.class);
-            return searchDoc(keyWord, type, addon);
-        });
-    }
 
     private static void downloadDocAndSave() throws IOException {
         getModule(SearchSkriptHub.class).info("正在下载Skript文档...");
@@ -58,13 +48,7 @@ public class SearchSkriptHub extends Module {
                         .add("search <Key> [addon:xx,xx2,xx3], [type:effect|expression|...]", "在SkriptHub中搜索")
                         .send(source);
                 })
-                .executableCheck((source, sender) -> {
-                    if (!sender.hasPerm(getName() + ".use")) {
-                        source.sendMessage("缺少权限节点: " + getName() + ".use");
-                        return false;
-                    }
-                    return true;
-                })
+                .permission(getName() + ".use")
                 .child(CommandNode.of((source, sender, arguments) -> {
                     List<String> keyWords = Arrays.stream(arguments.getArguments())
                                                .filter(s -> !StringUtil.startsWithIgnoreCaseOr(s, "addon:"))
@@ -110,7 +94,7 @@ public class SearchSkriptHub extends Module {
     }
 
     @NotNull
-    private static List<JSONObject> searchDoc(List<String> keyWords, List<String> type, List<String> addon) {
+    public static List<JSONObject> searchDoc(List<String> keyWords, List<String> type, List<String> addon) {
         return syntaxList.stream()
                    .filter(json -> {  //筛选关键词
                        if (keyWords == null) return false;  //未设置关键词时直接返回未找到，不进行查找
