@@ -105,7 +105,7 @@ public class ValueUtil {
      */
     @NotNull
     public static <T> T getOrDefault(TryCallable<T> callable, T defaulted) {
-        return getOrDefault(callable, defaulted, "在执行XPLib的 ValueUtil.getOrDefault(Callable, Object) 方法时，callable过程出现错误: ");
+        return getOrDefault(callable, defaulted, "在执行 ValueUtil.getOrDefault(Callable, Object) 方法时，callable过程出现错误: ");
         //
     }
 

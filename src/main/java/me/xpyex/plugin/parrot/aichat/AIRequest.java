@@ -56,6 +56,8 @@ public class AIRequest implements Cloneable {
                             .body();
         Module.getModule(DeepSeek.class).info("已获取返回结果: " + result);
         AIResponse response = AIResponse.parseToResponse(result);
+        if (response.getError() != null) return response;
+
         List<ResponseTool> toolCalls = response.getChoices().get(0).getMessage().getTool_calls();
         if (toolCalls == null || toolCalls.isEmpty()) return response;
 

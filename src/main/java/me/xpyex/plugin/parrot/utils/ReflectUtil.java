@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import org.jetbrains.annotations.NotNull;
 
 public class ReflectUtil {
@@ -32,11 +32,11 @@ public class ReflectUtil {
                                 }
                             }
                         } catch (Throwable e) {
-                            ExceptionUtil.handleException(e, false, null, null);
+                            Debug.handleException(e, false, null, null);
                         }
                     }
                 } catch (Exception e) {
-                    ExceptionUtil.handleException(e, false, null, null);
+                    Debug.handleException(e, false, null, null);
                 }
             }
         }

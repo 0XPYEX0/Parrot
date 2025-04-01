@@ -9,7 +9,7 @@ import java.util.List;
 import me.xpyex.plugin.parrot.api.TryConsumer;
 import me.xpyex.plugin.parrot.mirai.core.module.CoreModule;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import net.mamoe.mirai.event.AbstractEvent;
 import net.mamoe.mirai.event.Event;
@@ -49,7 +49,7 @@ public class EventBus {
                     try {
                         pair.getValue().accept(event);
                     } catch (Throwable e) {
-                        ExceptionUtil.handleException(e, false, null, null);
+                        Debug.handleException(e, false, null, null);
                         //
                         MsgUtil.sendMsgToOwner("在处理单次事件 " + event.getClass().getSimpleName() + " 时出现异常，已被捕获: " + e);
                     }
@@ -65,7 +65,7 @@ public class EventBus {
                     try {
                         listener.accept(event);
                     } catch (Throwable e) {
-                        ExceptionUtil.handleException(e, false, event, module);
+                        Debug.handleException(e, false, event, module);
                         StringBuilder eventName = new StringBuilder();
                         Class<?> coreClass = event.getClass();
                         while (!coreClass.isInterface() && coreClass != Object.class) {

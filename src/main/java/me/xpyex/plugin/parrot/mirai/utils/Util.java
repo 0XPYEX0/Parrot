@@ -3,6 +3,7 @@ package me.xpyex.plugin.parrot.mirai.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.event.Event;
@@ -39,7 +40,7 @@ public class Util {
             ps = rt.exec(cmd);
             ps.waitFor();
         } catch (Throwable e) {
-            ExceptionUtil.handleException(e, true, null, null);
+            Debug.handleException(e, true, null, null);
         }
         assert ps != null;
         int i = ps.exitValue();

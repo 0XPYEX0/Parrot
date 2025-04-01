@@ -12,7 +12,7 @@ import me.xpyex.plugin.parrot.api.CommandMenu;
 import me.xpyex.plugin.parrot.api.MessageBuilder;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
 import net.mamoe.mirai.contact.Contact;
 
@@ -173,7 +173,7 @@ public class MCPinger extends Module {
                     try {
                         socket.close();
                     } catch (IOException ex) {
-                        ExceptionUtil.handleException(ex, true, null, null);
+                        Debug.handleException(ex, true, null, null);
                     }
                     socket = null;
                     return false;
@@ -182,7 +182,7 @@ public class MCPinger extends Module {
                     try {
                         socket.close();
                     } catch (IOException ex2) {
-                        ExceptionUtil.handleException(ex2, true, null, null);
+                        Debug.handleException(ex2, true, null, null);
                     }
                     socket = null;
                     return false;
@@ -192,7 +192,7 @@ public class MCPinger extends Module {
                     try {
                         socket.close();
                     } catch (IOException ex3) {
-                        ExceptionUtil.handleException(ex3, true, null, null);
+                        Debug.handleException(ex3, true, null, null);
                     }
                     socket = null;
                     return false;
@@ -201,7 +201,7 @@ public class MCPinger extends Module {
                     try {
                         socket.close();
                     } catch (IOException ex4) {
-                        ExceptionUtil.handleException(ex4, true, null, null);
+                        Debug.handleException(ex4, true, null, null);
                     }
                     socket = null;
                     return false;
@@ -211,7 +211,7 @@ public class MCPinger extends Module {
                     try {
                         socket.close();
                     } catch (IOException ex5) {
-                        ExceptionUtil.handleException(ex5, true, null, null);
+                        Debug.handleException(ex5, true, null, null);
                     }
                     return false;
                 }
@@ -236,7 +236,7 @@ public class MCPinger extends Module {
                 inputStream.close();
                 socket.close();
             } catch (IOException exception) {
-                ExceptionUtil.handleException(exception, true, null, null);
+                Debug.handleException(exception, true, null, null);
                 return false;
             }
             return true;

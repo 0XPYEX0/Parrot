@@ -9,7 +9,7 @@ import me.xpyex.plugin.parrot.mirai.ParrotPlugin;
 import me.xpyex.plugin.parrot.mirai.core.command.parsers.ArgParser;
 import me.xpyex.plugin.parrot.mirai.core.reachable.MiraiContact;
 import me.xpyex.plugin.parrot.mirai.core.module.Module;
-import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
@@ -68,7 +68,7 @@ public class CommandBus {
                                 try {
                                     command.node().execute(((MiraiContact) contact), sender, arguments);
                                 } catch (Throwable e) {
-                                    ExceptionUtil.handleException(e, false, null, module);
+                                    Debug.handleException(e, false, null, module);
                                     contact.sendMessage("模块 " + module.getName() + " 在处理命令 " + arguments.getLabel(0) + " 时出现异常，已被捕获: " + e);
                                 }
                             }

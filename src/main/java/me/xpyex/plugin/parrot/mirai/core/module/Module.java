@@ -13,7 +13,7 @@ import me.xpyex.plugin.parrot.api.TryRunnable;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandBus;
 import me.xpyex.plugin.parrot.mirai.core.command.CommandNode;
 import me.xpyex.plugin.parrot.mirai.core.event.EventBus;
-import me.xpyex.plugin.parrot.mirai.utils.ExceptionUtil;
+import me.xpyex.plugin.parrot.mirai.module.core.Debug;
 import me.xpyex.plugin.parrot.mirai.utils.MsgUtil;
 import me.xpyex.plugin.parrot.mirai.utils.Util;
 import me.xpyex.plugin.parrot.utils.ValueUtil;
@@ -221,7 +221,7 @@ public abstract class Module {
             try {
                 r.run();
             } catch (Throwable e) {
-                ExceptionUtil.handleException(e, true, null, null);
+                Debug.handleException(e, true, null, null);
             }
         }, "Parrot-Task-" + this.getName()).start();
     }
@@ -266,7 +266,7 @@ public abstract class Module {
     }
 
     public final void handleException(Throwable e, boolean noticeOwner, Event event) {
-        ExceptionUtil.handleException(e, noticeOwner, event, this);
+        Debug.handleException(e, noticeOwner, event, this);
         //
     }
 

@@ -6,10 +6,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.experimental.ExtensionMethod;
@@ -20,7 +24,9 @@ import me.xpyex.plugin.parrot.mirai.core.module.Module;
 import me.xpyex.plugin.parrot.utils.StringUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.MemberPermission;
+import net.mamoe.mirai.message.data.ForwardMessage;
 import net.mamoe.mirai.message.data.ForwardMessageBuilder;
+import net.mamoe.mirai.message.data.RawForwardMessage;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,13 +35,15 @@ public class SearchSkriptHub extends Module {
     private static JSONArray syntaxList;
 
     private static void downloadDocAndSave() throws IOException {
+        File syntaxListFile = new File(getModule(SearchSkriptHub.class).getDataFolder(), "SkriptExpressions.json");
+        if (syntaxListFile.exists()) syntaxList = new JSONArray(Files.readString(syntaxListFile.toPath(), StandardCharsets.UTF_8));
+
         getModule(SearchSkriptHub.class).info("正在下载Skript文档...");
         URL url = new URL("https://skripthub.net/api/v1/addonsyntaxlist/");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         syntaxList = new JSONArray(new String(connection.getInputStream().readAllBytes()));
-        File syntaxListFile = new File(getModule(SearchSkriptHub.class).getDataFolder(), "SkriptExpressions.json");
-        Files.write(syntaxListFile.toPath(), syntaxList.toStringPretty().getBytes());
+        Files.writeString(syntaxListFile.toPath(), syntaxList.toStringPretty(), StandardCharsets.UTF_8);
         getModule(SearchSkriptHub.class).info("下载完成，文件已保存至" + syntaxListFile.getAbsolutePath());
     }
 
@@ -67,14 +75,17 @@ public class SearchSkriptHub extends Module {
                         source.sendMessage("关键词为空");
                         return;
                     }
+                    HashMap<String, Integer> syntaxCount = new HashMap<>();
                     ForwardMessageBuilder forwardMessage = new ForwardMessageBuilder(source.getContact());
                     searchDoc(keyWords, type, addon).forEach(json -> {
                         try {
-                            File tmpFile = File.createTempFile("SkriptHub/" + json.getStr("title"), ".png");
+                            File tmpFile = File.createTempFile("SkriptHub" + File.separator + json.getLong("id"), ".png");
                             ImageIO.write(new AwtSkriptDocBuilder().syntax(json).build(), "png", tmpFile);
                             ExternalResource resource = ExternalResource.create(tmpFile);
                             forwardMessage.add(getBot(), source.getContact().uploadImage(resource));
                             resource.close();
+
+                            syntaxCount.put(json.getStr("syntax_type"), syntaxCount.getOrDefault(json.getStr("syntax_type"), 0) + 1);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -83,6 +94,36 @@ public class SearchSkriptHub extends Module {
                         source.sendMessage("未找到任何结果");
                         return;
                     }
+                    forwardMessage.setDisplayStrategy(new ForwardMessage.DisplayStrategy() {
+
+                        @NotNull
+                        @Override
+                        public String generateTitle(@NotNull RawForwardMessage forward) {
+                            return "从SkHub搜索: " + keyWords;
+                        }
+
+                        @NotNull
+                        @Override
+                        public String generateSummary(@NotNull RawForwardMessage forward) {
+                            return "共找到 " + forwardMessage.size() + " 条结果";
+                        }
+
+                        @NotNull
+                        @Override
+                        public List<String> generatePreview(@NotNull RawForwardMessage forward) {
+                            return syntaxCount.entrySet().stream()
+                                       .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                                       .map(entry -> "找到 " + entry.getValue() + " 条 " + entry.getKey())
+                                       .limit(4)
+                                       .toList();
+                        }
+
+                        @NotNull
+                        @Override
+                        public String generateBrief(@NotNull RawForwardMessage forward) {
+                            return "[SkriptHub语法搜索结果]";
+                        }
+                    });
                     source.sendMessage(forwardMessage.build());
                 }), "search")
                 .child(CommandNode.of((source, sender, arguments) -> {
@@ -97,7 +138,7 @@ public class SearchSkriptHub extends Module {
     public static List<JSONObject> searchDoc(List<String> keyWords, List<String> type, List<String> addon) {
         return syntaxList.stream()
                    .filter(json -> {  //筛选关键词
-                       if (keyWords == null) return false;  //未设置关键词时直接返回未找到，不进行查找
+                       if (keyWords == null || keyWords.isEmpty()) return false;  //未设置关键词时直接返回未找到，不进行查找
                        if (json instanceof JSONObject obj) {
                            if (StringUtil.containsIgnoreCaseOr(obj.getStr("title"), keyWords) || StringUtil.containsIgnoreCaseOr(obj.getStr("description"), keyWords)) {
                                return true;

@@ -192,10 +192,14 @@ public class DeepSeek extends Module {
                                     )
                             ),
                         json -> {
-                            List<String> keyWord = json.getJSONArray("keyWords").toList(String.class);
-                            List<String> addon = json.getJSONArray("addon").toList(String.class);
-                            List<String> type = json.getJSONArray("type").toList(String.class);
-                            return SearchSkriptHub.searchDoc(keyWord, type, addon);
+                            try {
+                                List<String> keyWord = json.getJSONArray("keyWords").toList(String.class);
+                                List<String> addon = json.getJSONArray("addon").toList(String.class);
+                                List<String> type = json.getJSONArray("type").toList(String.class);
+                                return SearchSkriptHub.searchDoc(keyWord, type, addon);
+                            } catch (NullPointerException e) {
+                                return "参数填写错误，无法搜索";
+                            }
                         }
                     )
                     .addTool(
@@ -207,6 +211,17 @@ public class DeepSeek extends Module {
                             ), json -> SECOND_FORMAT.format(new Date())
                     )
                     .getResponse("https://api.deepseek.com/chat/completions", "Bearer " + API_KEY);
+            if (response.getError() != null) {
+                return Pair.of("""
+                    DeepSeek回答时出错: %s
+                    错误码: %s
+                    错误类型: %s
+                    """.formatted(
+                    response.getError().getMessage(),
+                    response.getError().getCode(),
+                    response.getError().getType()
+                ), null);
+            }
             SingleChatMessage firstChoice = response.getChoices().get(0).getMessage();
             String gptSaid = firstChoice.getContent();
             if (gptSaid.trim().endsWith("<STOP_HERE>")) {
